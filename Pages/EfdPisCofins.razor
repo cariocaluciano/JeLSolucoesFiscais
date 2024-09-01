@@ -2,17 +2,284 @@
 
 <PageTitle>Efd-PisCofins</PageTitle>
 
-<h1>Counter</h1>
 
-<p role="status">Current count: @currentCount</p>
-
-<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
-@* testando a branch *@
-@code {
-    private int currentCount = 0;
-
-    private void IncrementCount()
-    {
-        currentCount++;
+<style>
+    .upload-container {
+        border: 2px dashed #007bff;
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 20px;
+        cursor: pointer;
+        width: 100%;
     }
-}
+
+        .upload-container p {
+            margin: 0;
+            font-size: 16px;
+            color: #007bff;
+        }
+
+    #fileContentContainer {
+        display: none;
+    }
+
+    .file-entry {
+        margin-bottom: 10px;
+    }
+
+    .file-content {
+        white-space: pre-wrap; /* Mantém a formatação do texto */
+    }
+</style>
+
+
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+    <div id="alertToast" class="toast bg-warning text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Alerta</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+           É necessário selecionar o tipo de ajuste, e depois preencher todos os campos.
+        </div>
+    </div>
+</div>
+
+
+
+
+<div class="container">
+    <div class="row">
+        <div class="col-2">
+            <div class="dropdown">
+                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                    Tipo de ajuste
+                </button>
+                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                    <li><button class="dropdown-item" type="button" onclick="BtnTipoAjusteInclusao()">Inclusão</button></li>
+                    <li><button class="dropdown-item" type="button">Alteração</button></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-2">
+            <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2"
+                <p>Selecione o bloco<br>para inclusão</p>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckD195">
+                    <label class="form-check-label" for="flexCheckDefault">
+                        Bloco D195
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckD197">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Bloco D197
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div class="col-8">
+            <div id="AcaoParaInclusaoProduto" style="display:none">
+                <form class="form-floating">
+                    <input type="text" class="form-control" id="TipoOperacao" placeholder="Digite o tipo de operação">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputTipoOperacao">Tipo de operação</label>
+                </form>
+                <form class="form-floating mt-2">
+                    <input type="text" class="form-control" id="CodigoProduto" placeholder="Digite o código do produto">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do produto</label>
+                </form>
+                <form class="form-floating mt-2">
+                    <input type="text" class="form-control" id="DescricaoProduto" placeholder="Digite a descrição do produto">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputDescricaoProduto">Descrição do produto</label>
+                </form>
+                <form class="form-floating mt-2">
+                    <input type="text" class="form-control" id="AliquotaProduto" placeholder="Digite a Aliquota">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputAliquotaProduto">Aliquota</label>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div class="row mt-3">
+        <div class="upload-container"
+             id="uploadContainer"
+             ondrop="handleDrop(event)"
+             ondragover="handleDragOver(event)">
+            <input type="file" id="fileInput" multiple onchange="handleFilesSelected(event)" />
+            <p>Ou arraste os arquivos aqui</p>
+        </div>
+        <div class="col-4 mb-4">
+            <button id="BtnAlteraAquivos" onclick="alterarArquivos()" style="visibility:hidden">Alterar Arquivos</button>
+            <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download Arquivos Modificados</button>
+        </div>
+        <div id="fileContentContainer">
+            <h4>Conteúdo dos Arquivos:</h4>
+            <div id="fileContents"></div>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+<script>
+    let files = [];
+
+    function handleFilesSelected(event) {
+        files = Array.from(event.target.files);
+        displayFileContents();
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        files = Array.from(event.dataTransfer.files);
+        displayFileContents();
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
+
+    function displayFileContents() {
+
+        const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
+        BtnalterarArquivos.style.visibility = "visible";
+
+        const fileContentsContainer = document.getElementById('fileContents');
+        fileContentsContainer.innerHTML = ''; // Limpa o conteúdo anterior
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                const fileEntry = document.createElement('div');
+                fileEntry.classList.add('file-entry');
+                fileEntry.innerHTML = `
+                                                <h5>Arquivo ${index + 1}:</h5>
+                                                <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
+                                            `;
+                fileContentsContainer.appendChild(fileEntry);
+            };
+            reader.readAsText(file);
+        });
+        document.getElementById('fileContentContainer').style.display = 'block';
+    }
+
+    function calcularValorTributo(baseCalculoStr, aliquotaStr) {
+        // Remover zeros à esquerda e substituir vírgulas por pontos para converter em número decimal
+        let baseCalculo = parseFloat(baseCalculoStr.replace(/\./g, "").replace(",", "."));
+        let aliquota = parseFloat(aliquotaStr.replace(",", "."));
+
+        // Calcular o valor do tributo
+        let valorTributo = baseCalculo * (aliquota / 100);
+
+        // Converter o resultado de volta para o formato esperado (6 casas decimais e vírgula)
+        let valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
+
+        // Adicionar zeros à esquerda, se necessário, para manter o formato original
+        valorTributoStr = valorTributoStr.padStart(baseCalculoStr.length, '0');
+
+        return valorTributoStr;
+    }
+
+    function alterarArquivos() {
+
+        const div = document.getElementById('AcaoParaInclusaoSelecionaBloco');
+        const displayStyle = window.getComputedStyle(div).display;
+
+
+        if (displayStyle === "none") {
+            var toastEl = document.getElementById('alertToast');
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+            return;
+        }
+
+        const BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
+        BtnDownloadAquivos.style.visibility = "visible";
+
+        files.forEach((file, index) => {
+            const fileContentElement = document.getElementById(`fileContent-${index}`);
+            if (fileContentElement) {
+                let fileContent = fileContentElement.textContent;
+
+                // Quebrar o conteúdo do arquivo em linhas
+                let TipoOperacao = document.getElementById("TipoOperacao").value;
+                let CodigoProduto = document.getElementById("CodigoProduto").value;
+                let DescricaoProduto = document.getElementById("DescricaoProduto").value;
+                let Aliquota = document.getElementById("AliquotaProduto").value.replace(/\./g, ",");
+                let Valor = "0";
+                let ValorCalculado = "0";
+                const D195 = document.getElementById("CheckD195");
+                const D197 = document.getElementById("CheckD197");
+
+
+                let lines = fileContent.split('\n');
+                let newLines = [];
+
+                for (let i = 0; i < lines.length; i++) {
+                    // Adiciona a linha atual ao array de novas linhas
+                    newLines.push(lines[i]);
+
+                    // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
+                    if (lines[i].startsWith('|D190|')) {
+
+                        let values = lines[i].split('|');
+                        if (values.length > 7) {
+                            Valor = values[7];
+                        }
+
+                        ValorCalculado = calcularValorTributo(Valor, Aliquota);
+
+
+                        if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
+                        if (D197.checked) newLines.push(`|D197|${CodigoProduto}|${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
+
+                    }
+                }
+                // Junta as linhas modificadas de volta em uma string
+                fileContent = newLines.join('\n');
+                fileContentElement.textContent = fileContent;
+
+                // Cria um novo arquivo com o conteúdo modificado
+                files[index] = new File([fileContent], file.name, { type: file.type });
+            }
+        });
+    }
+
+
+    function downloadArquivos() {
+        files.forEach((file, index) => {
+            const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+            const fileBytes = new TextEncoder().encode(fileContent);
+            const base64Data = arrayBufferToBase64(fileBytes.buffer);
+
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;base64,' + base64Data;
+            link.download = `alterado-${file.name}`;
+            link.click();
+        });
+    }
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    function BtnTipoAjusteInclusao() {
+        var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
+        var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
+        blocosVisible.style.display = "block";
+        incluiProdutoVisible.style.display = "block";
+
+    }
+</script>
+

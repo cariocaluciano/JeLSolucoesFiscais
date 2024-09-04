@@ -62,7 +62,7 @@
             </div>
         </div>
         <div class="col-2">
-            <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2"
+            <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2">
                 <p>Selecione o bloco<br>para inclusão</p>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="CheckD195">
@@ -78,7 +78,34 @@
                 </div>
             </div>
         </div>
-        <div class="col-8">
+
+        <div class="col-2">
+            <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2 invisible">
+                <form class="form-floating">
+                    <input type="text" class="form-control" id="Modelo" placeholder="Digite o Modelo">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Modelo</label>
+                </form>
+                <form class="form-floating mt-2">
+                    <input type="text" class="form-control" id="Cfop" placeholder="Digite o Cfop">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Cfop</label>
+                </form>
+                <div class="form-check mt-2">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckTodosModelos">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Todos Modelos
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckTodosCfops">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Todos Cfop
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="col-6">
             <div id="AcaoParaInclusaoProduto" style="display:none">
                 <form class="form-floating">
                     <input type="text" class="form-control" id="TipoOperacao" placeholder="Digite o tipo de operação">
@@ -118,8 +145,6 @@
         </div>
     </div>
 </div>
-
-
 
 
 
@@ -215,7 +240,12 @@
                 let ValorCalculado = "0";
                 const D195 = document.getElementById("CheckD195");
                 const D197 = document.getElementById("CheckD197");
-
+                const Cfop = document.getElementById("Cfop").value;
+                const Modelo = document.getElementById("Modelo").value;
+                const CheckCfop = document.getElementById("CheckTodosCfops");
+                const CheckModelo = document.getElementById("CheckTodosModelos");
+                let D100Campo2;
+                let D100Campo3;
 
                 let lines = fileContent.split('\n');
                 let newLines = [];
@@ -224,21 +254,32 @@
                     // Adiciona a linha atual ao array de novas linhas
                     newLines.push(lines[i]);
 
-                    // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
-                    if (lines[i].startsWith('|D190|')) {
-
-                        let values = lines[i].split('|');
-                        if (values.length > 7) {
-                            Valor = values[7];
+                    if (lines[i].startsWith('|D100|')) {
+                        let valorD100 = lines[i].split('|');
+                        if (valorD100.length > 2) { 
+                            D100Campo2 = valorD100[2];
                         }
-
-                        ValorCalculado = calcularValorTributo(Valor, Aliquota);
-
-
-                        if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
-                        if (D197.checked) newLines.push(`|D197|${CodigoProduto}|${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
-
+                        if (valorD100.length > 3) {
+                            D100Campo3 = valorD100[3];
+                        }
+                        console.log(D100Campo2,D100Campo3) //Luciano
                     }
+                        // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
+                        if (lines[i].startsWith('|D190|')) {
+
+                            let values = lines[i].split('|');
+                            if (values.length > 7) {
+                                Valor = values[7];
+                            }
+
+                            ValorCalculado = calcularValorTributo(Valor, Aliquota);
+
+                            if (D100Campo2 = "1" && D100Campo3 == "0") { 
+                                if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
+                                if (D197.checked) newLines.push(`|D197|${CodigoProduto}||${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
+                            }
+                        }
+                    
                 }
                 // Junta as linhas modificadas de volta em uma string
                 fileContent = newLines.join('\n');
@@ -277,8 +318,10 @@
     function BtnTipoAjusteInclusao() {
         var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
         var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
+        let AcaoParaDefinirCfopEModelo = document.getElementById("AcaoParaDefinirCfopEModelo");
         blocosVisible.style.display = "block";
         incluiProdutoVisible.style.display = "block";
+        AcaoParaDefinirCfopEModelo.classList.remove("invisible");
 
     }
 </script>

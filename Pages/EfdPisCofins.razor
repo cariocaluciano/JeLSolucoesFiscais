@@ -190,7 +190,7 @@
             };
             reader.readAsText(file);
         });
-        document.getElementById('fileContentContainer').style.display = 'block';
+       document.getElementById('fileContentContainer').style.display = 'block';
     }
 
     function calcularValorTributo(baseCalculoStr, aliquotaStr) {
@@ -242,10 +242,14 @@
                 const D197 = document.getElementById("CheckD197");
                 const Cfop = document.getElementById("Cfop").value;
                 const Modelo = document.getElementById("Modelo").value;
-                const CheckCfop = document.getElementById("CheckTodosCfops");
-                const CheckModelo = document.getElementById("CheckTodosModelos");
+                const CheckCfop = document.getElementById("CheckTodosCfops").checked;
+                const CheckModelo = document.getElementById("CheckTodosModelos").checked;
                 let D100Campo2;
                 let D100Campo3;
+                let ModeloArquivo = "Não";
+                let CfopArquivo = ""; 
+                let teste = "";
+
 
                 let lines = fileContent.split('\n');
                 let newLines = [];
@@ -255,14 +259,18 @@
                     newLines.push(lines[i]);
 
                     if (lines[i].startsWith('|D100|')) {
-                        let valorD100 = lines[i].split('|');
-                        if (valorD100.length > 2) { 
-                            D100Campo2 = valorD100[2];
+                        let valor = lines[i].split('|');
+
+                        if (valor.length > 5) {
+                            ModeloArquivo = valor[5];
                         }
-                        if (valorD100.length > 3) {
-                            D100Campo3 = valorD100[3];
+                        if (valor.length > 2) {
+                            D100Campo2 = valor[2];
                         }
-                        console.log(D100Campo2,D100Campo3) //Luciano
+                        if (valor.length > 3) {
+                            D100Campo3 = valor[3];
+                        }
+
                     }
                         // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
                         if (lines[i].startsWith('|D190|')) {
@@ -271,13 +279,16 @@
                             if (values.length > 7) {
                                 Valor = values[7];
                             }
+                        if (values.length > 3) {
+                            CfopArquivo = values[3];
+                        }
 
                             ValorCalculado = calcularValorTributo(Valor, Aliquota);
-
-                            if (D100Campo2 = "1" && D100Campo3 == "0") { 
-                                if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
-                                if (D197.checked) newLines.push(`|D197|${CodigoProduto}||${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
-                            }
+                            console.log(D100Campo2,D100Campo3,CheckCfop,CheckModelo,CfopArquivo,ModeloArquivo)
+                        if ((D100Campo2 == "1" && D100Campo3 == "0") && (CheckCfop || CfopArquivo == Cfop) && (CheckModelo || ModeloArquivo == Modelo)) {
+                            if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
+                            if (D197.checked) newLines.push(`|D197|${CodigoProduto}||${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
+                        }
                         }
                     
                 }

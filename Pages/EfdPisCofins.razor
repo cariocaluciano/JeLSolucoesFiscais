@@ -30,6 +30,7 @@
     .file-content {
         white-space: pre-wrap; /* Mantém a formatação do texto */
     }
+
 </style>
 
 
@@ -40,11 +41,31 @@
             <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
         </div>
         <div class="toast-body">
-           É necessário selecionar o tipo de ajuste, e depois preencher todos os campos.
+            É necessário selecionar o tipo de ajuste, e depois preencher todos os campos.
         </div>
     </div>
-</div>
 
+    <div id="alertToastSucesso" class="toast bg-success text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Sucesso</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <b>Arquivo atualizado com sucesso,</b><br /> <a href="/EfdPisCofins" onclick="downloadArquivos()"><b>Clique aqui para fazer o download</b></a>
+        </div>
+    </div>
+
+    <div id="alertToastFalha" class="toast bg-danger text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Falha</strong>
+            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <a><b>Verifique se seu arquivo possui os blocos D100 e D190, <br/>  Ou se você preencheu corretamente as opções.</b></a>
+        </div>
+    </div>
+
+</div>
 
 
 
@@ -65,15 +86,9 @@
             <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2">
                 <p>Selecione o bloco<br>para inclusão</p>
                 <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckD195">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckD195d197">
                     <label class="form-check-label" for="flexCheckDefault">
-                        Bloco D195
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckD197">
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Bloco D197
+                        Bloco D195/D197
                     </label>
                 </div>
             </div>
@@ -82,23 +97,54 @@
         <div class="col-2">
             <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2 invisible">
                 <form class="form-floating">
-                    <input type="text" class="form-control" id="Modelo" placeholder="Digite o Modelo">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Modelo</label>
+                    <div class="row">
+                        <div class="col-12">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="ModeloDropDown" placeholder="Modelo" readonly>
+                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownModelo" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                <ul class="dropdown-menu" aria-labelledby="dropdownModelo">
+                                    <li><a class="dropdown-item" onclick="selectOption('Todos')">Todos</a></li>
+                                    <li><a class="dropdown-item" onclick="selectOption('57')">57</a></li>
+                                    <li><a class="dropdown-item" onclick="selectOption('63')">63</a></li>
+                                    <li><a class="dropdown-item" onclick="selectOption('67')">67</a></li>
+                                </ul>
+                            </div>
+
+                            <script>
+                                function selectOption(option) {
+                                    document.getElementById('ModeloDropDown').value = option;
+                                }
+                            </script>
+                        </div>
+                    </div>
                 </form>
                 <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="Cfop" placeholder="Digite o Cfop">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Cfop</label>
+                    <div class="row">
+                        <div class="col">
+                            <label style="color:#ced4da" for="Serie">Serie</label>
+                            <input type="text" class="form-control" id="Serie" placeholder="Serie">
+                        </div>
+                    </div>
                 </form>
-                <div class="form-check mt-2">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckTodosModelos">
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Todos Modelos
-                    </label>
-                </div>
+                <form class="form-floating mt-2">
+                    <div class="row">
+                        <div class="col">
+                            <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Cfop</label>
+                            <input type="text" class="form-control" id="Cfop" placeholder="Cfop">
+                        </div>
+                    </div>
+                </form>
+                <p class="mt-1 mb-0">Gerar para todos:</p>
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" value="" id="CheckTodosCfops">
                     <label class="form-check-label" for="flexCheckChecked">
-                        Todos Cfop
+                        Cfops
+                    </label>
+                </div>
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="" id="CheckTodasSeries">
+                    <label class="form-check-label" for="flexCheckChecked">
+                        Series
                     </label>
                 </div>
             </div>
@@ -106,22 +152,33 @@
 
 
         <div class="col-6">
-            <div id="AcaoParaInclusaoProduto" style="display:none">
+            <div id="AcaoParaInclusaoProduto" style="display:none; border:2px solid #ced4da;" class="p-2">
                 <form class="form-floating">
-                    <input type="text" class="form-control" id="TipoOperacao" placeholder="Digite o tipo de operação">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputTipoOperacao">Tipo de operação</label>
+                    <input type="text" class="form-control" id="CodigoAjuste" placeholder="Digite o Código do ajuste">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do ajuste</label>
                 </form>
                 <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="CodigoProduto" placeholder="Digite o código do produto">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do produto</label>
+                    <input type="text" class="form-control" id="DescricaoComplementar" placeholder="Digite a Descrição Complementar">
+                    <label style="color:#ced4da" for="floatingInputValue" id="InputTipoOperacao">Descrição Complementar</label>
                 </form>
                 <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="DescricaoProduto" placeholder="Digite a descrição do produto">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputDescricaoProduto">Descrição do produto</label>
-                </form>
-                <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="AliquotaProduto" placeholder="Digite a Aliquota">
+                    <input type="text" class="form-control" id="Aliquota" placeholder="Digite a Aliquota">
                     <label style="color:#ced4da" for="floatingInputValue" id="InputAliquotaProduto">Aliquota</label>
+                </form>
+                <p class="mt-1 mb-0">Gerar cálculo com:</p>
+                <form>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseCalculo" value="baseCalculo">
+                        <label class="form-check-label" for="baseCalculo">
+                            Base Cálculo
+                        </label>
+                    </div>
+                    <div class="form-check">
+                        <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseIcms" value="baseIcms">
+                        <label class="form-check-label" for="baseIcms">
+                            Base ICMS
+                        </label>
+                    </div>
                 </form>
             </div>
 
@@ -145,6 +202,10 @@
         </div>
     </div>
 </div>
+    <div id="loadingScreen" class="loading-screen">
+        <div class="spinner"></div>
+        <p>Carregando...</p>
+    </div>
 
 
 
@@ -170,7 +231,6 @@
     }
 
     function displayFileContents() {
-
         const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
         BtnalterarArquivos.style.visibility = "visible";
 
@@ -183,34 +243,60 @@
                 const fileEntry = document.createElement('div');
                 fileEntry.classList.add('file-entry');
                 fileEntry.innerHTML = `
-                                                <h5>Arquivo ${index + 1}:</h5>
-                                                <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
-                                            `;
+                                                        <h5>Arquivo ${index + 1}:</h5>
+                                                        <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
+                                                    `;
                 fileContentsContainer.appendChild(fileEntry);
             };
             reader.readAsText(file);
         });
-       document.getElementById('fileContentContainer').style.display = 'block';
+        document.getElementById('fileContentContainer').style.display = 'block';
     }
 
-    function calcularValorTributo(baseCalculoStr, aliquotaStr) {
-        // Remover zeros à esquerda e substituir vírgulas por pontos para converter em número decimal
-        let baseCalculo = parseFloat(baseCalculoStr.replace(/\./g, "").replace(",", "."));
+    function calcularValorTributo(valorCalculado, aliquotaStr) {
+
+        let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", "."));
         let aliquota = parseFloat(aliquotaStr.replace(",", "."));
 
-        // Calcular o valor do tributo
         let valorTributo = baseCalculo * (aliquota / 100);
 
-        // Converter o resultado de volta para o formato esperado (6 casas decimais e vírgula)
         let valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
 
-        // Adicionar zeros à esquerda, se necessário, para manter o formato original
-        valorTributoStr = valorTributoStr.padStart(baseCalculoStr.length, '0');
+        valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
 
         return valorTributoStr;
     }
 
     function alterarArquivos() {
+        const BlocosD195D197 = document.getElementById("CheckD195d197").checked;
+        const Modelo = document.getElementById("ModeloDropDown").value;
+        const Serie = document.getElementById("Serie").value;
+        const Cfop = document.getElementById("Cfop").value;
+        const TodosCfop = document.getElementById("CheckTodosCfops").checked;
+        const TodasSeries = document.getElementById("CheckTodasSeries").checked;
+        const CodigoAjuste = document.getElementById("CodigoAjuste").value;
+        const DescricaoComplementar = document.getElementById("DescricaoComplementar").value;
+        const Aliquota = document.getElementById("Aliquota").value.replace(/\./g, ",");
+        const RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms";
+        let contadorNovasLinhas = 0;
+        const CodObservacao = Math.floor(Math.random() * 90000000) + 10000000;
+
+
+
+
+        let ValorIcms = "0";
+        let ValorBc = "0";
+        let ValorCalculado = "0";
+        let D100Campo2;
+        let D100Campo3;
+        let ModeloArquivo = "Não";
+        let CfopArquivo = "";
+        let ValorParaCalculo;
+        let SerieArquivo;
+        const TodosModelos = ["57", "63", "67"];
+
+
+
 
         const div = document.getElementById('AcaoParaInclusaoSelecionaBloco');
         const displayStyle = window.getComputedStyle(div).display;
@@ -231,26 +317,6 @@
             if (fileContentElement) {
                 let fileContent = fileContentElement.textContent;
 
-                // Quebrar o conteúdo do arquivo em linhas
-                let TipoOperacao = document.getElementById("TipoOperacao").value;
-                let CodigoProduto = document.getElementById("CodigoProduto").value;
-                let DescricaoProduto = document.getElementById("DescricaoProduto").value;
-                let Aliquota = document.getElementById("AliquotaProduto").value.replace(/\./g, ",");
-                let Valor = "0";
-                let ValorCalculado = "0";
-                const D195 = document.getElementById("CheckD195");
-                const D197 = document.getElementById("CheckD197");
-                const Cfop = document.getElementById("Cfop").value;
-                const Modelo = document.getElementById("Modelo").value;
-                const CheckCfop = document.getElementById("CheckTodosCfops").checked;
-                const CheckModelo = document.getElementById("CheckTodosModelos").checked;
-                let D100Campo2;
-                let D100Campo3;
-                let ModeloArquivo = "Não";
-                let CfopArquivo = ""; 
-                let teste = "";
-
-
                 let lines = fileContent.split('\n');
                 let newLines = [];
 
@@ -261,6 +327,9 @@
                     if (lines[i].startsWith('|D100|')) {
                         let valor = lines[i].split('|');
 
+                        if (valor.length > 7) {
+                            SerieArquivo = valor[7];
+                        }
                         if (valor.length > 5) {
                             ModeloArquivo = valor[5];
                         }
@@ -272,25 +341,42 @@
                         }
 
                     }
-                        // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
-                        if (lines[i].startsWith('|D190|')) {
+                    // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
+                    if (lines[i].startsWith('|D190|')) {
 
-                            let values = lines[i].split('|');
-                            if (values.length > 7) {
-                                Valor = values[7];
-                            }
+                        let values = lines[i].split('|');
+                        if (values.length > 7) {
+                            ValorIcms = values[7];
+                        }
+                        if (values.length > 6) {
+                            ValorBc = values[6];
+                        }
                         if (values.length > 3) {
                             CfopArquivo = values[3];
                         }
+                        ValorParaCalculo = RadioBcOuIcms == "Bc" ? ValorBc : ValorIcms
 
-                            ValorCalculado = calcularValorTributo(Valor, Aliquota);
-                            console.log(D100Campo2,D100Campo3,CheckCfop,CheckModelo,CfopArquivo,ModeloArquivo)
-                        if ((D100Campo2 == "1" && D100Campo3 == "0") && (CheckCfop || CfopArquivo == Cfop) && (CheckModelo || ModeloArquivo == Modelo)) {
-                            if (D195.checked) newLines.push(`|D195|${TipoOperacao}|${DescricaoProduto}|`);
-                            if (D197.checked) newLines.push(`|D197|${CodigoProduto}||${DescricaoProduto}|${Valor}|${Aliquota}|${ValorCalculado}|`);
+                        ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
+
+                        if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || TodosModelos.includes(ModeloArquivo)) && (TodasSeries || SerieArquivo == Serie)) {
+                            if (CheckD195d197.checked) {
+                                newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
+                                newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+
+                                contadorNovasLinhas += 1
+                            }
                         }
-                        }
-                    
+                    }
+
+                    if (lines[i].startsWith('|D990|')) {
+                        let values = lines[i].split('|');
+                        let D990 = parseInt(values[2]);
+                         
+                        let resultado =  D990 + (parseInt(contadorNovasLinhas) * 2);   //Parei aqui 
+
+                        newLines.push(`|D990|${resultado.toString()}|`);
+                    }
+
                 }
                 // Junta as linhas modificadas de volta em uma string
                 fileContent = newLines.join('\n');
@@ -300,6 +386,26 @@
                 files[index] = new File([fileContent], file.name, { type: file.type });
             }
         });
+
+
+        if (contadorNovasLinhas > 1) {
+            document.getElementById('loadingScreen').style.display = 'flex';
+            setTimeout(function() {
+                document.getElementById('loadingScreen').style.display = 'none';
+                var toastEl = document.getElementById('alertToastSucesso');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                return;
+            }, 1000);
+        } else {
+
+            var toastEl = document.getElementById('alertToastFalha');
+            var toast = new bootstrap.Toast(toastEl);
+            toast.show();
+            return;
+
+        }
+
     }
 
 
@@ -311,7 +417,7 @@
 
             const link = document.createElement('a');
             link.href = 'data:text/plain;base64,' + base64Data;
-            link.download = `alterado-${file.name}`;
+            link.download = `Novo-${file.name}`;
             link.click();
         });
     }
@@ -335,5 +441,18 @@
         AcaoParaDefinirCfopEModelo.classList.remove("invisible");
 
     }
+
+    document.getElementById('CheckTodasSeries').addEventListener('click', function() {
+        document.getElementById("Serie").disabled = this.checked;
+        const Serie = document.getElementById("Serie").value;
+        document.getElementById("Serie").value = this.checked ? "" : Serie;
+        })
+
+    document.getElementById('CheckTodosCfops').addEventListener('click', function() {
+        document.getElementById("Cfop").disabled = this.checked;
+        const Cfop = document.getElementById("Cfop").value;
+        document.getElementById("Cfop").value = this.checked ? "" : Cfop;
+    })
+
 </script>
 

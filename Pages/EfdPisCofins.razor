@@ -1,207 +1,225 @@
 ﻿@page "/EfdPisCofins"
 
+@using JeLSolucoesFiscais.Aplicacao.Usuario
+@inject LocalStorageService LocalStorageService
+
 <PageTitle>Efd-PisCofins</PageTitle>
 
+@if (isAuthenticated)
+{
 
-<style>
-    .upload-container {
-        border: 2px dashed #007bff;
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-        cursor: pointer;
-        width: 100%;
-    }
-
-        .upload-container p {
-            margin: 0;
-            font-size: 16px;
-            color: #007bff;
+    <style>
+        .upload-container {
+            border: 2px dashed #007bff;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            width: 100%;
         }
 
-    #fileContentContainer {
-        display: none;
-    }
+            .upload-container p {
+                margin: 0;
+                font-size: 16px;
+                color: #007bff;
+            }
 
-    .file-entry {
-        margin-bottom: 10px;
-    }
+        #fileContentContainer {
+            display: none;
+        }
 
-    .file-content {
-        white-space: pre-wrap; /* Mantém a formatação do texto */
-    }
+        .file-entry {
+            margin-bottom: 10px;
+        }
 
-</style>
+        .file-content {
+            white-space: pre-wrap; /* Mantém a formatação do texto */
+        }
 
-
-<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
-    <div id="alertToast" class="toast bg-warning text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Alerta</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            É necessário selecionar o tipo de ajuste, e depois preencher todos os campos.
-        </div>
-    </div>
-
-    <div id="alertToastSucesso" class="toast bg-success text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Sucesso</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            <b>Arquivo atualizado com sucesso,</b><br /> <a href="/EfdPisCofins" onclick="downloadArquivos()"><b>Clique aqui para fazer o download</b></a>
-        </div>
-    </div>
-
-    <div id="alertToastFalha" class="toast bg-danger text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Falha</strong>
-            <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            <a><b>Verifique se seu arquivo possui os blocos D100 e D190, <br/>  Ou se você preencheu corretamente as opções.</b></a>
-        </div>
-    </div>
-
-</div>
+    </style>
 
 
 
-<div class="container">
-    <div class="row">
-        <div class="col-2">
-            <div class="dropdown">
-                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
-                    Tipo de ajuste
-                </button>
-                <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
-                    <li><button class="dropdown-item" type="button" onclick="BtnTipoAjusteInclusao()">Inclusão</button></li>
-                    <li><button class="dropdown-item" type="button">Alteração</button></li>
-                </ul>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="alertToastLogin" class="toast bg-warning text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Alerta</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <b>Para acessar esse módulo é necessário fazer Login.</b> <br /> <a href="/Login"> <b>Clique aqui para fazer Login</b> </a>
             </div>
         </div>
-        <div class="col-2">
-            <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2">
-                <p>Selecione o bloco<br>para inclusão</p>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckD195d197">
-                    <label class="form-check-label" for="flexCheckDefault">
-                        Bloco D195/D197
-                    </label>
+
+
+        <div id="alertToast" class="toast bg-warning text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Alerta</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                É necessário selecionar o tipo de ajuste, e depois preencher todos os campos.
+            </div>
+        </div>
+
+        <div id="alertToastSucesso" class="toast bg-success text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Sucesso</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <b>Arquivo atualizado com sucesso,</b><br /> <a href="/EfdPisCofins" onclick="downloadArquivos()"><b>Clique aqui para fazer o download</b></a>
+            </div>
+        </div>
+
+        <div id="alertToastFalha" class="toast bg-danger text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <strong class="me-auto">Falha</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <a><b>Verifique se seu arquivo possui os registros D100 e D190, <br />  Ou se você preencheu corretamente as opções.</b></a>
+            </div>
+        </div>
+
+    </div>
+
+
+
+    <div class="container">
+        <div class="row">
+            <div class="col-2">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
+                        Tipo de ajuste
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="dropdownMenu2">
+                        <li><button class="dropdown-item" type="button" onclick="BtnTipoAjusteInclusao()">Inclusão</button></li>
+                        <li><button class="dropdown-item" type="button">Alteração</button></li>
+                    </ul>
                 </div>
             </div>
-        </div>
+            <div class="col-2">
+                <div id="AcaoParaInclusaoSelecionaBloco" style="display:none;border:2px solid #ced4da;" class="p-2">
+                    <p>Selecione o registro<br>para inclusão</p>
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" value="" id="CheckD195d197">
+                        <label class="form-check-label" for="flexCheckDefault">
+                            Registros D195/D197
+                        </label>
+                    </div>
+                </div>
+            </div>
 
-        <div class="col-2">
-            <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2 invisible">
-                <form class="form-floating">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="input-group">
-                                <input type="text" class="form-control" id="ModeloDropDown" placeholder="Modelo" readonly>
-                                <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownModelo" data-bs-toggle="dropdown" aria-expanded="false"></button>
-                                <ul class="dropdown-menu" aria-labelledby="dropdownModelo">
-                                    <li><a class="dropdown-item" onclick="selectOption('Todos')">Todos</a></li>
-                                    <li><a class="dropdown-item" onclick="selectOption('57')">57</a></li>
-                                    <li><a class="dropdown-item" onclick="selectOption('63')">63</a></li>
-                                    <li><a class="dropdown-item" onclick="selectOption('67')">67</a></li>
-                                </ul>
+            <div class="col-2">
+                <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2 invisible">
+                    <form class="form-floating">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="input-group">
+                                    <input type="text" class="form-control" id="ModeloDropDown" placeholder="Modelo" readonly>
+                                    <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownModelo" data-bs-toggle="dropdown" aria-expanded="false"></button>
+                                    <ul class="dropdown-menu" aria-labelledby="dropdownModelo">
+                                        <li><a class="dropdown-item" onclick="selectOption('Todos')">Todos</a></li>
+                                        <li><a class="dropdown-item" onclick="selectOption('57')">57</a></li>
+                                        <li><a class="dropdown-item" onclick="selectOption('63')">63</a></li>
+                                        <li><a class="dropdown-item" onclick="selectOption('67')">67</a></li>
+                                    </ul>
+                                </div>
+
+                                <script>
+                                    function selectOption(option) {
+                                        document.getElementById('ModeloDropDown').value = option;
+                                    }
+                                </script>
                             </div>
-
-                            <script>
-                                function selectOption(option) {
-                                    document.getElementById('ModeloDropDown').value = option;
-                                }
-                            </script>
                         </div>
-                    </div>
-                </form>
-                <form class="form-floating mt-2">
-                    <div class="row">
-                        <div class="col">
-                            <label style="color:#ced4da" for="Serie">Serie</label>
-                            <input type="text" class="form-control" id="Serie" placeholder="Serie">
+                    </form>
+                    <form class="form-floating mt-2">
+                        <div class="row">
+                            <div class="col">
+                                <label style="color:#ced4da" for="Serie">Serie</label>
+                                <input type="text" class="form-control" id="Serie" placeholder="Serie">
+                            </div>
                         </div>
-                    </div>
-                </form>
-                <form class="form-floating mt-2">
-                    <div class="row">
-                        <div class="col">
-                            <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Cfop</label>
-                            <input type="text" class="form-control" id="Cfop" placeholder="Cfop">
+                    </form>
+                    <form class="form-floating mt-2">
+                        <div class="row">
+                            <div class="col">
+                                <label style="color:#ced4da" for="floatingInputValue" id="InputModelo">Cfop</label>
+                                <input type="text" class="form-control" id="Cfop" placeholder="Cfop">
+                            </div>
                         </div>
-                    </div>
-                </form>
-                <p class="mt-1 mb-0">Gerar para todos:</p>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckTodosCfops">
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Cfops
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="checkbox" value="" id="CheckTodasSeries">
-                    <label class="form-check-label" for="flexCheckChecked">
-                        Series
-                    </label>
-                </div>
-            </div>
-        </div>
-
-
-        <div class="col-6">
-            <div id="AcaoParaInclusaoProduto" style="display:none; border:2px solid #ced4da;" class="p-2">
-                <form class="form-floating">
-                    <input type="text" class="form-control" id="CodigoAjuste" placeholder="Digite o Código do ajuste">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do ajuste</label>
-                </form>
-                <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="DescricaoComplementar" placeholder="Digite a Descrição Complementar">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputTipoOperacao">Descrição Complementar</label>
-                </form>
-                <form class="form-floating mt-2">
-                    <input type="text" class="form-control" id="Aliquota" placeholder="Digite a Aliquota">
-                    <label style="color:#ced4da" for="floatingInputValue" id="InputAliquotaProduto">Aliquota</label>
-                </form>
-                <p class="mt-1 mb-0">Gerar cálculo com:</p>
-                <form>
+                    </form>
+                    <p class="mt-1 mb-0">Gerar para todos:</p>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseCalculo" value="baseCalculo">
-                        <label class="form-check-label" for="baseCalculo">
-                            Base Cálculo
+                        <input class="form-check-input" type="checkbox" value="" id="CheckTodosCfops">
+                        <label class="form-check-label" for="flexCheckChecked">
+                            Cfops
                         </label>
                     </div>
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseIcms" value="baseIcms">
-                        <label class="form-check-label" for="baseIcms">
-                            Base ICMS
+                        <input class="form-check-input" type="checkbox" value="" id="CheckTodasSeries">
+                        <label class="form-check-label" for="flexCheckChecked">
+                            Series
                         </label>
                     </div>
-                </form>
+                </div>
             </div>
 
+
+            <div class="col-6">
+                <div id="AcaoParaInclusaoProduto" style="display:none; border:2px solid #ced4da;" class="p-2">
+                    <form class="form-floating">
+                        <input type="text" class="form-control" id="CodigoAjuste" placeholder="Digite o Código do ajuste">
+                        <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do ajuste</label>
+                    </form>
+                    <form class="form-floating mt-2">
+                        <input type="text" class="form-control" id="DescricaoComplementar" placeholder="Digite a Descrição Complementar">
+                        <label style="color:#ced4da" for="floatingInputValue" id="InputTipoOperacao">Descrição Complementar</label>
+                    </form>
+                    <form class="form-floating mt-2">
+                        <input type="text" class="form-control" id="Aliquota" placeholder="Digite a Aliquota">
+                        <label style="color:#ced4da" for="floatingInputValue" id="InputAliquotaProduto">Aliquota</label>
+                    </form>
+                    <p class="mt-1 mb-0">Gerar cálculo com:</p>
+                    <form>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseCalculo" value="baseCalculo">
+                            <label class="form-check-label" for="baseCalculo">
+                                Base Cálculo
+                            </label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseIcms" value="baseIcms">
+                            <label class="form-check-label" for="baseIcms">
+                                Base ICMS
+                            </label>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+        <div class="row mt-3">
+            <div class="upload-container"
+                 id="uploadContainer"
+                 ondrop="handleDrop(event)"
+                 ondragover="handleDragOver(event)">
+                <input type="file" id="fileInput" multiple onchange="handleFilesSelected(event)" />
+                <p>Ou arraste os arquivos aqui</p>
+            </div>
+            <div class="col-4 mb-4">
+                <button id="BtnAlteraAquivos" onclick="alterarArquivos()" style="visibility:hidden">Alterar Arquivos</button>
+                <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download Arquivos Modificados</button>
+            </div>
+            <div id="fileContentContainer">
+                <h4>Conteúdo dos Arquivos:</h4>
+                <div id="fileContents"></div>
+            </div>
         </div>
     </div>
-    <div class="row mt-3">
-        <div class="upload-container"
-             id="uploadContainer"
-             ondrop="handleDrop(event)"
-             ondragover="handleDragOver(event)">
-            <input type="file" id="fileInput" multiple onchange="handleFilesSelected(event)" />
-            <p>Ou arraste os arquivos aqui</p>
-        </div>
-        <div class="col-4 mb-4">
-            <button id="BtnAlteraAquivos" onclick="alterarArquivos()" style="visibility:hidden">Alterar Arquivos</button>
-            <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download Arquivos Modificados</button>
-        </div>
-        <div id="fileContentContainer">
-            <h4>Conteúdo dos Arquivos:</h4>
-            <div id="fileContents"></div>
-        </div>
-    </div>
-</div>
     <div id="loadingScreen" class="loading-screen">
         <div class="spinner"></div>
         <p>Carregando...</p>
@@ -212,247 +230,315 @@
 
 
 
-<script>
-    let files = [];
+    <script>
+        let files = [];
 
-    function handleFilesSelected(event) {
-        files = Array.from(event.target.files);
-        displayFileContents();
-    }
-
-    function handleDrop(event) {
-        event.preventDefault();
-        files = Array.from(event.dataTransfer.files);
-        displayFileContents();
-    }
-
-    function handleDragOver(event) {
-        event.preventDefault();
-    }
-
-    function displayFileContents() {
-        const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
-        BtnalterarArquivos.style.visibility = "visible";
-
-        const fileContentsContainer = document.getElementById('fileContents');
-        fileContentsContainer.innerHTML = ''; // Limpa o conteúdo anterior
-        files.forEach((file, index) => {
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                const fileContent = e.target.result;
-                const fileEntry = document.createElement('div');
-                fileEntry.classList.add('file-entry');
-                fileEntry.innerHTML = `
-                                                        <h5>Arquivo ${index + 1}:</h5>
-                                                        <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
-                                                    `;
-                fileContentsContainer.appendChild(fileEntry);
-            };
-            reader.readAsText(file);
-        });
-        document.getElementById('fileContentContainer').style.display = 'block';
-    }
-
-    function calcularValorTributo(valorCalculado, aliquotaStr) {
-
-        let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", "."));
-        let aliquota = parseFloat(aliquotaStr.replace(",", "."));
-
-        let valorTributo = baseCalculo * (aliquota / 100);
-
-        let valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
-
-        valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
-
-        return valorTributoStr;
-    }
-
-    function alterarArquivos() {
-        const BlocosD195D197 = document.getElementById("CheckD195d197").checked;
-        const Modelo = document.getElementById("ModeloDropDown").value;
-        const Serie = document.getElementById("Serie").value;
-        const Cfop = document.getElementById("Cfop").value;
-        const TodosCfop = document.getElementById("CheckTodosCfops").checked;
-        const TodasSeries = document.getElementById("CheckTodasSeries").checked;
-        const CodigoAjuste = document.getElementById("CodigoAjuste").value;
-        const DescricaoComplementar = document.getElementById("DescricaoComplementar").value;
-        const Aliquota = document.getElementById("Aliquota").value.replace(/\./g, ",");
-        const RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms";
-        let contadorNovasLinhas = 0;
-        const CodObservacao = Math.floor(Math.random() * 90000000) + 10000000;
-
-
-
-
-        let ValorIcms = "0";
-        let ValorBc = "0";
-        let ValorCalculado = "0";
-        let D100Campo2;
-        let D100Campo3;
-        let ModeloArquivo = "Não";
-        let CfopArquivo = "";
-        let ValorParaCalculo;
-        let SerieArquivo;
-        const TodosModelos = ["57", "63", "67"];
-
-
-
-
-        const div = document.getElementById('AcaoParaInclusaoSelecionaBloco');
-        const displayStyle = window.getComputedStyle(div).display;
-
-
-        if (displayStyle === "none") {
-            var toastEl = document.getElementById('alertToast');
-            var toast = new bootstrap.Toast(toastEl);
-            toast.show();
-            return;
+        function handleFilesSelected(event) {
+            files = Array.from(event.target.files);
+            displayFileContents();
         }
 
-        const BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
-        BtnDownloadAquivos.style.visibility = "visible";
+        function handleDrop(event) {
+            event.preventDefault();
+            files = Array.from(event.dataTransfer.files);
+            displayFileContents();
+        }
 
-        files.forEach((file, index) => {
-            const fileContentElement = document.getElementById(`fileContent-${index}`);
-            if (fileContentElement) {
-                let fileContent = fileContentElement.textContent;
+        function handleDragOver(event) {
+            event.preventDefault();
+        }
 
-                let lines = fileContent.split('\n');
-                let newLines = [];
+        function displayFileContents() {
+            const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
+            BtnalterarArquivos.style.visibility = "visible";
 
-                for (let i = 0; i < lines.length; i++) {
-                    // Adiciona a linha atual ao array de novas linhas
-                    newLines.push(lines[i]);
+            const fileContentsContainer = document.getElementById('fileContents');
+            fileContentsContainer.innerHTML = ''; // Limpa o conteúdo anterior
+            files.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+                    const fileEntry = document.createElement('div');
+                    fileEntry.classList.add('file-entry');
+                    fileEntry.innerHTML = `
+                <h5>Arquivo ${index + 1}:</h5>
+                <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
+                `;
+                    fileContentsContainer.appendChild(fileEntry);
+                };
+                reader.readAsText(file);
+            });
+            document.getElementById('fileContentContainer').style.display = 'block';
+        }
 
-                    if (lines[i].startsWith('|D100|')) {
-                        let valor = lines[i].split('|');
+        function calcularValorTributo(valorCalculado, aliquotaStr) {
 
-                        if (valor.length > 7) {
-                            SerieArquivo = valor[7];
-                        }
-                        if (valor.length > 5) {
-                            ModeloArquivo = valor[5];
-                        }
-                        if (valor.length > 2) {
-                            D100Campo2 = valor[2];
-                        }
-                        if (valor.length > 3) {
-                            D100Campo3 = valor[3];
-                        }
+            let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", "."));
+            let aliquota = parseFloat(aliquotaStr.replace(",", "."));
 
-                    }
-                    // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
-                    if (lines[i].startsWith('|D190|')) {
+            let valorTributo = baseCalculo * (aliquota / 100);
 
-                        let values = lines[i].split('|');
-                        if (values.length > 7) {
-                            ValorIcms = values[7];
-                        }
-                        if (values.length > 6) {
-                            ValorBc = values[6];
-                        }
-                        if (values.length > 3) {
-                            CfopArquivo = values[3];
-                        }
-                        ValorParaCalculo = RadioBcOuIcms == "Bc" ? ValorBc : ValorIcms
+            let valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
 
-                        ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
+            valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
 
-                        if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || TodosModelos.includes(ModeloArquivo)) && (TodasSeries || SerieArquivo == Serie)) {
-                            if (CheckD195d197.checked) {
-                                newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
-                                newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+            return valorTributoStr;
+        }
 
-                                contadorNovasLinhas += 1
-                            }
-                        }
-                    }
-
-                    if (lines[i].startsWith('|D990|')) {
-                        let values = lines[i].split('|');
-                        let D990 = parseInt(values[2]);
-                         
-                        let resultado =  D990 + (parseInt(contadorNovasLinhas) * 2);   //Parei aqui 
-
-                        newLines.push(`|D990|${resultado.toString()}|`);
-                    }
-
-                }
-                // Junta as linhas modificadas de volta em uma string
-                fileContent = newLines.join('\n');
-                fileContentElement.textContent = fileContent;
-
-                // Cria um novo arquivo com o conteúdo modificado
-                files[index] = new File([fileContent], file.name, { type: file.type });
-            }
-        });
+        function alterarArquivos() {
+            const BlocosD195D197 = document.getElementById("CheckD195d197").checked;
+            const Modelo = document.getElementById("ModeloDropDown").value;
+            const Serie = document.getElementById("Serie").value;
+            const Cfop = document.getElementById("Cfop").value;
+            const TodosCfop = document.getElementById("CheckTodosCfops").checked;
+            const TodasSeries = document.getElementById("CheckTodasSeries").checked;
+            const CodigoAjuste = document.getElementById("CodigoAjuste").value;
+            const DescricaoComplementar = document.getElementById("DescricaoComplementar").value;
+            const Aliquota = document.getElementById("Aliquota").value.replace(/\./g, ",");
+            const RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms";
+            let contadorNovasLinhas = 0;
+            const CodObservacao = Math.floor(Math.random() * 900000) + 100000;
 
 
-        if (contadorNovasLinhas > 1) {
-            document.getElementById('loadingScreen').style.display = 'flex';
-            setTimeout(function() {
-                document.getElementById('loadingScreen').style.display = 'none';
-                var toastEl = document.getElementById('alertToastSucesso');
+
+
+            let ValorIcms = "0";
+            let ValorBc = "0";
+            let ValorCalculado = "0";
+            let D100Campo2;
+            let D100Campo3;
+            let ModeloArquivo = "Não";
+            let CfopArquivo = "";
+            let ValorParaCalculo;
+            let SerieArquivo;
+            const TodosModelos = ["57", "63", "67"];
+            let SomaValoresCalculados = 0;
+            let UltimoRegistroAntes0460;
+            let LinhaUltimoRegistroAntes0460;
+
+
+
+            const div = document.getElementById('AcaoParaInclusaoSelecionaBloco');
+            const displayStyle = window.getComputedStyle(div).display;
+
+
+            if (displayStyle === "none") {
+                var toastEl = document.getElementById('alertToast');
                 var toast = new bootstrap.Toast(toastEl);
                 toast.show();
                 return;
-            }, 1000);
-        } else {
+            }
 
-            var toastEl = document.getElementById('alertToastFalha');
-            var toast = new bootstrap.Toast(toastEl);
-            toast.show();
-            return;
+            const BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
+            BtnDownloadAquivos.style.visibility = "visible";
+
+            files.forEach((file, index) => {
+                const fileContentElement = document.getElementById(`fileContent-${index}`);
+                if (fileContentElement) {
+                    let fileContent = fileContentElement.textContent;
+
+                    let lines = fileContent.split('\n');
+                    let newLines = [];
+
+                    for (let i = 0; i < lines.length; i++) {
+                        // Adiciona a linha atual ao array de novas linhas
+                        newLines.push(lines[i]);
+
+                        if (lines[i].startsWith('|D100|')) {
+                            let valor = lines[i].split('|');
+
+                            if (valor.length > 7) {
+                                SerieArquivo = valor[7];
+                            }
+                            if (valor.length > 5) {
+                                ModeloArquivo = valor[5];
+                            }
+                            if (valor.length > 2) {
+                                D100Campo2 = valor[2];
+                            }
+                            if (valor.length > 3) {
+                                D100Campo3 = valor[3];
+                            }
+
+                        }
+                        // Se a linha atual for o D190, adiciona as novas linhas logo depois dela
+                        if (lines[i].startsWith('|D190|')) {
+
+                            let values = lines[i].split('|');
+                            if (values.length > 7) {
+                                ValorIcms = values[7];
+                            }
+                            if (values.length > 6) {
+                                ValorBc = values[6];
+                            }
+                            if (values.length > 3) {
+                                CfopArquivo = values[3];
+                            }
+                            ValorParaCalculo = RadioBcOuIcms == "Bc" ? ValorBc : ValorIcms
+
+                            ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
+
+
+                            if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || TodosModelos.includes(ModeloArquivo)) && (TodasSeries || SerieArquivo == Serie)) {
+                                if (CheckD195d197.checked) {
+                                    newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
+                                    newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+
+                                    contadorNovasLinhas += 1
+
+                                    SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+
+                                }
+                            }
+                        }
+
+                        if (lines[i].startsWith('|D990|')) {
+                            let values = lines[i].split('|');
+                            let D990 = parseInt(values[2]);
+
+                            let resultado = D990 + (parseInt(contadorNovasLinhas) * 2);
+
+                            values[2] = resultado.toString();
+
+                            lines[i] = values.join('|');
+
+                            newLines[newLines.length - 1] = lines[i];
+
+                        }
+
+                        //Adicionando lógia e ajustes ao E110
+                        if (lines[i].startsWith('|E110|')) {
+                            let values = lines[i].split('|');
+                            let VlTotalAjCredito = values[8];
+                            let VlAjusteCredito = values[7];
+                            let ResultadoVlTotalAjCredito = SomaValoresCalculados + parseFloat(VlTotalAjCredito.replace(',', '.'));
+                            let ResultadoVlAjusteCredito = SomaValoresCalculados + parseFloat(VlAjusteCredito.replace(',', '.'));
+
+                            values[8] = ResultadoVlTotalAjCredito.toString().replace('.', ',')
+                            values[7] = ResultadoVlAjusteCredito.toString().replace('.', ',')
+
+                            lines[i] = values.join('|');
+
+                            newLines[newLines.length - 1] = lines[i];
+
+                        }
+
+                        let numeroLinha = lines[i].split('|')[1];
+                        if (parseInt(numeroLinha) < 460) {
+                            UltimoRegistroAntes0460 = numeroLinha;
+                            LinhaUltimoRegistroAntes0460 = i;
+                        }
+
+
+                    }
+
+                    if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`)) {
+                        newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
+                    }
+
+                    // Junta as linhas modificadas de volta em uma string
+                    fileContent = newLines.join('\n');
+                    fileContentElement.textContent = fileContent;
+
+                    // Cria um novo arquivo com o conteúdo modificado
+                    files[index] = new File([fileContent], file.name, { type: file.type });
+                }
+            });
+
+
+            if (contadorNovasLinhas > 1) {
+                document.getElementById('loadingScreen').style.display = 'flex';
+                setTimeout(function() {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    var toastEl = document.getElementById('alertToastSucesso');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                    return;
+                }, 1000);
+            } else {
+
+                var toastEl = document.getElementById('alertToastFalha');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                return;
+
+            }
 
         }
 
-    }
 
+        function downloadArquivos() {
+            files.forEach((file, index) => {
+                const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+                const fileBytes = new TextEncoder().encode(fileContent);
+                const base64Data = arrayBufferToBase64(fileBytes.buffer);
 
-    function downloadArquivos() {
-        files.forEach((file, index) => {
-            const fileContent = document.getElementById(`fileContent-${index}`).textContent;
-            const fileBytes = new TextEncoder().encode(fileContent);
-            const base64Data = arrayBufferToBase64(fileBytes.buffer);
-
-            const link = document.createElement('a');
-            link.href = 'data:text/plain;base64,' + base64Data;
-            link.download = `Novo-${file.name}`;
-            link.click();
-        });
-    }
-
-    function arrayBufferToBase64(buffer) {
-        let binary = '';
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++) {
-            binary += String.fromCharCode(bytes[i]);
+                const link = document.createElement('a');
+                link.href = 'data:text/plain;base64,' + base64Data;
+                link.download = `Novo-${file.name}`;
+                link.click();
+            });
         }
-        return window.btoa(binary);
-    }
 
-    function BtnTipoAjusteInclusao() {
-        var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
-        var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
-        let AcaoParaDefinirCfopEModelo = document.getElementById("AcaoParaDefinirCfopEModelo");
-        blocosVisible.style.display = "block";
-        incluiProdutoVisible.style.display = "block";
-        AcaoParaDefinirCfopEModelo.classList.remove("invisible");
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
 
-    }
+        function BtnTipoAjusteInclusao() {
+            var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
+            var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
+            let AcaoParaDefinirCfopEModelo = document.getElementById("AcaoParaDefinirCfopEModelo");
+            blocosVisible.style.display = "block";
+            incluiProdutoVisible.style.display = "block";
+            AcaoParaDefinirCfopEModelo.classList.remove("invisible");
 
-    document.getElementById('CheckTodasSeries').addEventListener('click', function() {
-        document.getElementById("Serie").disabled = this.checked;
-        const Serie = document.getElementById("Serie").value;
-        document.getElementById("Serie").value = this.checked ? "" : Serie;
+        }
+
+        document.getElementById('CheckTodasSeries').addEventListener('click', function() {
+            document.getElementById("Serie").disabled = this.checked;
+            const Serie = document.getElementById("Serie").value;
+            document.getElementById("Serie").value = this.checked ? "" : Serie;
         })
 
-    document.getElementById('CheckTodosCfops').addEventListener('click', function() {
-        document.getElementById("Cfop").disabled = this.checked;
-        const Cfop = document.getElementById("Cfop").value;
-        document.getElementById("Cfop").value = this.checked ? "" : Cfop;
-    })
+        document.getElementById('CheckTodosCfops').addEventListener('click', function() {
+            document.getElementById("Cfop").disabled = this.checked;
+            const Cfop = document.getElementById("Cfop").value;
+            document.getElementById("Cfop").value = this.checked ? "" : Cfop;
+        })
 
-</script>
+    </script>
+}
+else
+{
 
+   // <p> <b>Para acessar esse módulo é necessário fazer Login.</b> <br /> <a href="/Login"> <b>Clique aqui para fazer Login</b> </a></p>
+
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+        <div id="alertLogin" class="bg-danger text-dark border-0 p-3 rounded" role="alert">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <strong class="me-auto">Alerta</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+                <b>Para acessar esse módulo é necessário fazer Login.</b> <br /> <a href="/Login"> <b>Clique aqui para fazer Login</b> </a>
+            </div>
+        </div>
+    </div>
+
+}
+
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+    }
+}

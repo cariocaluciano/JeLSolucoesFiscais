@@ -1,0 +1,21 @@
+﻿@using JeLSolucoesFiscais.Aplicacao.Usuario
+@using Microsoft.AspNetCore.Components
+@using Microsoft.AspNetCore.Components.Routing
+@inject LocalStorageService LocalStorageService
+@inject NavigationManager NavigationManager
+
+<RouteView RouteData="@routeData" DefaultLayout="@typeof(MainLayout)" />
+
+@code {
+    private RouteData routeData;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        var isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+
+        if (!isAuthenticated)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+    }
+}

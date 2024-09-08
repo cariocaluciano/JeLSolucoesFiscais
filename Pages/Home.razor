@@ -1,19 +1,37 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.Components
+@using JeLSolucoesFiscais.Aplicacao.Usuario
+@inject LocalStorageService LocalStorageService
 
-<div class="container mt-5">
-    <div class="jumbotron bg-light p-5 rounded">
-        <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
-        <p class="lead text-center">Para utilizar nosso sistema, entre em contato conosco através do e-mail:</p>
-        <div class="text-center mb-4">
-            <a href="mailto:JeLSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">JeLSolucoesFiscais@gmail.com</a>
-        </div>
-        <p class="text-center">Para fazer login, clique no botão abaixo:</p>
-        <div class="text-center">
-            <a href="/JeLSolucoesFiscais/Login" class="btn btn-success btn-lg">Fazer Login</a>
+@if(!isAuthenticated){
+    <div class="container mt-5">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
+            <p class="lead text-center">Para utilizar nosso sistema, entre em contato conosco através do e-mail:</p>
+            <div class="text-center mb-4">
+                <a href="mailto:JeLSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">JeLSolucoesFiscais@gmail.com</a>
+            </div>
+            <p class="text-center">Para fazer login, clique no botão abaixo:</p>
+            <div class="text-center">
+                <a href="/JeLSolucoesFiscais/Login" class="btn btn-success btn-lg">Fazer Login</a>
+            </div>
         </div>
     </div>
-</div>
+}
+else
+{
+    <div class="container mt-5">
+        <div class="jumbotron bg-light p-5 rounded">
+            <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
+            <p class="lead text-center">Sugestões  ou melhorias entrar em contato conosco através do e-mail:</p>
+            <div class="text-center mb-4">
+                <a href="mailto:JeLSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">JeLSolucoesFiscais@gmail.com</a>
+            </div>
+        </div>
+    </div>
+
+}
+
 
 <style>
     .jumbotron {
@@ -23,3 +41,15 @@
         box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
     }
 </style>
+
+
+@code{
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+    }
+
+
+}

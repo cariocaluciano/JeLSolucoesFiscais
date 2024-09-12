@@ -186,7 +186,7 @@
                     <p class="mt-1 mb-0">Gerar cálculo com:</p>
                     <form>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseCalculo" value="baseCalculo">
+                            <input class="form-check-input" type="radio" name="baseOptions" id="RadiobaseCalculo" value="baseCalculo"  checked>
                             <label class="form-check-label" for="baseCalculo">
                                 Base Cálculo
                             </label>
@@ -322,7 +322,14 @@
             const displayStyle = window.getComputedStyle(div).display;
 
 
-            if (displayStyle === "none") {
+            if (displayStyle === "none" || !BlocosD195D197 || CodigoAjuste === "" || DescricaoComplementar === "" || Aliquota === "") {
+                var toastEl = document.getElementById('alertToast');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                return;
+            }
+
+            if (Modelo == "" || (Cfop == "" && !TodosCfop) || (Serie == "" && !TodasSeries)) {
                 var toastEl = document.getElementById('alertToast');
                 var toast = new bootstrap.Toast(toastEl);
                 toast.show();
@@ -343,6 +350,14 @@
                     for (let i = 0; i < lines.length; i++) {
                         // Adiciona a linha atual ao array de novas linhas
                         newLines.push(lines[i]);
+
+                        if (lines[i].startsWith('|0990|')) {
+                            let values = lines[i].split('|');
+                            values[2] = parseInt(values[2]) + 1;
+                            lines[i] = values.join('|');
+
+                            newLines[newLines.length - 1] = lines[i];
+                        }
 
                         if (lines[i].startsWith('|D100|')) {
                             let valor = lines[i].split('|');
@@ -378,9 +393,9 @@
 
                             ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
 
+                            if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
+                                if (CheckD195d197.checked && (!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))))) {
 
-                            if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || TodosModelos.includes(ModeloArquivo)) && (TodasSeries || SerieArquivo == Serie)) {
-                                if (CheckD195d197.checked) {
                                     newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
                                     newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
 
@@ -414,8 +429,8 @@
                             let ResultadoVlTotalAjCredito = SomaValoresCalculados + parseFloat(VlTotalAjCredito.replace(',', '.'));
                             let ResultadoVlAjusteCredito = SomaValoresCalculados + parseFloat(VlAjusteCredito.replace(',', '.'));
 
-                            values[8] = ResultadoVlTotalAjCredito.toString().replace('.', ',')
-                            values[7] = ResultadoVlAjusteCredito.toString().replace('.', ',')
+                            //values[8] = ResultadoVlTotalAjCredito.toFixed(2).toString().replace('.', ',')
+                            values[7] = ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ',')
 
                             lines[i] = values.join('|');
 
@@ -429,6 +444,13 @@
                             LinhaUltimoRegistroAntes0460 = i;
                         }
 
+
+                        if (lines[i].startsWith('|9900|')) { 
+                             console.log(lines[i])
+                            let numeroLinha2 = lines[i].split('|')[2];
+                            console.log(numeroLinha2)
+                                                   
+                        }
 
                     }
 

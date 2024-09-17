@@ -315,6 +315,7 @@
             let SomaValoresCalculados = 0;
             let UltimoRegistroAntes0460;
             let LinhaUltimoRegistroAntes0460;
+            let linhas9900 = []
 
 
 
@@ -446,13 +447,72 @@
 
 
                         if (lines[i].startsWith('|9900|')) { 
-                             console.log(lines[i])
+                           // console.log(lines[i])
+                             linhas9900.push(lines[i])
                             let numeroLinha2 = lines[i].split('|')[2];
-                            console.log(numeroLinha2)
+                          //  console.log(numeroLinha2)
                                                    
                         }
 
                     }
+                    converterLetraParaNumero(linhas9900,'D195');
+
+                    function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
+                        const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+                        let valoresConvertidos = [];
+
+                        arrayLinhas.forEach(linha => {
+                            let partes = linha.split('|');
+                            let letra = partes[2][0]; // Obtém a primeira letra
+
+                            if (letrasAlfabeto.includes(letra.toUpperCase())) {
+                                let numero = letra.toUpperCase().charCodeAt(0) - 64; // Converte a letra para número
+
+                                // Substitui a primeira letra pela conversão
+                                partes[2] = '99' + numero + partes[2].substring(1);
+
+                                // Junta as partes de volta e armazena no array
+                                linha = partes.join('|');
+                                valoresConvertidos.push(linha); // Adiciona a linha modificada ao array
+                             } else {
+                                linha = partes.join('|');
+                                valoresConvertidos.push(linha)
+                             }
+                        });
+
+                        let campo = letrasAlfabeto.includes(campoParaInserir[0]) ? campoParaInserir.toUpperCase().charCodeAt(0) - 64 : campoParaInserir[0]
+                        let parametroAjustado = '99' + campo + campoParaInserir.substring(1) ;
+                       // console.log('parametro', '99' + campo + campoParaInserir.substring(1));
+                       // console.log(valoresConvertidos);
+                        let resultado = encontrarValorAntesDoParametro(valoresConvertidos, parametroAjustado)
+                        console.log(resultado);
+                        return resultado == null ? null : resultado;
+                    }
+
+
+                    function encontrarValorAntesDoParametro(arrayLinhas, valorParametro) {
+                        let valorAnterior = null;
+
+                        for (let i = 0; i < arrayLinhas.length; i++) {
+                            let partes = arrayLinhas[i].split('|');
+                            let valorAtual = partes[2]; // valor atual
+
+                            if (parseInt(valorAtual) < parseInt(valorParametro)) {
+                                valorAnterior = valorAtual;
+                            }
+                        }
+                        let retorno = '';
+                        //console.log(valorAnterior[2])
+                        //console.log(numeroParaLetra(parseInt(valorAnterior[2])));
+                        retorno = numeroParaLetra(parseInt(valorAnterior[2])) + valorAnterior.substring(3)
+                        return retorno;
+                    }
+
+                    function numeroParaLetra(numero) {
+                        // Transforma o número em letra correspondente
+                        return String.fromCharCode(numero + 64);
+                    }
+
 
                     if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`)) {
                         newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);

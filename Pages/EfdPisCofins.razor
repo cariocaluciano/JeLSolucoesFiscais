@@ -1,11 +1,12 @@
 ﻿@page "/EfdPisCofins"
 
+@using JeLSolucoesFiscais.Aplicacao.Criptografias
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
 
 <PageTitle>Efd-PisCofins</PageTitle>
 
-@if (isAuthenticated)
+@if (acessoLiberado)
 {
 
     <style>
@@ -215,12 +216,12 @@
     </div>
 
 
-
-
-
-
     <script>
-        let files = [];
+        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+            let files = []; 
+        } else {
+            files = [];
+        }
 
         function handleFilesSelected(event) {
             files = Array.from(event.target.files);
@@ -242,7 +243,7 @@
             BtnalterarArquivos.style.visibility = "visible";
 
             const fileContentsContainer = document.getElementById('fileContents');
-            fileContentsContainer.innerHTML = ''; // Limpa o conteúdo anterior
+            fileContentsContainer.innerHTML = '';
             files.forEach((file, index) => {
                 const reader = new FileReader();
                 reader.onload = function(e) {
@@ -259,12 +260,6 @@
             });
             document.getElementById('fileContentContainer').style.display = 'block';
         }
-
-
-
-
-
-
 
         function alterarArquivos() {
             const BlocosD195D197 = document.getElementById("CheckD195d197").checked,
@@ -284,37 +279,7 @@
 
             let contadorNovasLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
                 D100Campo2, D100Campo3, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
-                SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460, linhas9900 = [];
-
-            if (displayStyle === "none") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o tipo de ajuste');
-            }
-            else if (!BlocosD195D197) {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o registro para inclusão');
-            }
-            else if (CodigoAjuste === "") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
-            }
-            else if (DescricaoComplementar === "") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Descricao Complementar');
-            }
-            else if (Aliquota === "") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Aliquota');
-            }
-            else if (Modelo === "") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar um Modelo para ajuste');
-            }
-            else if (Cfop == "" && !TodosCfop) {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar um Cfop ou marcar o campo Todos Cfops');
-            }
-            else if (Serie == "" && !TodasSeries) {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar uma Serie ou marcar o campo Todas Series');
-            }
-            else {
-                BtnDownloadAquivos.style.visibility = "visible";
-            }
-
-            
+                SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460, linhas9900 = [];          
 
 
             files.forEach((file, index) => {
@@ -396,28 +361,9 @@
 
                     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
                     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
-
                     let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
                     let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
-
-                    // console.log(indice, novaLinha )
 
                     if (indice !== -1) {
                         newLines.splice(indice + 1, 0, novaLinha9900D195);
@@ -450,10 +396,7 @@
 
                         let campo = letrasAlfabeto.includes(campoParaInserir[0]) ? campoParaInserir.toUpperCase().charCodeAt(0) - 64 : campoParaInserir[0]
                         let parametroAjustado = '99' + campo + campoParaInserir.substring(1);
-                        // console.log('parametro', '99' + campo + campoParaInserir.substring(1));
-                        // console.log(valoresConvertidos);
                         let resultado = encontrarValorAntesDoParametro(valoresConvertidos, parametroAjustado)
-                        //   console.log(resultado);
                         return resultado == null ? null : resultado;
                     }
 
@@ -472,8 +415,6 @@
                             }
                         }
                         let retorno = '';
-                        //console.log(valorAnterior[2])
-                        //console.log(numeroParaLetra(parseInt(valorAnterior[2])));
                         retorno = '|9900|' + numeroParaLetra(parseInt(valorAnterior[2])) + valorAnterior.substring(3) + '|' + parte03 + '|'
                         return retorno;
                     }
@@ -488,34 +429,56 @@
                         newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
                     }
 
-                    // Junta as linhas modificadas de volta em uma string
                     fileContent = newLines.join('\n');
                     fileContentElement.textContent = fileContent;
-
-                    // Cria um novo arquivo com o conteúdo modificado
                     files[index] = new File([fileContent], file.name, { type: file.type });
                 }
             });
 
-
-            if (contadorNovasLinhas > 1) {
-                document.getElementById('loadingScreen').style.display = 'flex';
-                setTimeout(function() {
-                    document.getElementById('loadingScreen').style.display = 'none';
-                    var toastEl = document.getElementById('alertToastSucesso');
+            if (displayStyle === "none") {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o tipo de ajuste');
+            }
+            else if (!BlocosD195D197) {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o registro para inclusão');
+            }
+            else if (CodigoAjuste === "") {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
+            }
+            else if (DescricaoComplementar === "") {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Descricao Complementar');
+            }
+            else if (Aliquota === "") {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Aliquota');
+            }
+            else if (Modelo === "") {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar um Modelo para ajuste');
+            }
+            else if (Cfop == "" && !TodosCfop) {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar um Cfop ou marcar o campo Todos Cfops');
+            }
+            else if (Serie == "" && !TodasSeries) {
+                ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar uma Serie ou marcar o campo Todas Series');
+            }
+            else {
+                if (contadorNovasLinhas > 1) {
+                    document.getElementById('loadingScreen').style.display = 'flex';
+                    setTimeout(function() {
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        var toastEl = document.getElementById('alertToastSucesso');
+                        var toast = new bootstrap.Toast(toastEl);
+                        toast.show();
+                        BtnDownloadAquivos.style.visibility = "visible";
+                        return;
+                    }, 1000);
+                } else {
+                    BtnDownloadAquivos.style.visibility = "";
+                    var toastEl = document.getElementById('alertToastFalha');
                     var toast = new bootstrap.Toast(toastEl);
                     toast.show();
+                    BtnDownloadAquivos.style.visibility = "hidden";
                     return;
-                }, 1000);
-            } 
-@*             else {
-                BtnDownloadAquivos.style.visibility = "";
-                var toastEl = document.getElementById('alertToastFalha');
-                var toast = new bootstrap.Toast(toastEl);
-                toast.show();
-                return;
-
-            } *@
+                }
+            }
 
         }
 
@@ -617,6 +580,7 @@
 
             return valorTributoStr;
         }
+
     </script>
 }
 else
@@ -640,10 +604,20 @@ else
 
 
 @code {
+
     private bool isAuthenticated;
+    private bool acessoLiberado;
 
     protected override async Task OnInitializedAsync()
     {
-        isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+        Descriptografa Descriptografia = new Descriptografa { };
+        UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+
+        string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+        string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+
+        isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+        acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+
     }
 }

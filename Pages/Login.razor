@@ -1,4 +1,5 @@
 ﻿@page "/Login"
+@using JeLSolucoesFiscais.Aplicacao.Criptografias
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @using System.ComponentModel.DataAnnotations
 @inject HttpClient Http
@@ -53,13 +54,17 @@
 
     private void HandleLogin()
     {
-        loginFailed = !UsuariosCadastrados.VerificaCadastrousuario(loginModel.Email, loginModel.Senha);
+        Criptografa CriaCriptografia = new Criptografa { };
+
+        loginFailed = !UsuariosCadastrados.VerificaCadastrousuario(loginModel.Email, loginModel.Senha);     
+
 
         if (!loginFailed)
         {
-            LocalStorageService.SetItemAsync("isAuthenticated", "true");
+            LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "dHJ1ZQ=="); //isAuthenticated
+            LocalStorageService.SetItemAsync("ZW1haWw=", CriaCriptografia.RetornaValorCriptografado(loginModel.Email));
+            LocalStorageService.SetItemAsync("c2VuaGE=", CriaCriptografia.RetornaValorCriptografado(loginModel.Senha));
             NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
-
         }
     }
 

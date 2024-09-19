@@ -1,4 +1,5 @@
-﻿@using JeLSolucoesFiscais.Aplicacao.Usuario
+﻿@using JeLSolucoesFiscais.Aplicacao.Criptografias
+@using JeLSolucoesFiscais.Aplicacao.Usuario
 @inherits LayoutComponentBase
 @inject LocalStorageService LocalStorageService
 @inject NavigationManager NavigationManager
@@ -9,7 +10,7 @@
     </div>
 
     <main>
-        @if (isAuthenticated)
+        @if (acessoLiberado)
         {
             <div class="top-row px-4">
                 <button class="btn btn-link" @onclick="Sair">Sair</button>
@@ -18,6 +19,7 @@
 
         <article class="content px-4">
             @Body
+            <ChatBoot />
         </article>
 
     </main>
@@ -27,16 +29,27 @@
 @code {
     private async Task Sair()
     {
-        LocalStorageService.SetItemAsync("isAuthenticated", "false");
+        LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "ZmFsc2U="); //isAuthenticated
+        LocalStorageService.SetItemAsync("ZW1haWw=", "");
+        LocalStorageService.SetItemAsync("c2VuaGE=", "");
 
         NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
     }
 
     private bool isAuthenticated;
+    private bool acessoLiberado;
 
     protected override async Task OnInitializedAsync()
     {
-        isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+        Descriptografa Descriptografia = new Descriptografa { };
+        UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+
+        string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+        string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+
+        isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+        acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+
     }
 
 }

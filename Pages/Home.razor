@@ -1,9 +1,11 @@
 ﻿@page "/"
+@using JeLSolucoesFiscais.Aplicacao.Criptografias
 @using Microsoft.AspNetCore.Components
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
 
-@if(!isAuthenticated){
+@if (!acessoLiberado)
+{
     <div class="container mt-5">
         <div class="jumbotron bg-light p-5 rounded">
             <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
@@ -29,7 +31,6 @@ else
             </div>
         </div>
     </div>
-
 }
 
 
@@ -45,11 +46,19 @@ else
 
 @code{
     private bool isAuthenticated;
+    private bool acessoLiberado;
 
     protected override async Task OnInitializedAsync()
     {
-        isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
-    }
+        Descriptografa Descriptografia = new Descriptografa { };
+        UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
+        string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+        string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+
+        isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+        acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+
+    }
 
 }

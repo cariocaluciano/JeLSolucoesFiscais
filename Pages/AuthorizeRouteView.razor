@@ -11,7 +11,7 @@
 
     protected override async Task OnParametersSetAsync()
     {
-        var isAuthenticated = await LocalStorageService.GetItemAsync("isAuthenticated") == "true";
+        var isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
 
         if (!isAuthenticated)
         {

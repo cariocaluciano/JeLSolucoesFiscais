@@ -2,6 +2,27 @@
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
 
+<style>
+    /* Ocultar submenus inicialmente */
+    .nav-submenu {
+        display: none;
+        margin-left: 15px;
+    }
+
+    /* Estilizando os links como nav-link */
+    a.nav-link {
+        cursor: pointer;
+        color: #007bff;
+        text-decoration: none;
+        display: block;
+        padding: 0.5rem 1rem;
+    }
+
+        a.nav-link:hover {
+            text-decoration: underline;
+        }
+</style>
+
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">JeLSolucoesFiscais</a>
@@ -28,11 +49,26 @@
         }
         @if (acessoLiberado)
         {
-            <div class="nav-item px-3">
+ @*            <div class="nav-item px-3">
                 <NavLink class="nav-link" href="EfdPisCofins">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Efd-PisCofins
+                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> EFD-Fiscal
                 </NavLink>
+            </div> *@
+
+        <div class="nav-item px-3">
+            <a class="nav-link" onclick="toggleSubMenu(this)"> EFD-Fiscal</a>
+            <div class="nav-submenu">
+                <a class="nav-link" onclick="toggleSubMenu(this)">Registros</a>
+                <div class="nav-submenu">
+                    <NavLink class="nav-link" href="EfdPisCofins">
+                        <span aria-hidden="true"></span> D195/D197
+                    </NavLink>
+                        <NavLink class="nav-link" href="RegistroC195C197">
+                        <span aria-hidden="true"></span> C195/C197
+                    </NavLink>
+                </div>
             </div>
+        </div>
         }
     </nav>
 </div>
@@ -64,3 +100,10 @@
     }
 
 }
+
+<script>
+    function toggleSubMenu(element) {
+        const submenu = element.nextElementSibling;
+        submenu.style.display = submenu.style.display === "block" ? "none" : "block";
+        }
+</script>

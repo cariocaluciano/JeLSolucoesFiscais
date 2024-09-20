@@ -342,7 +342,7 @@
 
                         if (lines[i].startsWith('|E110|')) {
                             let ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 7, SomaValoresCalculados, 'adicao');
-                            newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 7, 0, 'alterar', ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ','))
+                            newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 7,ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ','))
                         }
 
                         if (lines[i].startsWith('|9900|')) {

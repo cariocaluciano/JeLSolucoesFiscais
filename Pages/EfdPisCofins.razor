@@ -34,7 +34,7 @@
         }
 
         .file-content {
-            white-space: pre-wrap; /* Mantém a formatação do texto */
+            white-space: pre-wrap; 
         }
 
     </style>
@@ -279,8 +279,9 @@
 
             let contadorNovasLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
                 D100Campo2, D100Campo3, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
-                SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460, linhas9900 = [];          
-
+                SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
+                LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, 
+                codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];          
 
             files.forEach((file, index) => {
                 const fileContentElement = document.getElementById(`fileContent-${index}`);
@@ -324,7 +325,19 @@
 
                                     contadorNovasLinhas += 1
 
+                                    console.log(codigosValidosIndice3)
+                                    console.log(codigosValidosIndice4)
+
+                                   // codigosValidosIndice3.includes(CodigoAjuste[3])
+                                   // CodigoAjuste[3].includes(codigosValidosIndice3)
+                                   console.log(CodigoAjuste[2],'.....',CodigoAjuste[3])
+                                   //CodigoAjuste[4].includes(codigosValidosIndice3)
+                                  // codigosValidosIndice3.includes(CodigoAjuste[4])
+
+                                    if((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
+                                        console.log('AQUI')
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+                                    }
 
                                 }
                             }
@@ -338,6 +351,15 @@
                         if (parseInt(lines[i].split('|')[1]) < 460) {
                             UltimoRegistroAntes0460 = lines[i].split('|')[1];
                             LinhaUltimoRegistroAntes0460 = i;
+                        }
+
+                        if (parseInt(lines[i].split('|')[2]) == '9900') {
+                            let resultado = CalculaRegistro(lines[i], 3, 3, 'adicao').toString();
+                            newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 3, resultado);
+                        }
+
+                        if ((parseInt(lines[i].split('|')[1]) == '9900') && (parseInt(lines[i].split('|')[2]) < '460')) {
+                            LinhaUltimoRegistroAntesDo0460Indice02 = lines[i];
                         }
 
                         if (lines[i].startsWith('|E110|')) {
@@ -355,10 +377,15 @@
                         }
 
                         if (lines[i].startsWith('|9999|')) {
-                            let resultado = CalculaRegistro(lines[i], 2, 3, 'adicao').toString();
+                            let resultado = CalculaRegistro(lines[i], 2, contadorNovasLinhas, 'multiplicacao','9999').toString();
                             newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
                         }
 
+                    }
+
+                    let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
+                    if (indice9900 !== -1) {
+                        newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
                     }
 
                     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
@@ -378,24 +405,21 @@
                         arrayLinhas.forEach(linha => {
                             let partes = linha.split('|');
                             let letra = partes[2][0]; // Obtém a primeira letra
-
                             if (letrasAlfabeto.includes(letra.toUpperCase())) {
                                 let numero = letra.toUpperCase().charCodeAt(0) - 64; // Converte a letra para número
-
                                 // Substitui a primeira letra pela conversão
-                                partes[2] = '99' + numero + partes[2].substring(1);
-
+                                partes[2] = '99' + numero.toString() + partes[2].substring(1);
                                 // Junta as partes de volta e armazena no array
                                 linha = partes.join('|');
                                 valoresConvertidos.push(linha); // Adiciona a linha modificada ao array
-                            } else {
+                            }@*  else { //Removido para pegar somente os que tem letras
                                 linha = partes.join('|');
                                 valoresConvertidos.push(linha)
-                            }
+                            } *@
                         });
 
                         let campo = letrasAlfabeto.includes(campoParaInserir[0]) ? campoParaInserir.toUpperCase().charCodeAt(0) - 64 : campoParaInserir[0]
-                        let parametroAjustado = '99' + campo + campoParaInserir.substring(1);
+                        let parametroAjustado = '99' + campo.toString() + campoParaInserir.substring(1);
                         let resultado = encontrarValorAntesDoParametro(valoresConvertidos, parametroAjustado)
                         return resultado == null ? null : resultado;
                     }
@@ -423,7 +447,6 @@
                         // Transforma o número em letra correspondente
                         return String.fromCharCode(numero + 64);
                     }
-
 
                     if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`)) {
                         newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
@@ -545,6 +568,8 @@
                 resultado = parseFloat(valorParaCalcular) + parseFloat(values[posicaoDoValor].replace(',', '.'))
             } else if (tipoOperacao === 'multiplicacao' && registro === 'D990') {
                 resultado = parseInt(values[posicaoDoValor]) + (parseInt(valorParaCalcular) * 2)
+            } else if (tipoOperacao === 'multiplicacao' && registro === '9999') {
+                resultado = parseInt(values[posicaoDoValor]) + (parseInt(valorParaCalcular) * 2) + 4 //Esses 4 são : 1 0460 , 1 9900|D195 , 1 9900|D197, 1 9900|0460
             }
             return resultado;
         }

@@ -280,8 +280,8 @@
             let contadorNovasLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
                 D100Campo2, D100Campo3, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
-                LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, 
-                codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];          
+                LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900,
+                codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];
 
             files.forEach((file, index) => {
                 const fileContentElement = document.getElementById(`fileContent-${index}`);
@@ -325,17 +325,7 @@
 
                                     contadorNovasLinhas += 1
 
-                                    console.log(codigosValidosIndice3)
-                                    console.log(codigosValidosIndice4)
-
-                                   // codigosValidosIndice3.includes(CodigoAjuste[3])
-                                   // CodigoAjuste[3].includes(codigosValidosIndice3)
-                                   console.log(CodigoAjuste[2],'.....',CodigoAjuste[3])
-                                   //CodigoAjuste[4].includes(codigosValidosIndice3)
-                                  // codigosValidosIndice3.includes(CodigoAjuste[4])
-
                                     if((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
-                                        console.log('AQUI')
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
                                     }
 

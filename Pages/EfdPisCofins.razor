@@ -328,7 +328,7 @@
                                     if((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
                                     }
-                                    if(['3','4','5'].includes(CodigoAjuste[2]))
+                                    else if(['3','4','5'].includes(CodigoAjuste[2]))
                                     {
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
                                     }
@@ -359,24 +359,44 @@
                         if (lines[i].startsWith('|E110|')) {
                             let ResultadoVlAjusteCredito;
                             let valor = lines[i].split('|');
-                            let campo2Ao5 = ConverteStringParaFloat(valor[2]) + ConverteStringParaFloat(valor[3]) + ConverteStringParaFloat(valor[4]) + ConverteStringParaFloat(valor[5]);
-                            let campo6Ao10 = ConverteStringParaFloat(valor[6]) + ConverteStringParaFloat(valor[7]) + ConverteStringParaFloat(valor[8]) + ConverteStringParaFloat(valor[9]) + ConverteStringParaFloat(valor[10]);
+                            let vrAjuste3 = 0;
+                            let vrAjuste7 = 0;
+
+                            if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
+                                ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 7, SomaValoresCalculados, 'adicao');
+                                valor[7] = ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ',')
+                                vrAjuste7 = ResultadoVlAjusteCredito
+                                vrAjuste7 = isNaN(vrAjuste7) ? 0 : vrAjuste7;
+                            }
+                            else if (['3','4','5'].includes(CodigoAjuste[2]))
+                            {
+                                ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 3, SomaValoresCalculados, 'adicao');
+                                valor[3] = ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ',')
+                                vrAjuste3 = ResultadoVlAjusteCredito
+                                vrAjuste3 = isNaN(vrAjuste3) ? 0 : vrAjuste3;
+                            }
+
+                            let campo2Ao5 = ConverteStringParaFloat(valor[2]) + vrAjuste3 + ConverteStringParaFloat(valor[4]) + ConverteStringParaFloat(valor[5]);
+                            let campo6Ao10 = ConverteStringParaFloat(valor[6]) + vrAjuste7 + ConverteStringParaFloat(valor[8]) + ConverteStringParaFloat(valor[9]) + ConverteStringParaFloat(valor[10]);
                             let campo12 = ConverteStringParaFloat(valor[12]);
                             let total = campo2Ao5 - campo6Ao10;
                             let campo13 = total - campo12;
 
-                            if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
-                                ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 7, SomaValoresCalculados, 'adicao');
-                                newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 7,ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ','))
-                            }
-                            if (['3','4','5'].includes(CodigoAjuste[2]))
+                            if(total > 0)
                             {
-                                ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 3, SomaValoresCalculados, 'adicao');
-                                newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 3,ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ','))
+                              valor[11] = total.toFixed(2).toString().replace('.', ',')
+                            } else {
+                              valor[11] = '0'
                             }
-
-                            newLines[newLines.length - 1] = total > 0 ? AtualizaRegistro(lines[i], 11, total.toFixed(2).toString().replace('.', ',')) : AtualizaRegistro(lines[i], 11, '0');
-                            newLines[newLines.length - 1] = campo13 >= 0 ? AtualizaRegistro(lines[i], 13, campo13.toFixed(2).toString().replace('.', ',')) : AtualizaRegistro(lines[i], 13, '0');
+                            if(campo13 >= 0)
+                            {
+                              valor[13] = campo13.toFixed(2).toString().replace('.', ',')
+                            }else{
+                             valor[13] = '0'
+                            }
+                            console.log(valor)
+                            lines[i] = valor.join('|')
+                            newLines[newLines.length - 1] = lines[i];
                             
                         }
 

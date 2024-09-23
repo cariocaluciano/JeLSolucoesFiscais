@@ -79,7 +79,7 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-2">
+@*             <div class="col-2">
                 <div class="dropdown">
                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-expanded="false">
                         Tipo de ajuste
@@ -100,15 +100,16 @@
                         </label>
                     </div>
                 </div>
-            </div>
+            </div> *@
 
             <div class="col-2">
-                <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2 invisible">
+                <div id="AcaoParaDefinirCfopEModelo" style="border:2px solid #ced4da;" class="p-2  h-100">
                     <form class="form-floating">
                         <div class="row">
                             <div class="col-12">
+                                <label style="color:#ced4da" for="Serie">Modelo</label>
                                 <div class="input-group">
-                                    <input type="text" class="form-control" id="ModeloDropDown" placeholder="Modelo" readonly>
+                                    <input type="text" class="form-control" id="ModeloDropDown" placeholder="" readonly>
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownModelo" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownModelo">
                                         <li><a class="dropdown-item" onclick="selectOption('Todos')">Todos</a></li>
@@ -159,8 +160,8 @@
             </div>
 
 
-            <div class="col-6">
-                <div id="AcaoParaInclusaoProduto" style="display:none; border:2px solid #ced4da;" class="p-2">
+            <div class="col-10">
+                <div id="AcaoParaInclusaoProduto" style="display:block; border:2px solid #ced4da;" class="p-2 h-100">
                     <form class="form-floating">
                         <input type="text" class="form-control" id="CodigoAjuste" placeholder="Digite o Código do ajuste">
                         <label style="color:#ced4da" for="floatingInputValue" id="InputCodigoProduto">Código do ajuste</label>
@@ -262,7 +263,7 @@
         }
 
         function alterarArquivos() {
-            const BlocosD195D197 = document.getElementById("CheckD195d197").checked,
+            //const BlocosD195D197 = document.getElementById("CheckD195d197").checked,
             Modelo = document.getElementById("ModeloDropDown").value,
             Serie = document.getElementById("Serie").value,
             Cfop = document.getElementById("Cfop").value,
@@ -274,7 +275,7 @@
             RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms",
             CodObservacao = Math.floor(Math.random() * 900000) + 100000,
             divAcaoParaInclusaoSelecionaBloco = document.getElementById('AcaoParaInclusaoSelecionaBloco'),
-            displayStyle = window.getComputedStyle(divAcaoParaInclusaoSelecionaBloco).display,
+            //displayStyle = window.getComputedStyle(divAcaoParaInclusaoSelecionaBloco).display,
             BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
 
             let contadorNovasLinhas = 0, alteracaoLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
@@ -317,7 +318,7 @@
 
                             ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
 
-                            if (VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true) {
+                            if (VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo,lines[i]) == true) {
 
                                     if (lines[i + 1].startsWith('|D195|')) {
                                         alteracaoLinhas += 1
@@ -510,11 +511,12 @@
                 }
             });
 
-            function VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo)
+            function VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo,line)
             {
+                let values = line.split('|');
                 let retorno;
-                if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
-                    if (CheckD195d197.checked && (!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))))) {
+                if ((parseFloat(values[6]) > 0) && (D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
+                    if ((!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))))) {
                         retorno = true;
                     }
                     else {
@@ -526,13 +528,13 @@
                 return retorno;
             }
 
-            if (displayStyle === "none") {
+@*             if (displayStyle === "none") {
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o tipo de ajuste');
             }
-            else if (!BlocosD195D197) {
+            else  *@@* if (!BlocosD195D197) {
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o registro para inclusão');
             }
-            else if (CodigoAjuste === "") {
+            else *@ if (CodigoAjuste === "") {
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
             }
             else if (DescricaoComplementar === "") {
@@ -598,12 +600,12 @@
         }
 
         function BtnTipoAjusteInclusao() {
-            var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
-            var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
-            let AcaoParaDefinirCfopEModelo = document.getElementById("AcaoParaDefinirCfopEModelo");
-            blocosVisible.style.display = "block";
-            incluiProdutoVisible.style.display = "block";
-            AcaoParaDefinirCfopEModelo.classList.remove("invisible");
+            //var blocosVisible = document.getElementById("AcaoParaInclusaoSelecionaBloco");
+          //  var incluiProdutoVisible = document.getElementById("AcaoParaInclusaoProduto");
+          //  let AcaoParaDefinirCfopEModelo = document.getElementById("AcaoParaDefinirCfopEModelo");
+           // blocosVisible.style.display = "block";
+            //incluiProdutoVisible.style.display = "block";
+            //AcaoParaDefinirCfopEModelo.classList.remove("invisible");
 
         }
 

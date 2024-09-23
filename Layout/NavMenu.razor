@@ -49,11 +49,20 @@
         }
         @if (acessoLiberado)
         {
- @*            <div class="nav-item px-3">
-                <NavLink class="nav-link" href="EfdPisCofins">
-                    <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> EFD-Fiscal
-                </NavLink>
-            </div> *@
+            @if (isAdministrador) 
+            { 
+            <div class="nav-item px-3">
+                <a class="nav-link" onclick="toggleSubMenu(this)">Administrador</a>
+                <div class="nav-submenu">
+                    <a class="nav-link" onclick="toggleSubMenu(this)">Dashboard</a>
+                    <div class="nav-submenu">
+                        <NavLink class="nav-link" href="Administrador">
+                            <span aria-hidden="true"></span> Clientes
+                        </NavLink>
+                    </div>
+                </div>
+            </div>
+            }
 
         <div class="nav-item px-3">
             <a class="nav-link" onclick="toggleSubMenu(this)"> EFD-Fiscal</a>
@@ -96,6 +105,7 @@
 
     private bool isAuthenticated;
     private bool acessoLiberado;
+    private bool isAdministrador = true;
 
     protected override async Task OnInitializedAsync()
     {

@@ -1,0 +1,341 @@
+﻿@page "/Administrador"
+@using JeLSolucoesFiscais.Aplicacao.Usuario
+
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f4;
+    }
+
+    .container {
+        width: 80%;
+        margin: auto;
+        overflow: hidden;
+        padding: 20px;
+    }
+
+    header {
+        background: #35424a;
+        color: #ffffff;
+        padding-top: 30px;
+        min-height: 70px;
+        border-bottom: #e8491d 3px solid;
+        text-align: center;
+    }
+
+    main {
+        /*           display: flex;
+               flex-wrap: wrap;
+                 justify-content: space-between;
+                  margin-top: 20px; */
+    }
+
+    section {
+        flex-basis: 30%;
+        margin-bottom: 20px;
+    }
+
+    .card {
+        background: #fff;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        margin-top: 15px;
+    }
+
+    button {
+        display: inline-block;
+        padding: 10px 20px;
+        color: #ffffff;
+        background-color: #e8491d;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+    }
+
+        button:hover {
+            background-color: #ff5a1f;
+        }
+
+    .grid-clientes {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    .cliente-card {
+        background: #fff;
+        padding: 15px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto;
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%;
+        max-width: 500px;
+        border-radius: 5px;
+    }
+
+    .fechar {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+        .fechar:hover,
+        .fechar:focus {
+            color: #000;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+    form {
+        display: flex;
+        flex-direction: column;
+    }
+
+        form label {
+            margin-top: 10px;
+        }
+
+        form input {
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        form button {
+            margin-top: 20px;
+        }
+</style>
+
+<div class="container">
+    <header>
+        <h1>Gerenciamento de Clientes</h1>
+    </header>
+
+    <main class="row">
+        <section class="col-4" id="cadastro-cliente">
+            <div class="card">
+                <h2>Cadastrar Novo Cliente</h2>
+                <button id="btn-abrir-cadastro">Incluir Cliente</button>
+            </div>
+        </section>
+
+        <section class="col-4" id="clientes">
+            <div class="card">
+                <h2>Clientes Cadastrados</h2>
+                <button id="btn-exibir-clientes">Exibir Clientes</button>
+            </div>
+        </section>
+
+        <section class="col-4" id="inadimplentes">
+            <div class="card">
+                <h2>Clientes Inadimplentes</h2>
+                @* <p>Total: <span id="total-inadimplentes">0</span></p> *@
+                <button id="btn-ver-inadimplentes">Ver Detalhes</button>
+            </div>
+        </section>
+    </main>
+</div>
+
+<!-- Modal de Cadastro -->
+<div id="modal-cadastro" class="modal">
+    <div class="modal-content">
+        <span class="fechar">&times;</span>
+        <h2>Cadastrar Novo Cliente</h2>
+        <form id="form-cadastro">
+            <label for="nome">Nome:</label>
+            <input type="text" id="nome" required>
+
+            <label for="email">E-mail:</label>
+            <input type="email" id="email" required>
+
+            <label for="contato">Contato:</label>
+            <input type="tel" id="contato" required>
+
+            <label for="data-pagamento">Data de Pagamento:</label>
+            <input type="date" id="data-pagamento" required>
+
+            <button type="submit">Cadastrar</button>
+        </form>
+    </div>
+</div>
+
+<!-- Modal de Clientes -->
+<div id="modal-clientes" class="modal">
+    <div class="modal-content">
+        <span class="fechar">&times;</span>
+        <h2>Clientes Cadastrados</h2>
+        <div id="lista-clientes" class="grid-clientes"></div>
+    </div>
+</div>
+
+<!-- Modal de Inadimplentes -->
+<div id="modal-inadimplentes" class="modal">
+    <div class="modal-content">
+        <span class="fechar">&times;</span>
+        <h2>Clientes Inadimplentes</h2>
+        <div id="lista-inadimplentes"></div>
+    </div>
+</div>
+<script>
+    // Configuração da API do Trello
+    // const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
+    // const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
+    // const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
+
+    // Funções auxiliares
+    function formatarData(data) {
+        return new Date(data).toLocaleDateString('pt-BR');
+    }
+
+    function estaInadimplente(dataPagamento) {
+        return new Date(dataPagamento) < new Date();
+    }
+
+    // Funções para interagir com o Trello
+    async function obterClientes() {
+        const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
+        const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
+        const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
+        const response = await fetch(`https://api.trello.com/1/lists/${LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`);
+        return await response.json();
+    }
+
+    async function cadastrarCliente(cliente) {
+        const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
+        const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
+        const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
+        const response = await fetch(`https://api.trello.com/1/cards?key=${API_KEY}&token=${TOKEN}&idList=${LIST_ID}&name=${cliente.nome}&desc=${JSON.stringify(cliente)}`, {
+            method: 'POST'
+        });
+        return await response.json();
+    }
+
+    // Funções para atualizar a interface
+    function exibirClientes(clientes) {
+        const listaClientes = document.getElementById('lista-clientes');
+        listaClientes.innerHTML = '';
+
+        clientes.forEach(cliente => {
+            const dados = JSON.parse(cliente.desc);
+            const card = document.createElement('div');
+            card.className = 'cliente-card';
+            card.innerHTML = `
+                                <h3>${dados.nome}</h3>
+                                <p>E-mail: ${dados.email}</p>
+                                <p>Contato: ${dados.contato}</p>
+                                <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+                            `;
+            listaClientes.appendChild(card);
+        });
+    }
+
+    function exibirInadimplentes(clientes) {
+        const inadimplentes = clientes.filter(cliente => estaInadimplente(JSON.parse(cliente.desc).dataPagamento));
+        // const totalInadimplentes = document.getElementById('total-inadimplentes');
+        // totalInadimplentes.textContent = inadimplentes.length;
+
+        const listaInadimplentes = document.getElementById('lista-inadimplentes');
+        listaInadimplentes.innerHTML = '';
+
+        inadimplentes.forEach(cliente => {
+            const dados = JSON.parse(cliente.desc);
+            const item = document.createElement('div');
+            item.innerHTML = `
+                                <h3>${dados.nome}</h3>
+                                <p>E-mail: ${dados.email}</p>
+                                <p>Contato: ${dados.contato}</p>
+                                <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+                            `;
+            listaInadimplentes.appendChild(item);
+        });
+    }
+
+    // Event Listeners
+
+
+    // Abertura e fechamento do modal de cadastro
+    document.getElementById('btn-abrir-cadastro').onclick = () => {
+        document.getElementById('modal-cadastro').style.display = 'block';
+    };
+    document.querySelector('.fechar').onclick = () => {
+        document.getElementById('modal-cadastro').style.display = 'none';
+    };
+
+    // Abertura e fechamento do modal de clientes
+    document.getElementById('btn-exibir-clientes').onclick = async () => {
+        const clientes = await obterClientes();
+        exibirClientes(clientes);
+        document.getElementById('modal-clientes').style.display = 'block';
+    };
+    document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => {
+        document.getElementById('modal-clientes').style.display = 'none';
+    };
+
+    // Abertura e fechamento do modal de inadimplentes
+    document.getElementById('btn-ver-inadimplentes').onclick = async () => {
+        const clientes = await obterClientes();
+        exibirInadimplentes(clientes);
+        document.getElementById('modal-inadimplentes').style.display = 'block';
+    };
+    document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => {
+        document.getElementById('modal-inadimplentes').style.display = 'none';
+    };
+
+    // Fechar modais ao clicar fora deles
+    window.onclick = (event) => {
+        if (event.target == document.getElementById('modal-cadastro')) {
+            document.getElementById('modal-cadastro').style.display = 'none';
+        }
+        if (event.target == document.getElementById('modal-clientes')) {
+            document.getElementById('modal-clientes').style.display = 'none';
+        }
+        if (event.target == document.getElementById('modal-inadimplentes')) {
+            document.getElementById('modal-inadimplentes').style.display = 'none';
+        }
+    };
+
+    // Submissão do formulário de cadastro
+    document.getElementById('form-cadastro').onsubmit = async (e) => {
+        e.preventDefault();
+        const cliente = {
+            nome: document.getElementById('nome').value,
+            email: document.getElementById('email').value,
+            dataPagamento: document.getElementById('data-pagamento').value,
+            contato: document.getElementById('contato').value
+        };
+        await cadastrarCliente(cliente);
+        document.getElementById('modal-cadastro').style.display = 'none';
+        document.getElementById('form-cadastro').reset();
+    };
+
+</script>
+
+
+
+@code {
+
+}

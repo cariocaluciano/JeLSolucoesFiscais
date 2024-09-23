@@ -26,7 +26,7 @@
             }
 
         #fileContentContainer {
-            display: none;
+            display: none; 
         }
 
         .file-entry {
@@ -34,7 +34,7 @@
         }
 
         .file-content {
-            white-space: pre-wrap; 
+            white-space: pre-wrap;
         }
 
     </style>
@@ -218,7 +218,7 @@
 
     <script>
         if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-            let files = []; 
+            let files = [];
         } else {
             files = [];
         }
@@ -277,7 +277,7 @@
             displayStyle = window.getComputedStyle(divAcaoParaInclusaoSelecionaBloco).display,
             BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
 
-            let contadorNovasLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
+            let contadorNovasLinhas = 0, alteracaoLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
                 D100Campo2, D100Campo3, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
                 LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900,
@@ -317,13 +317,17 @@
 
                             ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
 
-                            if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
-                                if (CheckD195d197.checked && (!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))))) {
+                            if (VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true) {
 
-                                    newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
-                                    newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+                                    if (lines[i + 1].startsWith('|D195|')) {
+                                        alteracaoLinhas += 1
+                                    }
+                                    else {
+                                        newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
+                                        newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
 
-                                    contadorNovasLinhas += 1
+                                        contadorNovasLinhas += 1
+                                    }
 
                                     if((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
@@ -332,9 +336,21 @@
                                     {
                                     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
                                     }
-
-                                }
                             }
+                        }
+
+                        if (lines[i].startsWith('|D195|')) {
+                            if(VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true){
+                                lines[i] = `|D195|${CodObservacao}|${DescricaoComplementar}|`
+                                newLines[newLines.length - 1] = lines[i];
+                                }
+                        }
+
+                        if (lines[i].startsWith('|D197|')) {
+                            if(VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true){
+                                lines[i] = `|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`
+                                newLines[newLines.length - 1] = lines[i];
+                                }
                         }
 
                         if (lines[i].startsWith('|D990|')) {
@@ -342,13 +358,13 @@
                             newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
                         }
 
-                        if (parseInt(lines[i].split('|')[1]) < 460) {
+                        if ((parseInt(lines[i].split('|')[1]) < 460) && (alteracaoLinhas == 0)) {
                             UltimoRegistroAntes0460 = lines[i].split('|')[1];
                             LinhaUltimoRegistroAntes0460 = i;
                         }
 
                         if (parseInt(lines[i].split('|')[2]) == '9900') {
-                            let resultado = CalculaRegistro(lines[i], 3, 3, 'adicao').toString();
+                            let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 3, 1, 'adicao').toString() : CalculaRegistro(lines[i], 3, 3, 'adicao').toString();
                             newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 3, resultado);
                         }
 
@@ -394,10 +410,10 @@
                             }else{
                              valor[13] = '0'
                             }
-                            console.log(valor)
+
                             lines[i] = valor.join('|')
                             newLines[newLines.length - 1] = lines[i];
-                            
+
                         }
 
                         if (lines[i].startsWith('|9900|')) {
@@ -405,20 +421,26 @@
                         }
 
                         if (lines[i].startsWith('|9990|')) {
-                            let resultado = CalculaRegistro(lines[i], 2, 3, 'adicao').toString();
+                            let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 2, 1, 'adicao').toString() : CalculaRegistro(lines[i], 2, 3, 'adicao').toString();
                             newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
                         }
 
                         if (lines[i].startsWith('|9999|')) {
-                            let resultado = CalculaRegistro(lines[i], 2, contadorNovasLinhas, 'multiplicacao','9999').toString();
+                            let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 2, 1, 'adicao').toString() : CalculaRegistro(lines[i], 2, contadorNovasLinhas, 'multiplicacao', '9999').toString();
                             newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
                         }
 
                     }
 
-                    let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
-                    if (indice9900 !== -1) {
-                        newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
+                    if (alteracaoLinhas > 0) {
+                        let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'));
+                        let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
+                        newLines[indice] = `|9900|0460|${resultado}|`;
+                    } else {
+                        let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
+                        if (indice9900 !== -1) {
+                            newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
+                        }
                     }
 
                     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
@@ -445,10 +467,7 @@
                                 // Junta as partes de volta e armazena no array
                                 linha = partes.join('|');
                                 valoresConvertidos.push(linha); // Adiciona a linha modificada ao array
-                            }@*  else { //Removido para pegar somente os que tem letras
-                                linha = partes.join('|');
-                                valoresConvertidos.push(linha)
-                            } *@
+                            }
                         });
 
                         let campo = letrasAlfabeto.includes(campoParaInserir[0]) ? campoParaInserir.toUpperCase().charCodeAt(0) - 64 : campoParaInserir[0]
@@ -491,6 +510,22 @@
                 }
             });
 
+            function VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo)
+            {
+                let retorno;
+                if ((D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
+                    if (CheckD195d197.checked && (!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))))) {
+                        retorno = true;
+                    }
+                    else {
+                        retorno = false;
+                    }
+                } else{
+                    retorno = false;
+                }
+                return retorno;
+            }
+
             if (displayStyle === "none") {
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o tipo de ajuste');
             }
@@ -516,7 +551,7 @@
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar uma Serie ou marcar o campo Todas Series');
             }
             else {
-                if (contadorNovasLinhas > 1) {
+                if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
                     document.getElementById('loadingScreen').style.display = 'flex';
                     setTimeout(function() {
                         document.getElementById('loadingScreen').style.display = 'none';

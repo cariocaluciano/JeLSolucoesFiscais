@@ -341,14 +341,14 @@
                         }
 
                         if (lines[i].startsWith('|D195|')) {
-                            if(VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true){
+                            if (VerificaCondicoesParaGerarD195D197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true) {
                                 lines[i] = `|D195|${CodObservacao}|${DescricaoComplementar}|`
                                 newLines[newLines.length - 1] = lines[i];
                                 }
                         }
 
                         if (lines[i].startsWith('|D197|')) {
-                            if(VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo) == true){
+                            if (VerificaCondicoesParaGerarD195D197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true) {
                                 lines[i] = `|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`
                                 newLines[newLines.length - 1] = lines[i];
                                 }

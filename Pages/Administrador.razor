@@ -83,18 +83,34 @@
         top: 0;
         width: 100%;
         height: 100%;
-        overflow: auto;
+        overflow: hidden;
         background-color: rgba(0,0,0,0.4);
     }
 
     .modal-content {
         background-color: #fefefe;
-        margin: 15% auto;
+        margin: 5% auto;
         padding: 20px;
         border: 1px solid #888;
         width: 80%;
-        max-width: 500px;
+        max-width: 800px;
+        height: 80vh;
         border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 10px;
+    }
+
+    .modal-body {
+        flex-grow: 1;
+        overflow-y: auto;
+        padding-right: 10px;
     }
 
     .fechar {
@@ -129,6 +145,11 @@
         form button {
             margin-top: 20px;
         }
+
+    body.modal-open {
+        overflow: hidden;
+    }
+
 </style>
 
 <div class="container">
@@ -164,49 +185,59 @@
 <!-- Modal de Cadastro -->
 <div id="modal-cadastro" class="modal">
     <div class="modal-content">
-        <span class="fechar">&times;</span>
-        <h2>Cadastrar Novo Cliente</h2>
-        <form id="form-cadastro">
-            <label for="nome">Nome:</label>
-            <input type="text" id="nome" required>
+        <div class="modal-header">
+            <h2>Cadastrar Novo Cliente</h2>
+            <span class="fechar">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="form-cadastro">
+                <label for="nome">Nome:</label>
+                <input type="text" id="nome" required>
 
-            <label for="email">E-mail:</label>
-            <input type="email" id="email" required>
+                <label for="email">E-mail:</label>
+                <input type="email" id="email" required>
 
-            <label for="contato">Contato:</label>
-            <input type="tel" id="contato" required>
+                <label for="data-pagamento">Data de Pagamento:</label>
+                <input type="date" id="data-pagamento" required>
 
-            <label for="data-pagamento">Data de Pagamento:</label>
-            <input type="date" id="data-pagamento" required>
+                <label for="contato">Contato:</label>
+                <input type="tel" id="contato" required>
 
-            <button type="submit">Cadastrar</button>
-        </form>
+                <button type="submit">Cadastrar</button>
+            </form>
+        </div>
     </div>
 </div>
+
 
 <!-- Modal de Clientes -->
 <div id="modal-clientes" class="modal">
     <div class="modal-content">
-        <span class="fechar">&times;</span>
-        <h2>Clientes Cadastrados</h2>
-        <div id="lista-clientes" class="grid-clientes"></div>
+        <div class="modal-header">
+            <h2>Clientes Cadastrados</h2>
+            <span class="fechar">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="lista-clientes" class="grid-clientes"></div>
+        </div>
     </div>
 </div>
+
 
 <!-- Modal de Inadimplentes -->
 <div id="modal-inadimplentes" class="modal">
     <div class="modal-content">
-        <span class="fechar">&times;</span>
-        <h2>Clientes Inadimplentes</h2>
-        <div id="lista-inadimplentes"></div>
+        <div class="modal-header">
+            <h2>Clientes Inadimplentes</h2>
+            <span class="fechar">&times;</span>
+        </div>
+        <div class="modal-body">
+            <div id="lista-inadimplentes"></div>
+        </div>
     </div>
 </div>
-<script>
-    // Configuração da API do Trello
-    // const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
-    // const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
-    // const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
 
+<script>
     // Funções auxiliares
     function formatarData(data) {
         return new Date(data).toLocaleDateString('pt-BR');
@@ -275,47 +306,49 @@
         });
     }
 
+    function abrirModal(modal) {
+        modal.style.display = 'block';
+        document.body.classList.add('modal-open');
+    }
+
+    function fecharModal(modal) {
+        modal.style.display = 'none';
+        document.body.classList.remove('modal-open');
+    }
+
     // Event Listeners
 
 
     // Abertura e fechamento do modal de cadastro
-    document.getElementById('btn-abrir-cadastro').onclick = () => {
-        document.getElementById('modal-cadastro').style.display = 'block';
-    };
-    document.querySelector('.fechar').onclick = () => {
-        document.getElementById('modal-cadastro').style.display = 'none';
-    };
+    document.getElementById('btn-abrir-cadastro').onclick = () => abrirModal(document.getElementById('modal-cadastro'));
+    document.querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-cadastro'));
 
     // Abertura e fechamento do modal de clientes
     document.getElementById('btn-exibir-clientes').onclick = async () => {
         const clientes = await obterClientes();
         exibirClientes(clientes);
-        document.getElementById('modal-clientes').style.display = 'block';
+        abrirModal(document.getElementById('modal-clientes'));
     };
-    document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => {
-        document.getElementById('modal-clientes').style.display = 'none';
-    };
+    document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-clientes'));
 
     // Abertura e fechamento do modal de inadimplentes
     document.getElementById('btn-ver-inadimplentes').onclick = async () => {
         const clientes = await obterClientes();
         exibirInadimplentes(clientes);
-        document.getElementById('modal-inadimplentes').style.display = 'block';
+        abrirModal(document.getElementById('modal-inadimplentes'));
     };
-    document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => {
-        document.getElementById('modal-inadimplentes').style.display = 'none';
-    };
+    document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-inadimplentes'));
 
     // Fechar modais ao clicar fora deles
     window.onclick = (event) => {
         if (event.target == document.getElementById('modal-cadastro')) {
-            document.getElementById('modal-cadastro').style.display = 'none';
+            fecharModal(document.getElementById('modal-cadastro'));
         }
         if (event.target == document.getElementById('modal-clientes')) {
-            document.getElementById('modal-clientes').style.display = 'none';
+            fecharModal(document.getElementById('modal-clientes'));
         }
         if (event.target == document.getElementById('modal-inadimplentes')) {
-            document.getElementById('modal-inadimplentes').style.display = 'none';
+            fecharModal(document.getElementById('modal-clientes'));
         }
     };
 
@@ -329,7 +362,7 @@
             contato: document.getElementById('contato').value
         };
         await cadastrarCliente(cliente);
-        document.getElementById('modal-cadastro').style.display = 'none';
+        fecharModal(document.getElementById('modal-cadastro'));
         document.getElementById('form-cadastro').reset();
     };
 

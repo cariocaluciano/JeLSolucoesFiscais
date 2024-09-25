@@ -439,20 +439,48 @@
                         newLines[indice] = `|9900|0460|${resultado}|`;
                     } else {
                         let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
-                        if (indice9900 !== -1) {
+                        let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'))
+
+                        if (indice !== -1) {
+                            let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
+                            newLines[indice] = `|9900|0460|${resultado}|`;
+                        }
+                        else if (indice9900 !== -1) {
                             newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
                         }
                     }
 
                     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
+                    let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
+                    let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
+
                     let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
                     let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
 
-                    if (indice !== -1) {
+                    if (indiceD195 !== -1) {
+                        let resultado = CalculaRegistro(newLines[indiceD195], 3, contadorNovasLinhas, 'adicao').toString();
+                        newLines[indiceD195] = `|9900|D195|${resultado}|`;
+                    }
+                    if (indiceD197 !== -1) {
+                        let resultado = CalculaRegistro(newLines[indiceD197], 3, contadorNovasLinhas, 'adicao').toString();
+                        newLines[indiceD197] = `|9900|D197|${resultado}|`;
+                    }
+                    else if (indice !== -1) {
                         newLines.splice(indice + 1, 0, novaLinha9900D195);
                         newLines.splice(indice + 2, 0, novaLinha9900D197);
                     }
-
+                    let indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
+                    if (indice9900 !== -1) {
+                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
+                    }
+                    let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                    if (indice9999 !== -1) {
+                        newLines[indice9999] = `|9999|${newLines.length}|`;
+                    }
+                    let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                    if (indice9 !== -1) { //Luciano parei aqui
+                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
+                    }
 
                     function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
                         const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
@@ -528,13 +556,7 @@
                 return retorno;
             }
 
-@*             if (displayStyle === "none") {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o tipo de ajuste');
-            }
-            else  *@@* if (!BlocosD195D197) {
-                ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar o registro para inclusão');
-            }
-            else *@ if (CodigoAjuste === "") {
+            if (CodigoAjuste === "") {
                 ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
             }
             else if (DescricaoComplementar === "") {

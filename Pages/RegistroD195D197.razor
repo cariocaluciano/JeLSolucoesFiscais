@@ -308,7 +308,7 @@
                 <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download</button>
             </div>
             <div class="col">
-                <button id="BtnGerarRelatorio" style="visibility:hidden">Gerar Relatório</button>
+                <button id="BtnGerarRelatorio" onclick="btnGerarRelatorio_click()" style="visibility:hidden">Gerar Relatório</button>
             </div>
         </div>
         <div class="row">
@@ -719,6 +719,37 @@
                 link.click();
             });
         }
+
+
+        function btnGerarRelatorio_click() {
+            let arquivo;
+            files.forEach((file, index) => {
+                const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+                arquivo = fileContent;
+
+                if (arquivo) {
+                    const leitor = new FileReader();
+                    leitor.onload = (e) => {
+                        const conteudo = e.target.result;
+                        const dados = processarArquivoSPED(conteudo);
+                        const relatorioHTML = gerarRelatorioHTML(dados);
+                        document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
+                        modalRelatorioSPED.style.display = 'block';
+                    };
+                    leitor.readAsText(arquivo);
+                } 
+            });
+        };
+
+        spanFecharRelatorioSPED.onclick = () => {
+            modalRelatorioSPED.style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target == modalRelatorioSPED) {
+                modalRelatorioSPED.style.display = 'none';
+            }
+        };
 
         function arrayBufferToBase64(buffer) {
             let binary = '';

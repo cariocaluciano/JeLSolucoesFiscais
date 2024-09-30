@@ -4,7 +4,7 @@
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
 
-<PageTitle>Efd-PisCofins</PageTitle>
+<PageTitle>SoluFiscal</PageTitle>
 
 @if (acessoLiberado)
 {
@@ -556,7 +556,7 @@
                             newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
                         }
                     }
-
+                    if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) { 
                     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
                     let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
                     let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
@@ -585,10 +585,10 @@
                         newLines[indice9999] = `|9999|${newLines.length}|`;
                     }
                     let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
-                    if (indice9 !== -1) { //Luciano parei aqui
+                    if (indice9 !== -1) {
                         newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
                     }
-
+                    }
                     function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
                         const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
                         let valoresConvertidos = [];
@@ -732,24 +732,24 @@
                     leitor.onload = (e) => {
                         const conteudo = e.target.result;
                         const dados = processarArquivoSPED(conteudo);
-                        const relatorioHTML = gerarRelatorioHTML(dados);
-                        document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
-                        modalRelatorioSPED.style.display = 'block';
+                       // const relatorioHTML = gerarRelatorioHTML(dados);
+                       // document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
+                        //modalRelatorioSPED.style.display = 'block';
                     };
                     leitor.readAsText(arquivo);
                 } 
             });
         };
 
-        spanFecharRelatorioSPED.onclick = () => {
+@*         spanFecharRelatorioSPED.onclick = () => {
             modalRelatorioSPED.style.display = 'none';
-        };
+        }; *@
 
-        window.onclick = (event) => {
+ @*        window.onclick = (event) => {
             if (event.target == modalRelatorioSPED) {
                 modalRelatorioSPED.style.display = 'none';
             }
-        };
+        }; *@
 
         function arrayBufferToBase64(buffer) {
             let binary = '';

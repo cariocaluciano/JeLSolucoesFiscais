@@ -1,6 +1,8 @@
 ﻿@page "/Administrador"
 @using JeLSolucoesFiscais.Aplicacao.Criptografias
+@using JeLSolucoesFiscais.Aplicacao.ServicosTrello
 @using JeLSolucoesFiscais.Aplicacao.Usuario
+@using Newtonsoft.Json.Linq
 
 <style>
     body {
@@ -144,6 +146,17 @@
     }
 
 </style>
+<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+    <div id="alertToastSucesso" class="toast bg-success text-dark border-0 @(mostrarModalSucesso ? "show" : "")" style="display:@(mostrarModalSucesso ? "block" : "none");" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="toast-header">
+            <strong class="me-auto">Sucesso</strong>
+            <button @onclick="FecharModalSucesso" type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+            <b>Cliente Cadastrado com Sucesso!</b>
+        </div>
+    </div>
+</div>
 
 <div class="container">
     <header>
@@ -154,21 +167,20 @@
         <section class="col-4" id="cadastro-cliente">
             <div class="card">
                 <h2>Cadastrar Novo Cliente</h2>
-                <button id="btn-abrir-cadastro">Incluir Cliente</button>
+                <button @onclick="AbreModalCadastro" id="btn-abrir-cadastro">Incluir Cliente</button>
             </div>
         </section>
 
         <section class="col-4" id="clientes">
             <div class="card">
                 <h2>Clientes Cadastrados</h2>
-                <button id="btn-exibir-clientes">Exibir Clientes</button>
+                <button @onclick="ExibirClientes" id="btn-exibir-clientes">Exibir Clientes</button>
             </div>
         </section>
 
         <section class="col-4" id="inadimplentes">
             <div class="card">
                 <h2>Clientes Inadimplentes</h2>
-                @* <p>Total: <span id="total-inadimplentes">0</span></p> *@
                 <button id="btn-ver-inadimplentes">Ver Detalhes</button>
             </div>
         </section>
@@ -176,42 +188,61 @@
 </div>
 
 <!-- Modal de Cadastro -->
-<div id="modal-cadastro" class="modal">
+<div id="modal-cadastro" class="modal @(mostrarModalCadastro ? "show" : "")" style="display:@(mostrarModalCadastro ? "block" : "none");">
     <div class="modal-content">
         <div class="modal-header">
             <h2>Cadastrar Novo Cliente</h2>
-            <span class="fechar">&times;</span>
+            <span class="fechar" @onclick="FecharModalCadastro">&times;</span>
         </div>
         <div class="modal-body">
-            <form id="form-cadastro">
+            <EditForm Model="cliente" OnValidSubmit="CadastrarCliente">
+                <DataAnnotationsValidator />
+                <ValidationSummary />
                 <label for="nome">Nome:</label>
-                <input type="text" id="nome" required>
+                <InputText id="nome" @bind-Value="cliente.Nome" />
 
                 <label for="email">E-mail:</label>
-                <input type="email" id="email" required>
+                <InputText id="email" @bind-Value="cliente.Email" />
 
                 <label for="data-pagamento">Data de Pagamento:</label>
-                <input type="date" id="data-pagamento" required>
+                <InputText id="data-pagamento" @bind-Value="cliente.DataPagamento" />
 
                 <label for="contato">Contato:</label>
-                <input type="tel" id="contato" required>
+                <InputText id="contato" @bind-Value="cliente.Contato" />
 
                 <button type="submit">Cadastrar</button>
-            </form>
+            </EditForm>
         </div>
     </div>
 </div>
 
 
 <!-- Modal de Clientes -->
-<div id="modal-clientes" class="modal">
+<div id="modal-clientes" class="modal @(mostrarModal ? "show" : "")" style="display:@(mostrarModal ? "block" : "none");">
     <div class="modal-content">
         <div class="modal-header">
             <h2>Clientes Cadastrados</h2>
-            <span class="fechar">&times;</span>
+            <span class="fechar" @onclick="FecharModal">&times;</span>
         </div>
         <div class="modal-body">
-            <div id="lista-clientes" class="grid-clientes"></div>
+            <div id="lista-clientes" class="grid-clientes">
+                @if (clientes != null && clientes.Any())
+                {
+                    @foreach (var cliente in clientes)
+                    {
+                        <div class="cliente-card">
+                            <h3>@cliente.Nome</h3>
+                            <p>E-mail: @cliente.Email</p>
+                            <p>Contato: @cliente.Contato</p>
+                            <p>Data de Pagamento: @cliente.DataPagamento</p>
+                        </div>
+                    }
+                }
+                else
+                {
+                    <p>Nenhum cliente cadastrado.</p>
+                }
+            </div>
         </div>
     </div>
 </div>
@@ -240,48 +271,36 @@
         return new Date(dataPagamento) < new Date();
     }
 
-    // Funções para interagir com o Trello
-    async function obterClientes() {
-        const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
-        const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
-        const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
-        const response = await fetch(`https://api.trello.com/1/lists/${LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`);
-        return await response.json();
-    }
-
-    async function cadastrarCliente(cliente) {
-        const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
-        const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
-        const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
-        const response = await fetch(`https://api.trello.com/1/cards?key=${API_KEY}&token=${TOKEN}&idList=${LIST_ID}&name=${cliente.nome}&desc=${JSON.stringify(cliente)}`, {
-            method: 'POST'
-        });
-        return await response.json();
-    }
+    // // Funções para interagir com o Trello
+    // async function obterClientes() {
+    //     const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
+    //     const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
+    //     const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
+    //     const response = await fetch(`https://api.trello.com/1/lists/${LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`);
+    //     return await response.json();
+    // }
 
     // Funções para atualizar a interface
-    function exibirClientes(clientes) {
-        const listaClientes = document.getElementById('lista-clientes');
-        listaClientes.innerHTML = '';
+    // function exibirClientes(clientes) {
+    //     const listaClientes = document.getElementById('lista-clientes');
+    //     listaClientes.innerHTML = '';
 
-        clientes.forEach(cliente => {
-            const dados = JSON.parse(cliente.desc);
-            const card = document.createElement('div');
-            card.className = 'cliente-card';
-            card.innerHTML = `
-                                <h3>${dados.nome}</h3>
-                                <p>E-mail: ${dados.email}</p>
-                                <p>Contato: ${dados.contato}</p>
-                                <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
-                            `;
-            listaClientes.appendChild(card);
-        });
-    }
+    //     clientes.forEach(cliente => {
+    //         const dados = JSON.parse(cliente.desc);
+    //         const card = document.createElement('div');
+    //         card.className = 'cliente-card';
+    //         card.innerHTML = `
+    //                             <h3>${dados.nome}</h3>
+    //                             <p>E-mail: ${dados.email}</p>
+    //                             <p>Contato: ${dados.contato}</p>
+    //                             <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+    //                         `;
+    //         listaClientes.appendChild(card);
+    //     });
+    // }
 
     function exibirInadimplentes(clientes) {
         const inadimplentes = clientes.filter(cliente => estaInadimplente(JSON.parse(cliente.desc).dataPagamento));
-        // const totalInadimplentes = document.getElementById('total-inadimplentes');
-        // totalInadimplentes.textContent = inadimplentes.length;
 
         const listaInadimplentes = document.getElementById('lista-inadimplentes');
         listaInadimplentes.innerHTML = '';
@@ -290,11 +309,11 @@
             const dados = JSON.parse(cliente.desc);
             const item = document.createElement('div');
             item.innerHTML = `
-                                <h3>${dados.nome}</h3>
-                                <p>E-mail: ${dados.email}</p>
-                                <p>Contato: ${dados.contato}</p>
-                                <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
-                            `;
+                                    <h3>${dados.nome}</h3>
+                                    <p>E-mail: ${dados.email}</p>
+                                    <p>Contato: ${dados.contato}</p>
+                                    <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+                                `;
             listaInadimplentes.appendChild(item);
         });
     }
@@ -313,23 +332,23 @@
 
 
     // Abertura e fechamento do modal de cadastro
-    document.getElementById('btn-abrir-cadastro').onclick = () => abrirModal(document.getElementById('modal-cadastro'));
-    document.querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-cadastro'));
+    // document.getElementById('btn-abrir-cadastro').onclick = () => abrirModal(document.getElementById('modal-cadastro'));
+    // document.querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-cadastro'));
 
     // Abertura e fechamento do modal de clientes
-    document.getElementById('btn-exibir-clientes').onclick = async () => {
-        const clientes = await obterClientes();
-        exibirClientes(clientes);
-        abrirModal(document.getElementById('modal-clientes'));
-    };
-    document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-clientes'));
+    // document.getElementById('btn-exibir-clientes').onclick = async () => {
+    //     const clientes = await obterClientes();
+    //     exibirClientes(clientes);
+    //     abrirModal(document.getElementById('modal-clientes'));
+    // };
+    // document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-clientes'));
 
-    // Abertura e fechamento do modal de inadimplentes
-    document.getElementById('btn-ver-inadimplentes').onclick = async () => {
-        const clientes = await obterClientes();
-        exibirInadimplentes(clientes);
-        abrirModal(document.getElementById('modal-inadimplentes'));
-    };
+    // // Abertura e fechamento do modal de inadimplentes
+    // document.getElementById('btn-ver-inadimplentes').onclick = async () => {
+    //     const clientes = await obterClientes();
+    //     exibirInadimplentes(clientes);
+    //     abrirModal(document.getElementById('modal-inadimplentes'));
+    // };
     document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-inadimplentes'));
 
     // Fechar modais ao clicar fora deles
@@ -344,36 +363,92 @@
             fecharModal(document.getElementById('modal-clientes'));
         }
     };
-
-    // Submissão do formulário de cadastro
-    document.getElementById('form-cadastro').onsubmit = async (e) => {
-        e.preventDefault();
-        const cliente = {
-            nome: document.getElementById('nome').value,
-            email: document.getElementById('email').value,
-            dataPagamento: document.getElementById('data-pagamento').value,
-            contato: document.getElementById('contato').value
-        };
-        await cadastrarCliente(cliente);
-        fecharModal(document.getElementById('modal-cadastro'));
-        document.getElementById('form-cadastro').reset();
-    };
-
 </script>
 
 
 
 @code {
+    private bool mostrarModalSucesso = false;
     Descriptografa descriptografa = new Descriptografa { };
 
     public string ChaveDescriptografada { get; set; }
 
+    ServicosTrello ServicosTrello = new ServicosTrello { };
+    private bool mostrarModalCadastro = false;
 
     public string Desc(string chave)
     {
         ChaveDescriptografada = descriptografa.RetornaValorDescriptografado(chave);
-        return  descriptografa.RetornaValorDescriptografado(chave);
+        return descriptografa.RetornaValorDescriptografado(chave);
 
     }
+    private Cliente cliente = new Cliente();
+
+    private async Task CadastrarCliente()
+    {
+        await ServicosTrello.CadastrarClienteAsync(cliente);
+        mostrarModalSucesso = true;
+        FecharModalCadastro();
+        cliente = new Cliente();
+    }
+    private void AbreModalCadastro()
+    {
+        mostrarModalCadastro = true;
+    }
+    private void FecharModalCadastro()
+    {
+        mostrarModalCadastro = false;
+    }
+
+
+    private bool mostrarModal = false;
+
+    private List<Cliente> clientes = new List<Cliente>();
+
+    private async Task ExibirClientes()
+    {
+        clientes = await ObterClientesDoTrelloAsync();
+        mostrarModal = true;
+    }
+    private void FecharModal()
+    {
+        mostrarModal = false;
+    }
+    private void FecharModalSucesso()
+    {
+        mostrarModalSucesso = false;
+    }
+
+    private async Task<List<Cliente>> ObterClientesDoTrelloAsync()
+    {
+        // Chama sua função para buscar os dados do Trello
+        JArray cards = await ServicosTrello.ObterClientesAsync();
+
+        if (cards == null)
+        {
+            Console.WriteLine("Erro ao buscar clientes.");
+            return new List<Cliente>();
+        }
+
+        // Converte os dados obtidos da API do Trello para a lista de clientes
+        List<Cliente> listaClientes = new List<Cliente>();
+
+        foreach (var card in cards)
+        {
+            var desc = card["desc"].ToString(); // Obtém a descrição do cartão (que contém os dados do cliente)
+
+            // Supondo que 'desc' é um JSON com as informações do cliente
+            var clienteData = Newtonsoft.Json.JsonConvert.DeserializeObject<Cliente>(desc);
+            listaClientes.Add(clienteData);
+        }
+
+        return listaClientes;
+    }
+
+    private string FormatarData(DateTime data)
+    {
+        return data.ToString("dd/MM/yyyy");
+    }
+
 
 }

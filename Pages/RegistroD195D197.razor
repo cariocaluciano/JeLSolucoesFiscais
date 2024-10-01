@@ -158,9 +158,129 @@
         }
 
 
+
+
+
+
+
+
+
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 1000px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+            .modal-header h2 {
+                margin: 0;
+                color: #2c3e50;
+            }
+
+        .fechar {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+            .fechar:hover,
+            .fechar:focus {
+                color: #000;
+                text-decoration: none;
+                cursor: pointer;
+            }
+
+        .relatorio-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+            box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+        }
+
+            .relatorio-table th,
+            .relatorio-table td {
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+            }
+
+            .relatorio-table th {
+                background-color: #3498db;
+                color: white;
+                font-weight: bold;
+            }
+
+            .relatorio-table tr:nth-child(even) {
+                background-color: #f2f2f2;
+            }
+
+            .relatorio-table tr:hover {
+                background-color: #e6f3ff;
+            }
+
+@*         .btn {
+            display: inline-block;
+            padding: 10px 20px;
+            margin: 10px 0;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+            .btn:hover {
+                background-color: #2980b9;
+            } *@
+
+        #arquivo-sped {
+            margin: 10px 0;
+        }
+
+
+
+
     </style>
 
-
+    <!-- Modal de Relatório SPED -->
+    <div id="modal-relatorio-sped" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Relatório SPED - Ajustes</h2>
+                <span class="fechar">&times;</span>
+            </div>
+            <div id="relatorio-conteudo"></div>
+        </div>
+    </div>
 
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
 
@@ -544,7 +664,7 @@
                         let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'));
                         let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
                         newLines[indice] = `|9900|0460|${resultado}|`;
-                    } else {
+                    } else if(contadorNovasLinhas > 0) {
                         let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
                         let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'))
 
@@ -720,37 +840,6 @@
             });
         }
 
-
-        function btnGerarRelatorio_click() {
-            let arquivo;
-            files.forEach((file, index) => {
-                const fileContent = document.getElementById(`fileContent-${index}`).textContent;
-                arquivo = fileContent;
-
-                if (arquivo) {
-                    const leitor = new FileReader();
-                    leitor.onload = (e) => {
-                        const conteudo = e.target.result;
-                        const dados = processarArquivoSPED(conteudo);
-                       // const relatorioHTML = gerarRelatorioHTML(dados);
-                       // document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
-                        //modalRelatorioSPED.style.display = 'block';
-                    };
-                    leitor.readAsText(arquivo);
-                } 
-            });
-        };
-
-@*         spanFecharRelatorioSPED.onclick = () => {
-            modalRelatorioSPED.style.display = 'none';
-        }; *@
-
- @*        window.onclick = (event) => {
-            if (event.target == modalRelatorioSPED) {
-                modalRelatorioSPED.style.display = 'none';
-            }
-        }; *@
-
         function arrayBufferToBase64(buffer) {
             let binary = '';
             const bytes = new Uint8Array(buffer);
@@ -834,6 +923,109 @@
             retorno = parseFloat(valor.replace(',', '.'));
             return retorno
         }
+
+
+
+
+
+
+
+
+
+
+
+
+        function processarArquivoSPED(conteudo) {
+            const linhas = conteudo.split('\n');
+            const ajustes = {};
+            let modelo = '';
+            let situacao = '';
+
+            linhas.forEach(linha => {
+                if (linha.startsWith('|D100|')) {
+                    const campos = linha.split('|');
+                    if (campos.length >= 6) {
+                        modelo = campos[5]; // Modelo
+                        situacao = campos[6]; // Situação
+                    }
+                }
+
+                if (linha.startsWith('|D197|')) {
+                    const campos = linha.split('|');
+                    if (campos.length >= 8) {
+                        const codigoAjuste = campos[2]; // Código Ajuste
+                        const totalAjuste = parseFloat(campos[7].replace(',', '.')); // Total Ajuste
+
+                        if (!ajustes[modelo]) {
+                            ajustes[modelo] = {
+                                situacao: situacao,
+                                codigoAjuste: codigoAjuste,
+                                totalAjuste: 0
+                            };
+                        }
+                        ajustes[modelo].totalAjuste += totalAjuste; // Soma dos totais por modelo
+                    }
+                }
+            });
+
+            // Converte o objeto de ajustes em um array
+            return Object.keys(ajustes).map(key => ({
+                modelo: key,
+                situacao: ajustes[key].situacao,
+                codigoAjuste: ajustes[key].codigoAjuste,
+                totalAjuste: ajustes[key].totalAjuste
+            }));
+        }
+
+        function gerarRelatorioHTML(ajustes) {
+            let html = `
+                        <table class="relatorio-table">
+                            <thead>
+                                <tr>
+                                    <th>Modelo</th>
+                                    <th>Situação</th>
+                                    <th>Código Ajuste</th>
+                                    <th>Total Ajuste</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+            ajustes.forEach(ajuste => {
+                html += `
+                            <tr>
+                                <td>${ajuste.modelo}</td>
+                                <td>${ajuste.situacao}</td>
+                                <td>${ajuste.codigoAjuste}</td>
+                                <td>R$ ${ajuste.totalAjuste.toFixed(2)}</td>
+                            </tr>
+                        `;
+            });
+
+            html += `
+                            </tbody>
+                        </table>
+                    `;
+
+            return html;
+        }
+
+        function btnGerarRelatorio_click() {
+            const arquivo = document.getElementById(`fileContent-0`).textContent//inputArquivoSPED.files[0];
+            const ajustes = processarArquivoSPED(arquivo);
+            const relatorioHTML = gerarRelatorioHTML(ajustes);
+            document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
+            document.getElementById('modal-relatorio-sped').style.display = 'block';
+        }
+            document.getElementById('modal-relatorio-sped').querySelector('.fechar').onclick = () => {
+                document.getElementById('modal-relatorio-sped').style.display = 'none';
+            };
+
+            window.onclick = (event) => {
+                if (event.target == document.getElementById('modal-relatorio-sped')) {
+                    document.getElementById('modal-relatorio-sped').style.display = 'none';
+                }
+            };
 
     </script>
 }

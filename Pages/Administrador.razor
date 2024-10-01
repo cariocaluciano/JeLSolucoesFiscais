@@ -271,34 +271,6 @@
         return new Date(dataPagamento) < new Date();
     }
 
-    // // Funções para interagir com o Trello
-    // async function obterClientes() {
-    //     const API_KEY = 'aed7fff11b2469ae9a9b4b2ba34b2bf6';
-    //     const TOKEN = 'ATTAe0bae124cdc4da264f1989fec59ef01df8bab5ffe36fb40cce51c040a20137611A32FFA0';
-    //     const LIST_ID = '66ec67b2dc7d3da6b8ed212c';
-    //     const response = await fetch(`https://api.trello.com/1/lists/${LIST_ID}/cards?key=${API_KEY}&token=${TOKEN}`);
-    //     return await response.json();
-    // }
-
-    // Funções para atualizar a interface
-    // function exibirClientes(clientes) {
-    //     const listaClientes = document.getElementById('lista-clientes');
-    //     listaClientes.innerHTML = '';
-
-    //     clientes.forEach(cliente => {
-    //         const dados = JSON.parse(cliente.desc);
-    //         const card = document.createElement('div');
-    //         card.className = 'cliente-card';
-    //         card.innerHTML = `
-    //                             <h3>${dados.nome}</h3>
-    //                             <p>E-mail: ${dados.email}</p>
-    //                             <p>Contato: ${dados.contato}</p>
-    //                             <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
-    //                         `;
-    //         listaClientes.appendChild(card);
-    //     });
-    // }
-
     function exibirInadimplentes(clientes) {
         const inadimplentes = clientes.filter(cliente => estaInadimplente(JSON.parse(cliente.desc).dataPagamento));
 
@@ -309,11 +281,11 @@
             const dados = JSON.parse(cliente.desc);
             const item = document.createElement('div');
             item.innerHTML = `
-                                    <h3>${dados.nome}</h3>
-                                    <p>E-mail: ${dados.email}</p>
-                                    <p>Contato: ${dados.contato}</p>
-                                    <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
-                                `;
+                                        <h3>${dados.nome}</h3>
+                                        <p>E-mail: ${dados.email}</p>
+                                        <p>Contato: ${dados.contato}</p>
+                                        <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+                                    `;
             listaInadimplentes.appendChild(item);
         });
     }
@@ -328,27 +300,6 @@
         document.body.classList.remove('modal-open');
     }
 
-    // Event Listeners
-
-
-    // Abertura e fechamento do modal de cadastro
-    // document.getElementById('btn-abrir-cadastro').onclick = () => abrirModal(document.getElementById('modal-cadastro'));
-    // document.querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-cadastro'));
-
-    // Abertura e fechamento do modal de clientes
-    // document.getElementById('btn-exibir-clientes').onclick = async () => {
-    //     const clientes = await obterClientes();
-    //     exibirClientes(clientes);
-    //     abrirModal(document.getElementById('modal-clientes'));
-    // };
-    // document.getElementById('modal-clientes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-clientes'));
-
-    // // Abertura e fechamento do modal de inadimplentes
-    // document.getElementById('btn-ver-inadimplentes').onclick = async () => {
-    //     const clientes = await obterClientes();
-    //     exibirInadimplentes(clientes);
-    //     abrirModal(document.getElementById('modal-inadimplentes'));
-    // };
     document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-inadimplentes'));
 
     // Fechar modais ao clicar fora deles
@@ -368,13 +319,14 @@
 
 
 @code {
+    private bool mostrarModal = false;
     private bool mostrarModalSucesso = false;
-    Descriptografa descriptografa = new Descriptografa { };
-
-    public string ChaveDescriptografada { get; set; }
-
-    ServicosTrello ServicosTrello = new ServicosTrello { };
     private bool mostrarModalCadastro = false;
+    private Cliente cliente = new Cliente();
+    public string ChaveDescriptografada { get; set; }
+    private List<Cliente> clientes = new List<Cliente>();
+    Descriptografa descriptografa = new Descriptografa { };
+    ServicosTrello ServicosTrello = new ServicosTrello { };
 
     public string Desc(string chave)
     {
@@ -382,28 +334,6 @@
         return descriptografa.RetornaValorDescriptografado(chave);
 
     }
-    private Cliente cliente = new Cliente();
-
-    private async Task CadastrarCliente()
-    {
-        await ServicosTrello.CadastrarClienteAsync(cliente);
-        mostrarModalSucesso = true;
-        FecharModalCadastro();
-        cliente = new Cliente();
-    }
-    private void AbreModalCadastro()
-    {
-        mostrarModalCadastro = true;
-    }
-    private void FecharModalCadastro()
-    {
-        mostrarModalCadastro = false;
-    }
-
-
-    private bool mostrarModal = false;
-
-    private List<Cliente> clientes = new List<Cliente>();
 
     private async Task ExibirClientes()
     {
@@ -414,14 +344,9 @@
     {
         mostrarModal = false;
     }
-    private void FecharModalSucesso()
-    {
-        mostrarModalSucesso = false;
-    }
 
     private async Task<List<Cliente>> ObterClientesDoTrelloAsync()
     {
-        // Chama sua função para buscar os dados do Trello
         JArray cards = await ServicosTrello.ObterClientesAsync();
 
         if (cards == null)
@@ -430,14 +355,12 @@
             return new List<Cliente>();
         }
 
-        // Converte os dados obtidos da API do Trello para a lista de clientes
         List<Cliente> listaClientes = new List<Cliente>();
 
         foreach (var card in cards)
         {
-            var desc = card["desc"].ToString(); // Obtém a descrição do cartão (que contém os dados do cliente)
+            var desc = card["desc"].ToString();
 
-            // Supondo que 'desc' é um JSON com as informações do cliente
             var clienteData = Newtonsoft.Json.JsonConvert.DeserializeObject<Cliente>(desc);
             listaClientes.Add(clienteData);
         }
@@ -448,6 +371,28 @@
     private string FormatarData(DateTime data)
     {
         return data.ToString("dd/MM/yyyy");
+    }
+
+    private void AbreModalCadastro()
+    {
+        mostrarModalCadastro = true;
+    }
+    private void FecharModalCadastro()
+    {
+        mostrarModalCadastro = false;
+    }
+
+    private async Task CadastrarCliente()
+    {
+        await ServicosTrello.CadastrarClienteAsync(cliente);
+        mostrarModalSucesso = true;
+        FecharModalCadastro();
+        cliente = new Cliente();
+    }
+
+    private void FecharModalSucesso()
+    {
+        mostrarModalSucesso = false;
     }
 
 

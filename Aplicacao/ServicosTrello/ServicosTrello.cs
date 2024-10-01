@@ -21,6 +21,10 @@ public class ServicosTrello
                 var LIST_ID = ChavesAPITrello.ListIdCadClientesDescriptografada();
 
                 string url = $"https://api.trello.com/1/lists/{LIST_ID}/cards?key={API_KEY}&token={TOKEN}";
+
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {TOKEN}");
+                //client.DefaultRequestHeaders.Add("API-Key", API_KEY);
+
                 HttpResponseMessage response = await client.GetAsync(url);
 
                 if (response.IsSuccessStatusCode)
@@ -54,6 +58,10 @@ public class ServicosTrello
                 var LIST_ID = ChavesAPITrello.ListIdCadClientesDescriptografada();
 
                 string url = $"https://api.trello.com/1/cards?key={API_KEY}&token={TOKEN}&idList={LIST_ID}";
+
+
+                //client.DefaultRequestHeaders.Add("Authorization", $"Bearer {TOKEN}");
+                //client.DefaultRequestHeaders.Add("API-Key", API_KEY);
 
                 var jsonContent = JsonConvert.SerializeObject(new
                 {

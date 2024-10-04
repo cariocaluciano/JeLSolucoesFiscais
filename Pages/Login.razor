@@ -44,6 +44,10 @@
         {
             <div class="alert alert-danger mt-3">Credenciais inválidas. Tente novamente.</div>
         }
+        @if (Inadimplente)
+        {
+            <div class="alert alert-danger mt-3">Seu contrato se encontra vencido, entre em contato conosco. Clique no nosso Chat</div>
+        }
     </EditForm>
 </div>
 
@@ -51,15 +55,16 @@
 @code {
     private LoginModel loginModel = new LoginModel();
     private bool loginFailed = false;
+    private bool Inadimplente = false;
 
     private void HandleLogin()
     {
         Criptografa CriaCriptografia = new Criptografa { };
 
         loginFailed = !UsuariosCadastrados.VerificaCadastrousuario(loginModel.Email, loginModel.Senha);     
+        Inadimplente = UsuariosCadastrados.IsInadimplente(loginModel.Email, loginModel.Senha);
 
-
-        if (!loginFailed)
+        if (!loginFailed && !Inadimplente)
         {
             LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "dHJ1ZQ=="); //isAuthenticated
             LocalStorageService.SetItemAsync("ZW1haWw=", CriaCriptografia.RetornaValorCriptografado(loginModel.Email));

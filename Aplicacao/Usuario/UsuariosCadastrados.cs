@@ -9,8 +9,10 @@ public class UsuariosCadastrados
         Criptografa criptografa = new Criptografa();
         List<Usuario> usuarios = new List<Usuario>
         {
-            new Usuario { Email = criptografa.RetornaValorCriptografado("Luciano"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = DateTime.Now.AddMonths(1) },
-            new Usuario { Email =criptografa.RetornaValorCriptografado("Jhon"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = DateTime.Now.AddMonths(1) }
+            new Usuario { Email = criptografa.RetornaValorCriptografado("Luciano"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = new DateTime(2024,10,2) },
+            new Usuario { Email =criptografa.RetornaValorCriptografado("Jhon"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = new DateTime(2024,10,22) },
+            new Usuario { Email =criptografa.RetornaValorCriptografado("Adm"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso =  new DateTime(2024,11,03) },
+
         };
 
         return usuarios;
@@ -35,6 +37,30 @@ public class UsuariosCadastrados
         {
             return false;
         }
+
+    }
+
+    public bool IsInadimplente(string Email, string Senha)
+    {
+        Criptografa criptografa = new Criptografa();
+        string emailCriptografado = criptografa.RetornaValorCriptografado(Email);
+        string senhaCriptografada = criptografa.RetornaValorCriptografado(Senha);
+
+        var usuario = Usuarios().Find(u => u.Email == emailCriptografado && u.Senha == senhaCriptografada);
+
+        if (usuario != null)
+        {
+            DateTime fimAcesso = usuario.FimAcesso;
+
+            Console.WriteLine($"Data de fim de acesso: {fimAcesso}");
+            return fimAcesso < DateTime.Now;
+          
+        }
+        else
+        {
+            return true;
+        }
+
 
     }
 

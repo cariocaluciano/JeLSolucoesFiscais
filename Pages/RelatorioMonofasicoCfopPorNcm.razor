@@ -1,5 +1,6 @@
 ﻿@page "/RelatorioMonofasico/CfopPorNcm"
 
+<PageTitle>SoluFiscal</PageTitle>
 
 <style>
     /* Estilos básicos */
@@ -130,7 +131,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <h2>Relatório</h2>
-                <span class="close">&times;</span>
+                <span class="close" onclick="CloseButon_Onclick"&times;</span>
             </div>
             <div class="modal-body">
                 <div id="reportContent"></div>
@@ -141,13 +142,50 @@
 
 
         <script>
+
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         const fileInputRel = document.getElementById('fileInputRel');
+    } else {
+        fileInputRel = document.getElementById('fileInputRel');
+    }
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         const importButton = document.getElementById('importButton');
-        const modal = document.getElementById('reportModal');
-        const closeButton = document.getElementsByClassName('close')[0];
+    } else {
+        importButton = document.getElementById('importButton');
+    }
+
+    // if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+    //     const modal = document.getElementById('reportModal');
+    // } else {
+    //     modal = document.getElementById('reportModal');
+    // }
+
+    // if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+    //     const closeButton = document.getElementsByClassName('close')[0];
+    // } else {
+    //     closeButton = document.getElementsByClassName('close')[0];
+    // }
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         const reportContent = document.getElementById('reportContent');
+    } else {
+        reportContent = document.getElementById('reportContent');
+    }
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         const downloadButton = document.getElementById('downloadButton');
+    } else {
+        downloadButton = document.getElementById('downloadButton');
+    }
+
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
         const importedFilesCount = document.getElementById('importedFilesCount');
+    } else {
+        importedFilesCount = document.getElementById('importedFilesCount');
+    }
+
 
         importButton.addEventListener('click', () => {
             const files = fileInputRel.files;
@@ -240,16 +278,20 @@
 
         function displayReport(report) {
             reportContent.innerHTML = report;
-            modal.style.display = 'block';
+            document.getElementById('reportModal').style.display = 'block';
         }
 
-        closeButton.onclick = () => {
-            modal.style.display = 'none';
-        };
+        // closeButton.onclick = () => {
+        //     modal.style.display = 'none';
+        // };
+
+        function CloseButon_Onclick() {
+            document.getElementById('reportModal').style.display = 'none';
+        }
 
         window.onclick = (event) => {
-            if (event.target == modal) {
-                modal.style.display = 'none';
+            if (event.target == document.getElementById('reportModal')) {
+                document.getElementById('reportModal').style.display = 'none';
             }
         };
 

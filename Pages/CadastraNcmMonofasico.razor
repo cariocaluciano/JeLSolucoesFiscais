@@ -1,0 +1,158 @@
+﻿@page "/RelatorioMonofasico/CadastraNcmMonofasico"
+
+<PageTitle>SoluFiscal</PageTitle>
+
+    <style>
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #f0f0f0;
+    }
+
+        .container {
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        input[type="text"], input[type="file"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 10px;
+            background-color: #6f42c1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+
+        .btn-secondary:hover {
+            background-color: #6610f2;
+        }
+
+        .file-input-container {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+        }
+
+        .file-input {
+            font-size: 16px;
+            position: absolute;
+            top: 0;
+            right: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            background: #e9ecef;
+            margin: 5px 0;
+            padding: 10px;
+            border-radius: 4px;
+        }
+    </style>
+
+    <div class="container">
+        <h1>Cadastro de NCMs</h1>
+        <input type="text" id="ncmInput" placeholder="Digite o NCM" />
+        <div class="row justify-content-md-center">
+            <div class="col-4">
+            <div class="file-input-container">
+                <button class="btn-secondary">Inserir Arquivo</button>
+                <input type="file" id="fileInput" class="file-input" accept=".txt" />
+            </div>
+            </div>
+            <div class="col-4">
+                <button id="btnDownload" class="btn-secondary">Baixar NCMs</button>
+            </div>
+        </div>
+        <ul id="ncmList"></ul>
+    </div>
+    <script>
+                // const ncmInput = document.getElementById('ncmInput');
+                // const btnDownload = document.getElementById('btnDownload');
+                // const ncmList = document.getElementById('ncmList');
+                // const fileInput = document.getElementById('fileInput');
+
+
+        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+            let cadastroNcms = [];
+        } else {
+            cadastroNcms = [];
+        }
+
+        // Função para carregar NCMs de um arquivo
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const contents = e.target.result;
+                    const ncmArray = contents.split(/\r?\n/).filter(ncm => ncm.trim() !== '');
+                    cadastroNcms = ncmArray;
+                    updateNcmList();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // Adiciona NCM ao pressionar Enter
+            document.getElementById('ncmInput').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+            const ncmValue = document.getElementById('ncmInput').value.trim();
+                if (ncmValue) {
+                    cadastroNcms.push(ncmValue);
+                    updateNcmList();
+                    document.getElementById('ncmInput').value = ''; // Limpa o input
+                }
+            }
+        });
+
+        // Atualiza a lista de NCMs na tela
+        function updateNcmList() {
+            document.getElementById('ncmList').innerHTML = '';
+            cadastroNcms.forEach(item => {
+                const li = document.createElement('li');
+                li.textContent = item;
+                document.getElementById('ncmList').appendChild(li);
+            });
+        }
+
+        // Gera e baixa o arquivo .txt com os NCMs
+        document.getElementById('btnDownload').addEventListener('click', function() {
+            const ncmArray = cadastroNcms.join('\n');
+            const blob = new Blob([ncmArray], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'CadastroNcms.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        });
+    </script>
+

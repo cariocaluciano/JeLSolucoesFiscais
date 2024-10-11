@@ -1,4 +1,4 @@
-﻿@page "/EfdFiscal/Bloco_D/Registro_D190/AjusteCreditoPresumido"
+﻿@page "/EfdFiscal/Bloco_D/Registro_D195D197/AjusteCreditoPresumido"
 
 @using JeLSolucoesFiscais.Aplicacao.Criptografias
 @using JeLSolucoesFiscais.Aplicacao.Usuario
@@ -28,7 +28,7 @@
 
         .col-2 {
             background-color: #ffffff;
-           // border-radius: 12px 12px 0 0;
+            // border-radius: 12px 12px 0 0;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
             padding: 20px;
             transition: box-shadow 0.3s ease;
@@ -137,8 +137,8 @@
         #BtnAlteraAquivos, #BtnDownloadAquivos, #BtnGerarRelatorio {
             padding: 12px 24px;
             font-size: 16px;
-            border:none;
-            width:100%;
+            border: none;
+            width: 100%;
             background-color: #6f42c1;
             color: white;
             transition: all 0.3s ease;
@@ -240,9 +240,6 @@
         #arquivo-sped {
             margin: 10px 0;
         }
-
-
-
 
     </style>
 
@@ -465,7 +462,6 @@
         }
 
         function alterarArquivos() {
-            //const BlocosD195D197 = document.getElementById("CheckD195d197").checked,
             Modelo = document.getElementById("ModeloDropDown").value,
             Serie = document.getElementById("Serie").value,
             Cfop = document.getElementById("Cfop").value,
@@ -651,39 +647,42 @@
                             newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
                         }
                     }
-                    if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) { 
-                    let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
-                    let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
-                    let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
 
-                    let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
-                    let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
+                    if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
 
-                    if (indiceD195 !== -1) {
-                        let resultado = CalculaRegistro(newLines[indiceD195], 3, contadorNovasLinhas, 'adicao').toString();
-                        newLines[indiceD195] = `|9900|D195|${resultado}|`;
+                        let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
+                        let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
+                        let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
+
+                        let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
+                        let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
+
+                        if (indiceD195 !== -1) {
+                            let resultado = CalculaRegistro(newLines[indiceD195], 3, contadorNovasLinhas, 'adicao').toString();
+                            newLines[indiceD195] = `|9900|D195|${resultado}|`;
+                        }
+                        if (indiceD197 !== -1) {
+                            let resultado = CalculaRegistro(newLines[indiceD197], 3, contadorNovasLinhas, 'adicao').toString();
+                            newLines[indiceD197] = `|9900|D197|${resultado}|`;
+                        }
+                        else if (indice !== -1) {
+                            newLines.splice(indice + 1, 0, novaLinha9900D195);
+                            newLines.splice(indice + 2, 0, novaLinha9900D197);
+                        }
                     }
-                    if (indiceD197 !== -1) {
-                        let resultado = CalculaRegistro(newLines[indiceD197], 3, contadorNovasLinhas, 'adicao').toString();
-                        newLines[indiceD197] = `|9900|D197|${resultado}|`;
-                    }
-                    else if (indice !== -1) {
-                        newLines.splice(indice + 1, 0, novaLinha9900D195);
-                        newLines.splice(indice + 2, 0, novaLinha9900D197);
-                    }
-                    let indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
-                    if (indice9900 !== -1) {
-                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
-                    }
-                    let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
-                    if (indice9999 !== -1) {
-                        newLines[indice9999] = `|9999|${newLines.length}|`;
-                    }
-                    let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
-                    if (indice9 !== -1) {
-                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
-                    }
-                    }
+                        let indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
+                        if (indice9900 !== -1) {
+                            newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
+                        }
+                        let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                        if (indice9999 !== -1) {
+                        newLines[indice9999] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|9999|${newLines.length}|` : `|9999|${newLines.length -1}|`;
+                        }
+                        let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                        if (indice9 !== -1) {
+                            newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
+                        }
+                   
                     function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
                         const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
                         let valoresConvertidos = [];
@@ -898,16 +897,6 @@
             retorno = parseFloat(valor.replace(',', '.'));
             return retorno
         }
-
-
-
-
-
-
-
-
-
-
 
 
         function processarArquivoSPED(conteudo) {

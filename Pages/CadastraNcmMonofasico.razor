@@ -97,13 +97,7 @@
                 // const ncmList = document.getElementById('ncmList');
                 // const fileInput = document.getElementById('fileInput');
 
-
-        if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-            let cadastroNcms = [];
-        } else {
-            cadastroNcms = [];
-        }
-
+        let cadastroNcms = [];
         // Função para carregar NCMs de um arquivo
         document.getElementById('fileInput').addEventListener('change', function(event) {
             const file = event.target.files[0];

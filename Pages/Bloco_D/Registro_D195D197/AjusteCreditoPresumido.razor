@@ -247,7 +247,7 @@
     <div id="modal-relatorio-sped" class="modal">
         <div class="modal-content">
             <div class="modal-header">
-                <h2>Relatório SPED - Ajustes</h2>
+                <h2>Relatório SPED - Ajustes Saídas</h2>
                 <span class="fechar">&times;</span>
             </div>
             <div id="relatorio-conteudo"></div>
@@ -462,6 +462,8 @@
         }
 
         function alterarArquivos() {
+
+            document.getElementById('loadingScreen').style.display = 'flex';
             Modelo = document.getElementById("ModeloDropDown").value,
             Serie = document.getElementById("Serie").value,
             Cfop = document.getElementById("Cfop").value,
@@ -777,7 +779,7 @@
             }
             else {
                 if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
-                    document.getElementById('loadingScreen').style.display = 'flex';
+                   // document.getElementById('loadingScreen').style.display = 'flex';
                     setTimeout(function() {
                         document.getElementById('loadingScreen').style.display = 'none';
                         var toastEl = document.getElementById('alertToastSucesso');
@@ -904,13 +906,17 @@
             const ajustes = {};
             let modelo = '';
             let situacao = '';
+            let isSaidas = false;
 
             linhas.forEach(linha => {
                 if (linha.startsWith('|D100|')) {
                     const campos = linha.split('|');
                     if (campos.length >= 6) {
+                        isSaidas = campos[2] == 1 && campos[3] == 0;
+                        if (isSaidas) { 
                         modelo = campos[5]; // Modelo
                         situacao = campos[6]; // Situação
+                        }
                     }
                 }
 
@@ -919,15 +925,16 @@
                     if (campos.length >= 8) {
                         const codigoAjuste = campos[2]; // Código Ajuste
                         const totalAjuste = parseFloat(campos[7].replace(',', '.')); // Total Ajuste
-
-                        if (!ajustes[modelo]) {
-                            ajustes[modelo] = {
-                                situacao: situacao,
-                                codigoAjuste: codigoAjuste,
-                                totalAjuste: 0
-                            };
+                        if (isSaidas) {
+                            if (!ajustes[modelo]) {
+                                ajustes[modelo] = {
+                                    situacao: situacao,
+                                    codigoAjuste: codigoAjuste,
+                                    totalAjuste: 0
+                                };
+                            }
+                            ajustes[modelo].totalAjuste += totalAjuste; // Soma dos totais por modelo
                         }
-                        ajustes[modelo].totalAjuste += totalAjuste; // Soma dos totais por modelo
                     }
                 }
             });

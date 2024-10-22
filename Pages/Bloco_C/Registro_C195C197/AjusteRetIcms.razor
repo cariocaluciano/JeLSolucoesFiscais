@@ -303,9 +303,8 @@
                                     <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownModelo" data-bs-toggle="dropdown" aria-expanded="false"></button>
                                     <ul class="dropdown-menu" aria-labelledby="dropdownModelo">
                                         <li><a class="dropdown-item" onclick="selectOption('Todos')">Todos</a></li>
-                                        <li><a class="dropdown-item" onclick="selectOption('57')">57</a></li>
-                                        <li><a class="dropdown-item" onclick="selectOption('63')">63</a></li>
-                                        <li><a class="dropdown-item" onclick="selectOption('67')">67</a></li>
+                                        <li><a class="dropdown-item" onclick="selectOption('55')">55</a></li>
+                                        <li><a class="dropdown-item" onclick="selectOption('65')">65</a></li>
                                     </ul>
                                 </div>
 
@@ -450,8 +449,6 @@
             TodasSeries = document.getElementById("CheckTodasSeries").checked,
             CodigoAjuste = document.getElementById("CodigoAjuste").value,
             DescricaoComplementar = document.getElementById("DescricaoComplementar").value,
-            Aliquota = document.getElementById("Aliquota").value.replace(/\./g, ","),
-            RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms",
             CodObservacao = Math.floor(Math.random() * 900000) + 100000,
             divAcaoParaInclusaoSelecionaBloco = document.getElementById('AcaoParaInclusaoSelecionaBloco'),
             BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
@@ -460,7 +457,7 @@
             let contadorNovasLinhas = 0, alteracaoLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
                 C100Campo2, C100Campo3, C100Campo6, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
-                LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, VrAjustadoPis, VrAjustadoCofins
+                LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, VrIcms, Aliquota,
                 codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];
 
             files.forEach((file, index) => {
@@ -490,10 +487,9 @@
                         }
 
                         if (lines[i].startsWith('|C190|')) {
-                            ValorBc = valor[8];
-                            Aliquota = valor[9];
-                            VrAjustadoPis = valor[10];
-                            VrAjustadoCofins = valor[13];
+                            ValorBc = valor[6];
+                            Aliquota = valor[4];
+                            VrIcms = valor[7];
 
                             if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && ValorBc > 0) {
 
@@ -502,7 +498,7 @@
                                 }
                                 else {
                                     newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
-                                    newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}|${ValorBc}|${Aliquota}|${VrAjustadoPis}|${VrAjustadoCofins}||`);
+                                    newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
 
                                     contadorNovasLinhas += 1
                                 }
@@ -718,7 +714,13 @@
             function VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, line) {
                 let values = line.split('|');
                 let retorno;
-                if ((parseFloat(values[6]) = 0) && (C100Campo2 == "1" && C100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
+                console.log(values[6]); //Luciano
+                console.log(C100Campo2);
+                console.log(C100Campo3);
+                console.log(TodosCfop);
+                console.log(CfopArquivo);
+
+                if ((parseFloat(values[6]) > 0) && (C100Campo2 == "1" && C100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
                     if ((!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) > 0)) {
                         retorno = true;
                     }

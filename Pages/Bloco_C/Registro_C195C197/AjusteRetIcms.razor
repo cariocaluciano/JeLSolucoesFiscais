@@ -491,8 +491,7 @@
                             Aliquota = valor[4];
                             VrIcms = valor[7];
 
-                            if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && ValorBc > 0) {
-
+                            if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',','.')) > 0) {
                                 if (lines[i + 1].startsWith('|C195|')) {
                                     alteracaoLinhas += 1
                                 }
@@ -503,12 +502,12 @@
                                     contadorNovasLinhas += 1
                                 }
 
-                                if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
-                                    SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
-                                }
-                                else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
-                                    SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
-                                }
+                                // if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
+                                //     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+                                // }
+                                // else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
+                                //     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+                                // }
                             }
                         }
 
@@ -521,7 +520,7 @@
 
                         if (lines[i].startsWith('|C197|')) {
                             if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && ValorBc > 0) {
-                                lines[i] = `|C197|${CodigoAjuste}|${DescricaoComplementar}||||${ValorCalculado}||`
+                                lines[i] = `| C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`
                                 newLines[newLines.length - 1] = lines[i];
                             }
                         }
@@ -714,19 +713,9 @@
             function VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, line) {
                 let values = line.split('|');
                 let retorno;
-                console.log(values[6]); //Luciano
-                console.log(C100Campo2);
-                console.log(C100Campo3);
-                console.log(TodosCfop);
-                console.log(CfopArquivo);
 
                 if ((parseFloat(values[6]) > 0) && (C100Campo2 == "1" && C100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
-                    if ((!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) > 0)) {
-                        retorno = true;
-                    }
-                    else {
-                        retorno = false;
-                    }
+                  retorno = true;
                 } else {
                     retorno = false;
                 }

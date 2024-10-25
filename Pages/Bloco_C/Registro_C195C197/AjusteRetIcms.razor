@@ -503,12 +503,12 @@
                                     contadorNovasLinhas += 1
                                 }
 
-                                // if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
-                                //     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
-                                // }
-                                // else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
-                                //     SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
-                                // }
+                                if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
+                                    SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
+                                }
+                                else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
+                                    SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
+                                }
                             }
                         }
 

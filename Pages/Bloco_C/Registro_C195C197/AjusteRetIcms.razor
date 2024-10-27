@@ -492,22 +492,24 @@
                             Aliquota = valor[4];
                             VrIcms = valor[7];
 
-                            if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',','.')) > 0) {
-                                if (lines[i + 1].startsWith('|C195|')) {
-                                    alteracaoLinhas += 1
-                                }
-                                else {
-                                    newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
-                                    newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
+                            if (lines[i + 1] != '|C195|') {
+                                if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',', '.')) > 0) {
+                                    if (lines[i + 1].startsWith('|C195|')) {
+                                        alteracaoLinhas += 1
+                                    }
+                                    else {
+                                        newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
+                                        newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
 
-                                    contadorNovasLinhas += 1
-                                }
+                                        contadorNovasLinhas += 1
+                                    }
 
-                                if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
-                                    SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
-                                }
-                                else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
-                                    SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
+                                    if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))) {
+                                        SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
+                                    }
+                                    else if (['3', '4', '5'].includes(CodigoAjuste[2])) {
+                                        SomaValoresCalculados += parseFloat(VrIcms.replace(',', '.'));
+                                    }
                                 }
                             }
                         }

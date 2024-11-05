@@ -458,7 +458,8 @@
                 C100Campo2, C100Campo3, C100Campo6, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
                 LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, VrIcms, Aliquota,
-                codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];
+                codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [],
+                ArrC100 = [], ArrC190 = [];
 
             files.forEach((file, index) => {
                 const fileContentElement = document.getElementById(`fileContent-${index}`);
@@ -484,6 +485,7 @@
                             C100Campo6 = valor[6];
                             ModeloArquivo = valor[5];
                             SerieArquivo = valor[7];
+                            ArrC100.push(i); 
                         }
 
                         if (lines[i].startsWith('|C190|')) {
@@ -491,6 +493,7 @@
                             ValorBc = valor[6];
                             Aliquota = valor[4];
                             VrIcms = valor[7];
+                            ArrC190.push({ posicao: i, valorCampo: lines[i] });
 
                             if (lines[i + 1] != '|C195|') {
                                 if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',', '.')) > 0) {
@@ -498,8 +501,8 @@
                                         alteracaoLinhas += 1
                                     }
                                     else {
-                                        newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
-                                        newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
+                                        // newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
+                                        // newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
 
                                         contadorNovasLinhas += 1
                                     }
@@ -523,7 +526,7 @@
 
                         if (lines[i].startsWith('|C197|')) {
                             if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && ValorBc > 0) {
-                                lines[i] = `| C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`
+                                lines[i] = `|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`
                                 newLines[newLines.length - 1] = lines[i];
                             }
                         }
@@ -707,9 +710,13 @@
                         newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
                     }
 
+                    console.log(ArrC100) //Luciano
+                    console.log(ArrC190)
+
                     fileContent = newLines.join('\n');
                     fileContentElement.textContent = fileContent;
                     files[index] = new File([fileContent], file.name, { type: file.type });
+
                 }
             });
 

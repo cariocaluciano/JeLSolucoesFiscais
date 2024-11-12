@@ -459,7 +459,7 @@
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
                 LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900, VrIcms, Aliquota,
                 codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [],
-                ArrC100 = [], ArrC190 = [];
+                ArrC100 = [], ArrC190 = [], ArrC197 = [], ArrC195 = [], ArrC191 = [];
 
             files.forEach((file, index) => {
                 const fileContentElement = document.getElementById(`fileContent-${index}`);
@@ -503,6 +503,8 @@
                                     else {
                                         // newLines.push(`|C195|${CodObservacao}|${DescricaoComplementar}|`);
                                         // newLines.push(`|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||`);
+                                        ArrC195.push({ posicaoC190: i, Registro: `|C195|${CodObservacao}|${DescricaoComplementar}|` });
+                                        ArrC197.push({ posicaoC190: i, Registro: `|C197|${CodigoAjuste}|${DescricaoComplementar}||${ValorBc}|${Aliquota}|${VrIcms}||` });
 
                                         contadorNovasLinhas += 1
                                     }
@@ -515,6 +517,10 @@
                                     }
                                 }
                             }
+                        }
+
+                        if (lines[i].startsWith('|C191|')) {
+                            ArrC191.push({ posicao: i, valorCampo: lines[i] })
                         }
 
                         if (lines[i].startsWith('|C195|')) {
@@ -706,12 +712,63 @@
                         return String.fromCharCode(numero + 64);
                     }
 
-                    if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`) && ((contadorNovasLinhas > 0) || (alteracaoLinhas > 0))) {
-                        newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
+                    // if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`) && ((contadorNovasLinhas > 0) || (alteracaoLinhas > 0))) {
+                    //     newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
+                    // }
+
+                    // console.log(ArrC100) //Luciano
+                    // console.log(ArrC190)
+                    // console.log(ArrC195)
+                    // console.log(ArrC197)
+                    // console.log(ArrC191)
+
+                    let ArrC100EFilhoC190 = [];
+                    let C190FilhosC100 = [];
+                    let PosicoesInsertC195eC197 = [];
+                    let Posicao0C100; 
+                    let Posicao1C100; 
+                    let C190FilhoC100 = [];
+                    let C197FilhoC100 = [];
+
+
+
+                    for (let contador = 0; contador < ArrC100.length; contador++) {
+
+                        //console.log(ArrC100[contador])
+
+                        Posicao0C100 = ArrC100[contador];
+                        Posicao1C100 = ArrC100[contador + 1];
+
+                        //console.log(Posicao0C100, Posicao1C100)
+
+                        if (Posicao1C100) {
+                            C190FilhoC100 = [];
+                            C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100 && item.posicao <= Posicao1C100));
+                            // C197FilhoC100 = [];
+                            // C197FilhoC100.push(ArrC197.filter(item => item.posicaoC190 >= Posicao0C100 && item.posicao <= Posicao1C100));
+                            PosicoesInsertC195eC197 = []
+                            PosicoesInsertC195eC197 = [{
+                                c195: { posicaoC195: Posicao1C100 + 1, registroC195: ArrC195[0].Registro },
+                                c197: { posicaoInicialC197: Posicao1C100 + 2, registroC197: ArrC197.filter(item => item.posicaoC190 >= Posicao0C100 && item.posicao <= Posicao1C100) }
+                            }]
+                        } else {
+                            C190FilhoC100 = [];
+                            C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100));
+                            // C197FilhoC100 = [];
+                            // C197FilhoC100.push(ArrC197.filter(item => item.posicaoC190 >= Posicao0C100));
+                            PosicoesInsertC195eC197 = []
+                            PosicoesInsertC195eC197 = [{
+                                c195: { posicaoC195: C190FilhoC100.at(-1).posicao + 1, registroC195: ArrC195[0].Registro },
+                                c197: { posicaoInicialC197: C190FilhoC100.at(-1).posicao + 2, registroC197: ArrC197.filter(item => item.posicaoC190 >= Posicao0C100) }
+                            }]
+                        }
+
+                        //console.log(C190FilhoC100);
+                        console.log(PosicoesInsertC195eC197);
+
+             
                     }
 
-                    console.log(ArrC100) //Luciano
-                    console.log(ArrC190)
 
                     fileContent = newLines.join('\n');
                     fileContentElement.textContent = fileContent;

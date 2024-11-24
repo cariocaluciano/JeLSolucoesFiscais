@@ -835,7 +835,7 @@
                     }
                      indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
                     if (indice9900 !== -1) {
-                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length - 1}|`;
+                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
                     }
                      indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
                     if (indice9999 !== -1) {
@@ -843,11 +843,11 @@
                     }
                      indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
                     if (indice9 !== -1) {
-                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length - 1}|`;
+                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
                     }
                     let indiceC990 = newLines.findIndex(linha => linha.startsWith('|C990'))
                     if (indiceC990 !== -1) {
-                        newLines[indiceC990] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}| ` : ` |C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}| `;
+                        newLines[indiceC990] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}|` : ` |C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}| `;
                     }
                    
                     fileContent = newLines.join('\n');

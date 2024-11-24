@@ -721,15 +721,11 @@
                     let C197FilhoC100 = [];
                     let LinhasInseridas = 0;
 
-                    // console.log(ArrC100.length)//Luciano
-                    // console.log(ArrC191)
                     for (let contador = 0; contador < ArrC100.length; contador++) {
 
                         Posicao0C100 = ArrC100[contador];
                         Posicao1C100 = ArrC100[contador + 1];
 
-                        //console.log('Linhas: ',LinhasInseridas); //Luciano
-                        //console.log('Posicao1C100: ', Posicao1C100)
                         if (Posicao1C100) {
                             C190FilhoC100 = [];
                             C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100 && item.posicao <= Posicao1C100));
@@ -771,17 +767,55 @@
                                     PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro
                                 )
                             }
-
-                            //console.log(PosicoesInsertC195eC197[0].c197.registroC197); //Luciano
-
+                            //console.log(PosicoesInsertC195eC197[0].c197.registroC197) //Luciano
                             LinhasInseridas += PosicoesInsertC195eC197[0].c197.registroC197.length;  //C197
-                            //LinhasInseridas += 1; // +1 Para inserir na posição correta
+
                         }
 
                     }
 
                     if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`) && ((contadorNovasLinhas > 0) || (alteracaoLinhas > 0))) {
                         newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
+                    }
+
+                    if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
+
+                        let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'C195')));
+                        let indiceC195 = newLines.findIndex(linha => linha.includes('|9900|C195|'))
+                        let indiceC197 = newLines.findIndex(linha => linha.includes('|9900|C197|'))
+                        let contadorC195 = 
+
+                            novaLinha9900C195 = `|9900|C195|${contadorNovasLinhas}|`;
+                            novaLinha9900C197 = `|9900|C197|${contadorNovasLinhas}|`;
+
+                        if (indiceC195 !== -1) {
+                            let resultado = newLines.filter(elemento => elemento.startsWith("|C195|")).length;
+                            newLines[indiceC195] = `|9900|C195|${resultado}|`;
+                        }
+                        if (indiceC197 !== -1) {
+                            let resultado = newLines.filter(elemento => elemento.startsWith("|C197|")).length;
+                            newLines[indiceC197] = `|9900|C197|${resultado}|`;
+                        }
+                        else if (indice !== -1) {
+                            newLines.splice(indice + 1, 0, novaLinha9900C195);
+                            newLines.splice(indice + 2, 0, novaLinha9900C197);
+                        }
+                    }
+                     indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
+                    if (indice9900 !== -1) {
+                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length - 1}|`;
+                    }
+                     indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                    if (indice9999 !== -1) {
+                        newLines[indice9999] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|9999|${newLines.length - 1}|` : `|9999|${newLines.length - 1}|`;
+                    }
+                     indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                    if (indice9 !== -1) {
+                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length - 1}|`;
+                    }
+                    let indiceC990 = newLines.findIndex(linha => linha.startsWith('|C990'))
+                    if (indiceC990 !== -1) {
+                        newLines[indiceC990] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}| ` : ` |C990|${newLines.filter(elemento => elemento.startsWith("|C")).length}| `;
                     }
                    
                     fileContent = newLines.join('\n');

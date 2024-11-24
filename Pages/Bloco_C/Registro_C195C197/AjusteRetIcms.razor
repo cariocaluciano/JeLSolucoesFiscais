@@ -497,7 +497,7 @@
 
                             if (lines[i + 1] != '|C195|') {
                                 if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',', '.')) > 0) {
-                                    if (lines[i + 1].startsWith('|C195|')) {
+                                    if ((lines[i + 1].startsWith('|C195|')) || (lines[i + 1].startsWith('|C191|') && lines[i + 2].substring(0, 6) == '|C195|')) {
                                         alteracaoLinhas += 1
                                     }
                                     else {
@@ -738,7 +738,8 @@
                         } else {
                             C190FilhoC100 = [];
                             C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100));
-
+ 
+                            if (ArrC195[0]) {
                             PosicoesInsertC195eC197 = []
                             PosicoesInsertC195eC197 = [{
                                 c195: { posicaoC195: C190FilhoC100[0][C190FilhoC100[0].length - 1].posicao + 1 + LinhasInseridas, registroC195: ArrC195[0].Registro },
@@ -746,64 +747,58 @@
                                     posicaoInicialC197: C190FilhoC100[0][C190FilhoC100[0].length - 1].posicao + 2 + LinhasInseridas, registroC197: ArrC197.filter(item => item.posicaoC190 >= Posicao0C100)
                             }
                             }]
+                            }
                         }
 
+                        if (PosicoesInsertC195eC197[0]) {
+                            if (PosicoesInsertC195eC197[0].c197.registroC197.length > 0) {
 
-                        if (PosicoesInsertC195eC197[0].c197.registroC197.length > 0) {
-
-                            newLines.splice( //C195
-                                PosicoesInsertC195eC197[0].c195.posicaoC195,
-                                0,
-                                PosicoesInsertC195eC197[0].c195.registroC195
-                            )
-
-                            LinhasInseridas += 1; //C195
-
-                            let C197Campo02 = '';
-                            let C197Campo03 = '';
-                            let C197Campo05 = 0;
-                            let C197Campo07 = 0;
-                            let RegistroC197Campo05 = 0;
-                            let RegistroC197Campo07 = 0;
-
-                            if (PosicoesInsertC195eC197[0].c197.registroC197.length == 1) {
-                                newLines.splice(  //C197
-                                    PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
+                                newLines.splice( //C195
+                                    PosicoesInsertC195eC197[0].c195.posicaoC195,
                                     0,
-                                    PosicoesInsertC195eC197[0].c197.registroC197[0].Registro
+                                    PosicoesInsertC195eC197[0].c195.registroC195
                                 )
-                            }
-                            else {
-                                for (let contadorC197 = 0; contadorC197 < PosicoesInsertC195eC197[0].c197.registroC197.length; contadorC197++) {
 
-                                    // newLines.splice(  //C197
-                                    //     PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
-                                    //     0,
-                                    //     PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro
-                                    // )
-                                    RegistroC197Campo05 = ConverteStringParaFloatNoIndice(5, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
-                                    RegistroC197Campo07 = ConverteStringParaFloatNoIndice(7, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
+                                LinhasInseridas += 1; //C195
 
-                                    C197Campo05 += RegistroC197Campo05;
-                                    C197Campo07 += RegistroC197Campo07;
+                                let C197Campo02 = '';
+                                let C197Campo03 = '';
+                                let C197Campo05 = 0;
+                                let C197Campo07 = 0;
+                                let RegistroC197Campo05 = 0;
+                                let RegistroC197Campo07 = 0;
 
-                                    C197Campo02 = RetornaValorNoIndice(2, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)
-                                    C197Campo03 = RetornaValorNoIndice(3, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)
-                                   // console.log(PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro) //Luciano
+                                if (PosicoesInsertC195eC197[0].c197.registroC197.length == 1) {
+                                    newLines.splice(  //C197
+                                        PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
+                                        0,
+                                        PosicoesInsertC195eC197[0].c197.registroC197[0].Registro
+                                    )
                                 }
-                                // console.log(C197Campo05)
-                                // console.log(C197Campo07)
-                                newLines.splice(  //C197
-                                    PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
-                                    0,
-                                    `|C197|${C197Campo02}|${C197Campo03}||${C197Campo05.toFixed(2).toString().replace('.', ',')}||${C197Campo07.toFixed(2).toString().replace('.', ',')}||`
-                                )
+                                else {
+                                    for (let contadorC197 = 0; contadorC197 < PosicoesInsertC195eC197[0].c197.registroC197.length; contadorC197++) {
+
+                                        RegistroC197Campo05 = ConverteStringParaFloatNoIndice(5, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
+                                        RegistroC197Campo07 = ConverteStringParaFloatNoIndice(7, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
+
+                                        C197Campo05 += RegistroC197Campo05;
+                                        C197Campo07 += RegistroC197Campo07;
+
+                                        C197Campo02 = RetornaValorNoIndice(2, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)
+                                        C197Campo03 = RetornaValorNoIndice(3, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)           
+                                    }
+
+                                    newLines.splice(  //C197
+                                        PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
+                                        0,
+                                        `|C197|${C197Campo02}|${C197Campo03}||${C197Campo05.toFixed(2).toString().replace('.', ',')}||${C197Campo07.toFixed(2).toString().replace('.', ',')}||`
+                                    )
+                                }
+
+                                LinhasInseridas += 1 //C197
+
                             }
-
-                            LinhasInseridas += 1//PosicoesInsertC195eC197[0].c197.registroC197.length;  //C197
-
                         }
-
                     }
 
                     if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`) && ((contadorNovasLinhas > 0) || (alteracaoLinhas > 0))) {

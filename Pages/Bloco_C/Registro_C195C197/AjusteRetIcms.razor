@@ -759,16 +759,48 @@
 
                             LinhasInseridas += 1; //C195
 
-                            for (let contadorC197 = 0; contadorC197 < PosicoesInsertC195eC197[0].c197.registroC197.length; contadorC197++) {
+                            let C197Campo02 = '';
+                            let C197Campo03 = '';
+                            let C197Campo05 = 0;
+                            let C197Campo07 = 0;
+                            let RegistroC197Campo05 = 0;
+                            let RegistroC197Campo07 = 0;
 
+                            if (PosicoesInsertC195eC197[0].c197.registroC197.length == 1) {
                                 newLines.splice(  //C197
                                     PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
                                     0,
-                                    PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro
+                                    PosicoesInsertC195eC197[0].c197.registroC197[0].Registro
                                 )
                             }
-                            //console.log(PosicoesInsertC195eC197[0].c197.registroC197) //Luciano
-                            LinhasInseridas += PosicoesInsertC195eC197[0].c197.registroC197.length;  //C197
+                            else {
+                                for (let contadorC197 = 0; contadorC197 < PosicoesInsertC195eC197[0].c197.registroC197.length; contadorC197++) {
+
+                                    // newLines.splice(  //C197
+                                    //     PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
+                                    //     0,
+                                    //     PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro
+                                    // )
+                                    RegistroC197Campo05 = ConverteStringParaFloatNoIndice(5, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
+                                    RegistroC197Campo07 = ConverteStringParaFloatNoIndice(7, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro);
+
+                                    C197Campo05 += RegistroC197Campo05;
+                                    C197Campo07 += RegistroC197Campo07;
+
+                                    C197Campo02 = RetornaValorNoIndice(2, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)
+                                    C197Campo03 = RetornaValorNoIndice(3, PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro)
+                                   // console.log(PosicoesInsertC195eC197[0].c197.registroC197[contadorC197].Registro) //Luciano
+                                }
+                                // console.log(C197Campo05)
+                                // console.log(C197Campo07)
+                                newLines.splice(  //C197
+                                    PosicoesInsertC195eC197[0].c197.posicaoInicialC197,
+                                    0,
+                                    `|C197|${C197Campo02}|${C197Campo03}||${C197Campo05.toFixed(2).toString().replace('.', ',')}||${C197Campo07.toFixed(2).toString().replace('.', ',')}||`
+                                )
+                            }
+
+                            LinhasInseridas += 1//PosicoesInsertC195eC197[0].c197.registroC197.length;  //C197
 
                         }
 
@@ -925,6 +957,26 @@
             return lines;
         }
 
+        function ConverteStringParaFloatNoIndice(indice, lines) {
+            let retorno;
+            let valor = 0;
+            let values = lines.split('|');
+            valor = values[indice];
+
+            retorno = parseFloat(valor.replace(',', '.'));
+            return retorno
+        }
+
+        function RetornaValorNoIndice(indice, lines) {
+            let retorno;
+            let valor = '';
+            let values = lines.split('|');
+            valor = values[indice];
+
+            retorno = valor;
+            return retorno
+        }
+
         function CalculaRegistro(line, posicaoDoValor, valorParaCalcular, tipoOperacao = 'adicao', registro = '') { //Nova Função para melhorar o codigo
             let values = line.split('|');
             let resultado;
@@ -976,7 +1028,6 @@
             retorno = parseFloat(valor.replace(',', '.'));
             return retorno
         }
-
 
         function processarArquivoSPED(conteudo) {
             const linhas = conteudo.split('\n');

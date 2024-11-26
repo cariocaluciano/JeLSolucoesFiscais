@@ -729,12 +729,13 @@
                         if (Posicao1C100) {
                             C190FilhoC100 = [];
                             C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100 && item.posicao <= Posicao1C100));
-
-                            PosicoesInsertC195eC197 = []
-                            PosicoesInsertC195eC197 = [{
-                                c195: { posicaoC195: Posicao1C100 + LinhasInseridas , registroC195: ArrC195[0].Registro },
-                                c197: { posicaoInicialC197: Posicao1C100 + 1 + LinhasInseridas, registroC197: ArrC197.filter(item => item.posicaoC190 >= Posicao0C100 && item.posicaoC190 <= Posicao1C100) }
-                            }]
+                            if (ArrC195[0]) {
+                                PosicoesInsertC195eC197 = []
+                                PosicoesInsertC195eC197 = [{
+                                    c195: { posicaoC195: Posicao1C100 + LinhasInseridas, registroC195: ArrC195[0].Registro },
+                                    c197: { posicaoInicialC197: Posicao1C100 + 1 + LinhasInseridas, registroC197: ArrC197.filter(item => item.posicaoC190 >= Posicao0C100 && item.posicaoC190 <= Posicao1C100) }
+                                }]
+                            }
                         } else {
                             C190FilhoC100 = [];
                             C190FilhoC100.push(ArrC190.filter(item => item.posicao >= Posicao0C100));
@@ -810,7 +811,6 @@
                         let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'C195')));
                         let indiceC195 = newLines.findIndex(linha => linha.includes('|9900|C195|'))
                         let indiceC197 = newLines.findIndex(linha => linha.includes('|9900|C197|'))
-                        let contadorC195 = 
 
                             novaLinha9900C195 = `|9900|C195|${contadorNovasLinhas}|`;
                             novaLinha9900C197 = `|9900|C197|${contadorNovasLinhas}|`;

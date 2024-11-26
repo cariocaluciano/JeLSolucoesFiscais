@@ -886,9 +886,12 @@
         function calcularValorTributo(valorCalculado, aliquotaStr) {//Nova Função para melhorar o codigo
 
             let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", ".")), aliquota = parseFloat(aliquotaStr.replace(",", ".")),
-                valorTributo = baseCalculo * (aliquota / 100), valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
+                valorTributo = baseCalculo * (aliquota / 100), valorTributoStr = valorTributo.toFixed(3).replace(".", ",");
+            console.log('BC',baseCalculo,aliquota)
+            console.log(valorTributoStr, valorTributo, valorTributo.toFixed(2).replace(".", ","))
 
-            valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
+            valorTributoStr = valorTributoStr.toString().split(",")[0] + "," + valorTributoStr.toString().split(",")[1].substring(0, 2)
+            //valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
 
             return valorTributoStr;
         }

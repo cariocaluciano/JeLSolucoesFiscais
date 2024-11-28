@@ -12,6 +12,7 @@ public class UsuariosCadastrados
             new Usuario { Email = criptografa.RetornaValorCriptografado("Luciano"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = new DateTime(2026,10,2) },
             new Usuario { Email =criptografa.RetornaValorCriptografado("Jhon"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso = new DateTime(2026,10,22) },
             new Usuario { Email =criptografa.RetornaValorCriptografado("Adm"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso =  new DateTime(2026,11,03) },
+            new Usuario { Email =criptografa.RetornaValorCriptografado("Usuario"), Senha = criptografa.RetornaValorCriptografado("123456789"), FimAcesso =  new DateTime(2026,11,03) },
 
         };
 

@@ -460,6 +460,7 @@
             });
             document.getElementById('fileContentContainer').style.display = 'block';
         }
+        let CalculoValoresDaNotaComAliquota57, CalculoValoresDaNotaComAliquota67, CalculoValoresDaNotaComAliquota63, LinhaC197Inserido = [];
 
         function alterarArquivos() {
 
@@ -483,6 +484,8 @@
                 SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
                 LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900,
                 codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];
+                SomaValoresDaNota57 = 0, SomaValoresDaNota67 = 0, SomaValoresDaNota63 = 0;
+
 
             files.forEach((file, index) => {
                 const fileContentElement = document.getElementById(`fileContent-${index}`);
@@ -526,6 +529,12 @@
                                     else {
                                         newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
                                         newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+
+                                        SomaValoresDaNota57 += ModeloArquivo == 57 ? ConverteStringParaFloat(ValorParaCalculo) : 0;
+                                        SomaValoresDaNota67 += ModeloArquivo == 67 ? ConverteStringParaFloat(ValorParaCalculo) : 0;
+                                        SomaValoresDaNota63 += ModeloArquivo == 63 ? ConverteStringParaFloat(ValorParaCalculo) : 0;
+
+                                        LinhaC197Inserido.push({modelo : ModeloArquivo, posicao : i + 2});
 
                                         contadorNovasLinhas += 1
                                     }
@@ -633,6 +642,14 @@
 
                     }
 
+                    CalculoValoresDaNotaComAliquota57 = (SomaValoresDaNota57.toFixed(2) * (Aliquota/100)).toFixed(2);
+                    CalculoValoresDaNotaComAliquota67 = (SomaValoresDaNota67.toFixed(2) * (Aliquota/100)).toFixed(2);
+                    CalculoValoresDaNotaComAliquota63 = (SomaValoresDaNota63.toFixed(2) * (Aliquota/100)).toFixed(2);
+
+                    console.log('VrDaNotaSemCalculo63: ',SomaValoresDaNota63.toFixed(2));
+                    console.log('VrDaNotaSemCalculo57: ',SomaValoresDaNota57.toFixed(2));
+                    console.log('VrDaNotaSemCalculo67: ',SomaValoresDaNota67.toFixed(2));
+
                     if (alteracaoLinhas > 0) {
                         let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'));
                         let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
@@ -684,7 +701,7 @@
                         if (indice9 !== -1) {
                             newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
                         }
-                   
+
                     function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
                         const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
                         let valoresConvertidos = [];
@@ -800,12 +817,17 @@
                 }
             }
 
+            // const arq = document.getElementById(`fileContent-0`).textContent;
+            // processarArquivoSPED2(arq) //Luciano
+
+
         }
 
 
         function downloadArquivos() {
             files.forEach((file, index) => {
-                const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+                const arq = document.getElementById(`fileContent-0`).textContent;
+                const fileContent = processarArquivoSPED2(arq);//document.getElementById(`fileContent-${index}`).textContent;
                 const fileBytes = new TextEncoder().encode(fileContent);
                 const base64Data = arrayBufferToBase64(fileBytes.buffer);
 
@@ -886,14 +908,10 @@
         function calcularValorTributo(valorCalculado, aliquotaStr) {//Nova Função para melhorar o codigo
 
             let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", ".")), aliquota = parseFloat(aliquotaStr.replace(",", ".")),
-                valorTributo = baseCalculo * (aliquota / 100), valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
-            // console.log('BC',baseCalculo,aliquota)
-            // console.log(valorTributoStr, valorTributo, valorTributo.toFixed(2).replace(".", ","))
+            valorTributo = baseCalculo * (aliquota / 100), valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
 
-            //valorTributoStr = valorTributoStr.toString().split(",")[0] + "," + valorTributoStr.toString().split(",")[1].substring(0, 2)
             valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
-            // console.log('BC', baseCalculo, aliquota)
-            // console.log(valorTributoStr, valorTributo.toFixed(2).replace(".", ","), valorTributo.toFixed(3).replace(".", ","))
+
             return valorTributoStr;
         }
 
@@ -917,7 +935,7 @@
                     const campos = linha.split('|');
                     if (campos.length >= 6) {
                         isSaidas = campos[2] == 1 && campos[3] == 0;
-                        if (isSaidas) { 
+                        if (isSaidas) {
                         modelo = campos[5]; // Modelo
                         situacao = campos[6]; // Situação
                         }
@@ -943,6 +961,7 @@
                 }
             });
 
+
             // Converte o objeto de ajustes em um array
             return Object.keys(ajustes).map(key => ({
                 modelo: key,
@@ -951,6 +970,107 @@
                 totalAjuste: ajustes[key].totalAjuste
             }));
         }
+
+            function processarArquivoSPED2(conteudo) {
+            const linhas = conteudo.split('\n');
+            const ajustes = {};
+            let modelo = '';
+            let situacao = '';
+            let isSaidas = false;
+            let DiferencaModelo63 = 0;
+
+            linhas.forEach((linha, index) => {
+                if (linha.startsWith('|D100|')) {
+                    const campos = linha.split('|');
+                    if (campos.length >= 6) {
+                        isSaidas = campos[2] == 1 && campos[3] == 0;
+                        if (isSaidas) {
+                            modelo = campos[5]; // Modelo
+                            situacao = campos[6]; // Situação
+                        }
+                    }
+                }
+
+                if (linha.startsWith('|D197|')) {
+                    const campos = linha.split('|');
+                    if (campos.length >= 8) {
+                        const codigoAjuste = campos[2]; // Código Ajuste
+                        const totalAjuste = parseFloat(campos[7].replace(',', '.')); // Total Ajuste
+                        if (isSaidas) {
+                            if (!ajustes[modelo]) {
+                                ajustes[modelo] = {
+                                    situacao: situacao,
+                                    codigoAjuste: codigoAjuste,
+                                    totalAjuste: 0
+                                };
+                            }
+                            ajustes[modelo].totalAjuste += totalAjuste; // Soma dos totais por modelo
+                        }
+                    }
+                }
+            });
+
+            // Calcula diferença
+            const TotalAjusteModelo63 = ajustes[63]?.totalAjuste || 0;
+            DiferencaModelo63 = Math.abs(CalculoValoresDaNotaComAliquota63 - TotalAjusteModelo63);
+
+            const TotalAjusteModelo57 = ajustes[57]?.totalAjuste || 0;
+            DiferencaModelo57 = Math.abs(CalculoValoresDaNotaComAliquota57 - TotalAjusteModelo57);
+
+            const TotalAjusteModelo67 = ajustes[67]?.totalAjuste || 0;
+            DiferencaModelo67 = Math.abs(CalculoValoresDaNotaComAliquota67 - TotalAjusteModelo67);
+
+            // Atualiza linhas do D197
+            linhas.forEach((linha, index) => {
+                if (linha.startsWith('|D197|') && modelo == 63 && DiferencaModelo63 > 0.0) {
+                    const campos = linha.split('|');
+                    if (campos.length >= 8) {
+                        console.log(DiferencaModelo63)//Luciano
+                        let valorAtual = parseFloat(campos[7].replace(',', '.'));
+                        valorAtual -= 0.01; // Ajuste do valor
+                        DiferencaModelo63 -= 0.01;
+                        console.log(campos[7]); //Luciano
+                        campos[7] = valorAtual.toFixed(2).replace('.', ','); // Atualiza campo no formato correto
+                        console.log(campos[7]); //Luciano
+                        linhas[index] = campos.join('|'); // Atualiza linha no array
+                        console.log(linhas[index]);
+                    }
+                }
+                // if (linha.startsWith('|D197|') && modelo == 57 && DiferencaModelo57 > 0.0) {
+                //     const campos = linha.split('|');
+                //     if (campos.length >= 8) {
+                //         console.log(DiferencaModelo57)//Luciano
+                //         let valorAtual = parseFloat(campos[7].replace(',', '.'));
+                //         valorAtual -= 0.01; // Ajuste do valor
+                //         DiferencaModelo57 -= 0.01;
+                //         console.log(campos[7]); //Luciano
+                //         campos[7] = valorAtual.toFixed(2).replace('.', ','); // Atualiza campo no formato correto
+                //         console.log(campos[7]); //Luciano
+                //         linhas[index] = campos.join('|'); // Atualiza linha no array
+                //         console.log(linhas[index]);
+                //     }
+                // }
+                // if (linha.startsWith('|D197|') && modelo == 67 && DiferencaModelo67 > 0.0) {
+                //     const campos = linha.split('|');
+                //     if (campos.length >= 8) {
+                //         console.log(DiferencaModelo67)//Luciano
+                //         let valorAtual = parseFloat(campos[7].replace(',', '.'));
+                //         valorAtual -= 0.01; // Ajuste do valor
+                //         DiferencaModelo67 -= 0.01;
+                //         console.log(campos[7]); //Luciano
+                //         campos[7] = valorAtual.toFixed(2).replace('.', ','); // Atualiza campo no formato correto
+                //         console.log(campos[7]); //Luciano
+                //         linhas[index] = campos.join('|'); // Atualiza linha no array
+                //         console.log(linhas[index]);
+                //     }
+                // }
+            });
+
+            // Retorna o arquivo atualizado como texto
+            return linhas.join('\n');
+        }
+
+
 
         function gerarRelatorioHTML(ajustes) {
             let html = `
@@ -986,8 +1106,9 @@
         }
 
         function btnGerarRelatorio_click() {
-            const arquivo = document.getElementById(`fileContent-0`).textContent//inputArquivoSPED.files[0];
-            const ajustes = processarArquivoSPED(arquivo);
+            const arq = document.getElementById(`fileContent-0`).textContent
+            const arquivo = processarArquivoSPED2(arq)//document.getElementById(`fileContent-0`).textContent//inputArquivoSPED.files[0];
+            const ajustes = processarArquivoSPED(arquivo); //Luciano
             const relatorioHTML = gerarRelatorioHTML(ajustes);
             document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
             document.getElementById('modal-relatorio-sped').style.display = 'block';

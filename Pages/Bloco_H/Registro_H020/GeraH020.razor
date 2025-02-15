@@ -1,0 +1,1039 @@
+﻿@page "/EfdFiscal/Bloco_H/Registro_H020/GeraH020"
+
+@using JeLSolucoesFiscais.Aplicacao.Criptografias
+@using JeLSolucoesFiscais.Aplicacao.Usuario
+@inject LocalStorageService LocalStorageService
+
+<PageTitle>SoluFiscal</PageTitle>
+
+@if (acessoLiberado)
+{
+
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+
+    .row {
+      margin-bottom: 20px;
+    }
+
+    .col-2 {
+      background-color: #ffffff;
+      // border-radius: 12px 12px 0 0;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .col-10 {
+      background-color: #ffffff;
+      //border-radius: 0 0 12px 12px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      padding: 20px;
+      transition: box-shadow 0.3s ease;
+    }
+
+      .col-2:hover, .col-10:hover {
+        box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+      }
+
+    .form-floating {
+      margin-bottom: 15px;
+    }
+
+    .form-control, .btn {
+      border-radius: 8px;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      border-color: #6c757d;
+      transition: all 0.3s ease;
+    }
+
+      .btn-secondary:hover {
+        background-color: #5a6268;
+        border-color: #545b62;
+        transform: translateY(-2px);
+      }
+
+    .form-check {
+      margin-bottom: 10px;
+    }
+
+    .upload-container {
+      background-color: #f8f9fa;
+      border: 3px dashed #007bff;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+      .upload-container:hover {
+        background-color: #e3f2fd;
+        border-color: #0056b3;
+      }
+
+      .upload-container p {
+        color: #007bff;
+        font-size: 20px;
+        margin-top: 10px;
+        font-weight: bold;
+      }
+
+      .upload-container input[type="file"] {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+      }
+
+    #fileContentContainer_Excel {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    #fileContentContainer_Sped {
+      background-color: #ffffff;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .file-entry {
+      background-color: #f8f9fa;
+      border-radius: 8px;
+      padding: 15px;
+      margin-bottom: 15px;
+      transition: all 0.3s ease;
+    }
+
+      .file-entry:hover {
+        background-color: #e9ecef;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      }
+
+    .file-content {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 14px;
+      overflow-x: auto;
+      background-color: #f1f3f5;
+      padding: 10px;
+      border-radius: 6px;
+    }
+
+    #BtnAlteraAquivos, #BtnDownloadAquivos, #BtnGerarRelatorio {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      width: 100%;
+      background-color: #6f42c1;
+      color: white;
+      transition: all 0.3s ease;
+      border-radius: 30px;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+
+      #BtnAlteraAquivos:hover, #BtnDownloadAquivos:hover, #BtnGerarRelatorio:hover {
+        background-color: #6610f2;
+        border: none;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      }
+
+    .toast {
+      border-radius: 12px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.4);
+    }
+
+    .modal-content {
+      background-color: #fefefe;
+      margin: 5% auto;
+      padding: 20px;
+      border: 1px solid #888;
+      width: 90%;
+      max-width: 1000px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+      .modal-header h2 {
+        margin: 0;
+        color: #2c3e50;
+      }
+
+    .fechar {
+      color: #aaa;
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+      .fechar:hover,
+      .fechar:focus {
+        color: #000;
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+    .relatorio-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+
+      .relatorio-table th,
+      .relatorio-table td {
+        border: 1px solid #ddd;
+        padding: 12px;
+        text-align: left;
+      }
+
+      .relatorio-table th {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+      }
+
+      .relatorio-table tr:nth-child(even) {
+        background-color: #f2f2f2;
+      }
+
+      .relatorio-table tr:hover {
+        background-color: #e6f3ff;
+      }
+
+    #arquivo-sped {
+      margin: 10px 0;
+    }
+
+  </style>
+
+  <!-- Modal de Relatório SPED -->
+  <div id="modal-relatorio-sped" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Relatório SPED - Ajustes Saídas</h2>
+        <span class="fechar">&times;</span>
+      </div>
+      <div id="relatorio-conteudo"></div>
+    </div>
+  </div>
+
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+
+    <div id="ValidaSistema" class="toast bg-danger text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong id="TituloValidaSistema" class="me-auto"></strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        <p><b id="MensagemValidaSistema"></b></p>
+      </div>
+    </div>
+
+    <div id="alertToastSucesso" class="toast bg-success text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Sucesso</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        <b>Arquivo atualizado com sucesso,</b><br /> <a href="/JeLSolucoesFiscais/EfdPisCofins" onclick="downloadArquivos()"><b>Clique aqui para fazer o download</b></a>
+      </div>
+    </div>
+
+    <div id="alertToastFalha" class="toast bg-danger text-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="toast-header">
+        <strong class="me-auto">Falha</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        <a><b>Verifique se seu arquivo possui os registros D100 e D190, <br />  Ou se você preencheu corretamente as opções.</b></a>
+      </div>
+    </div>
+
+  </div>
+
+
+
+  <div class="container">
+    <div class="row">
+      @*     Adicionar o download de um arquivo padrão para o cliente.  *@
+    </div>
+    <div class="row mt-3 justify-content-between">
+      <div class="col-6">
+        <div class="upload-container"
+             id="uploadContainer_Excel">
+          <input type="file" id="inputExcel" accept=".xlsx, .xls"/>
+          <p>Clique ou arraste aqui seu arquivo de Excel</p>
+        </div>
+      </div>
+      <div class="col-6">
+        <div class="upload-container"
+             id="uploadContainer_txt"
+             ondrop="handleDrop(event, 'fileContents_sped')"
+             ondragover="handleDragOver(event, 'fileContents_sped')">
+          <input type="file" id="fileInput" accept=".txt" multiple onchange="handleFilesSelected(event)" />
+          <p>Clique ou arraste aqui seu arquivo do Sped</p>
+        </div>
+      </div>
+    </div>
+    <div class="row col-6">
+      <div class="col">
+        <button id="BtnAlteraAquivos" onclick="alterarArquivos()" style="visibility:hidden">Alterar Arquivos</button>
+      </div>
+      <div class="col">
+        <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download</button>
+      </div>
+      <div class="col">
+        <button id="BtnGerarRelatorio" onclick="btnGerarRelatorio_click()" style="visibility:hidden">Gerar Relatório</button>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-6">
+        <div id="fileContentContainer_Excel">
+          <h4>Conteúdo do Arquivo Excel:</h4>
+          <table border="1" id="tabelaExcel">
+            <thead>
+              <tr>
+                <th>CodProduto</th>
+                <th>Cst</th>
+                <th>BcICMS</th>
+                <th>VrICMS</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="col-6">
+        <div id="fileContentContainer_Sped">
+          <h4>Conteúdo do Arquivo Sped:</h4>
+          <div id="fileContents_sped"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div id="loadingScreen" class="loading-screen">
+    <div class="spinner"></div>
+    <p>Carregando...</p>
+  </div>
+
+
+  <script>
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        let files = [];
+    } else {
+        files = [];
+    }
+
+    // LEITOR DO SPED
+    function handleFilesSelected(event, Id_Filecontents) {
+        files = Array.from(event.target.files);
+        displayFileContents(Id_Filecontents);
+    }
+
+    function handleDrop(event, Id_Filecontents) {
+        event.preventDefault();
+        files = Array.from(event.dataTransfer.files);
+        displayFileContents(Id_Filecontents);
+    }
+
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
+
+    function displayFileContents(Id_Filecontents) {
+        const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
+        BtnalterarArquivos.style.visibility = "visible";
+
+        const fileContentsContainer = document.getElementById(Id_Filecontents);
+        fileContentsContainer.innerHTML = '';
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                const fileEntry = document.createElement('div');
+                fileEntry.classList.add('file-entry');
+                fileEntry.innerHTML = `
+                            <h5>Arquivo ${index + 1}:</h5>
+                            <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
+                            `;
+                fileContentsContainer.appendChild(fileEntry);
+            };
+            reader.readAsText(file);
+        });
+        var fileContentContainer = Id_Filecontents == 'fileContents_sped' ? 'fileContentContainer_Sped' : 'fileContentContainer_Excel'
+        document.getElementById(fileContentContainer).style.display = 'block';
+    }
+    //LEITOR DO EXCEL
+
+        document.getElementById('inputExcel').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
+
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
+
+            const tbody = document.querySelector("#tabelaExcel tbody");
+            tbody.innerHTML = "";
+
+            jsonData.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.innerHTML = `
+                    <td>${row.CodProduto || ''}</td>
+                    <td>${row.Cst || ''}</td>
+                    <td>${row.BcICMS || ''}</td>
+                    <td>${row.VrICMS || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    function alterarArquivos() {
+
+        document.getElementById('loadingScreen').style.display = 'flex';
+        Modelo = document.getElementById("ModeloDropDown").value,
+        Serie = document.getElementById("Serie").value,
+        Cfop = document.getElementById("Cfop").value,
+        TodosCfop = document.getElementById("CheckTodosCfops").checked,
+        TodasSeries = document.getElementById("CheckTodasSeries").checked,
+        CodigoAjuste = document.getElementById("CodigoAjuste").value,
+        DescricaoComplementar = document.getElementById("DescricaoComplementar").value,
+        Aliquota = document.getElementById("Aliquota").value.replace(/\./g, ","),
+        RadioBcOuIcms = document.getElementById("RadiobaseCalculo").checked ? "Bc" : "Icms",
+        CodObservacao = Math.floor(Math.random() * 900000) + 100000,
+        divAcaoParaInclusaoSelecionaBloco = document.getElementById('AcaoParaInclusaoSelecionaBloco'),
+        BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
+        BtnGerarRelatorio = document.getElementById('BtnGerarRelatorio');
+
+        let contadorNovasLinhas = 0, alteracaoLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
+            D100Campo2, D100Campo3, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
+            SerieArquivo, SomaValoresCalculados = 0, UltimoRegistroAntes0460, LinhaUltimoRegistroAntes0460,
+            LinhaUltimoRegistroAntesDo0460Indice02, Linha9900Contador9900,
+            codigosValidosIndice3 = ['0', '1', '2'], codigosValidosIndice4 = ['0', '3', '4', '5', '6', '7', '8'], linhas9900 = [];
+
+        files.forEach((file, index) => {
+            const fileContentElement = document.getElementById(`fileContent-${index}`);
+            if (fileContentElement) {
+                let fileContent = fileContentElement.textContent;
+
+                let lines = fileContent.split('\n');
+                let newLines = [];
+
+                for (let i = 0; i < lines.length; i++) { //Aqui dentro está tudo ajustado e padronizado
+
+                    newLines.push(lines[i]);
+                    let valor = lines[i].split('|');
+
+                    if (lines[i].startsWith('|0990|')) {
+                        let resultado = CalculaRegistro(lines[i], 2, 1, 'adicao').toString();
+                        newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
+                    }
+
+                    if (lines[i].startsWith('|D100|')) {
+                        D100Campo2 = valor[2];
+                        D100Campo3 = valor[3];
+                        ModeloArquivo = valor[5];
+                        SerieArquivo = valor[7];
+                    }
+
+                    if (lines[i].startsWith('|D190|')) {
+                        CfopArquivo = valor[3];
+                        ValorBc = valor[6];
+                        ValorIcms = valor[7];
+
+                        ValorParaCalculo = RadioBcOuIcms == "Bc" ? ValorBc : ValorIcms
+
+                        ValorCalculado = calcularValorTributo(ValorParaCalculo, Aliquota);
+
+                        if (VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo,lines[i]) == true) {
+
+                                if (lines[i + 1].startsWith('|D195|')) {
+                                    alteracaoLinhas += 1
+                                }
+                                else {
+                                    newLines.push(`|D195|${CodObservacao}|${DescricaoComplementar}|`);
+                                    newLines.push(`|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`);
+
+                                    contadorNovasLinhas += 1
+                                }
+
+                                if((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
+                                SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+                                }
+                                else if(['3','4','5'].includes(CodigoAjuste[2]))
+                                {
+                                SomaValoresCalculados += parseFloat(ValorCalculado.replace(',', '.'));
+                                }
+                        }
+                    }
+
+                    if (lines[i].startsWith('|D195|')) {
+                        if (VerificaCondicoesParaGerarD195D197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true) {
+                            lines[i] = `|D195|${CodObservacao}|${DescricaoComplementar}|`
+                            newLines[newLines.length - 1] = lines[i];
+                            }
+                    }
+
+                    if (lines[i].startsWith('|D197|')) {
+                        if (VerificaCondicoesParaGerarD195D197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true) {
+                            lines[i] = `|D197|${CodigoAjuste}|${DescricaoComplementar}||${ValorParaCalculo}|${Aliquota}|${ValorCalculado}||`
+                            newLines[newLines.length - 1] = lines[i];
+                            }
+                    }
+
+                    if (lines[i].startsWith('|D990|')) {
+                        let resultado = CalculaRegistro(lines[i], 2, parseInt(contadorNovasLinhas), 'multiplicacao', 'D990').toString();
+                        newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
+                    }
+
+                    if ((parseInt(lines[i].split('|')[1]) < 460) && (alteracaoLinhas == 0)) {
+                        UltimoRegistroAntes0460 = lines[i].split('|')[1];
+                        LinhaUltimoRegistroAntes0460 = i;
+                    }
+
+                    if (parseInt(lines[i].split('|')[2]) == '9900') {
+                        let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 3, 1, 'adicao').toString() : CalculaRegistro(lines[i], 3, 3, 'adicao').toString();
+                        newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 3, resultado);
+                    }
+
+                    if ((parseInt(lines[i].split('|')[1]) == '9900') && (parseInt(lines[i].split('|')[2]) < '460')) {
+                        LinhaUltimoRegistroAntesDo0460Indice02 = lines[i];
+                    }
+
+                    if (lines[i].startsWith('|E110|')) {
+                        let ResultadoVlAjusteCredito;
+                        let valor = lines[i].split('|');
+                        let vrAjuste3 = 0;
+                        let vrAjuste7 = 0;
+
+                        if ((codigosValidosIndice3.includes(CodigoAjuste[2])) && (codigosValidosIndice4.includes(CodigoAjuste[3]))){
+                            ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 7, SomaValoresCalculados, 'adicao');
+                            valor[7] = ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ',')
+                            vrAjuste7 = ResultadoVlAjusteCredito
+                            vrAjuste7 = isNaN(vrAjuste7) ? 0 : vrAjuste7;
+                        }
+                        else if (['3','4','5'].includes(CodigoAjuste[2]))
+                        {
+                            ResultadoVlAjusteCredito = CalculaRegistro(lines[i], 3, SomaValoresCalculados, 'adicao');
+                            valor[3] = ResultadoVlAjusteCredito.toFixed(2).toString().replace('.', ',')
+                            vrAjuste3 = ResultadoVlAjusteCredito
+                            vrAjuste3 = isNaN(vrAjuste3) ? 0 : vrAjuste3;
+                        }
+
+                        let campo2Ao5 = ConverteStringParaFloat(valor[2]) + vrAjuste3 + ConverteStringParaFloat(valor[4]) + ConverteStringParaFloat(valor[5]);
+                        let campo6Ao10 = ConverteStringParaFloat(valor[6]) + vrAjuste7 + ConverteStringParaFloat(valor[8]) + ConverteStringParaFloat(valor[9]) + ConverteStringParaFloat(valor[10]);
+                        let campo12 = ConverteStringParaFloat(valor[12]);
+                        let total = campo2Ao5 - campo6Ao10;
+                        let campo13 = total - campo12;
+
+                        if(total > 0)
+                        {
+                          valor[11] = total.toFixed(2).toString().replace('.', ',')
+                        } else {
+                          valor[11] = '0'
+                        }
+                        if(campo13 >= 0)
+                        {
+                          valor[13] = campo13.toFixed(2).toString().replace('.', ',')
+                        }else{
+                         valor[13] = '0'
+                        }
+
+                        lines[i] = valor.join('|')
+                        newLines[newLines.length - 1] = lines[i];
+
+                    }
+
+                    if (lines[i].startsWith('|9900|')) {
+                        linhas9900.push(lines[i])
+                    }
+
+                    if (lines[i].startsWith('|9990|')) {
+                        let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 2, 1, 'adicao').toString() : CalculaRegistro(lines[i], 2, 3, 'adicao').toString();
+                        newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
+                    }
+
+                    if (lines[i].startsWith('|9999|')) {
+                        let resultado = alteracaoLinhas > 0 ? CalculaRegistro(lines[i], 2, 1, 'adicao').toString() : CalculaRegistro(lines[i], 2, contadorNovasLinhas, 'multiplicacao', '9999').toString();
+                        newLines[newLines.length - 1] = AtualizaRegistro(lines[i], 2, resultado);
+                    }
+
+                }
+
+                if (alteracaoLinhas > 0) {
+                    let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'));
+                    let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
+                    newLines[indice] = `|9900|0460|${resultado}|`;
+                } else if(contadorNovasLinhas > 0) {
+                    let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
+                    let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'))
+
+                    if (indice !== -1) {
+                        let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
+                        newLines[indice] = `|9900|0460|${resultado}|`;
+                    }
+                    else if (indice9900 !== -1) {
+                        newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
+                    }
+                }
+
+                if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
+
+                    let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
+                    let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
+                    let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
+
+                    let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
+                    let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
+
+                    if (indiceD195 !== -1) {
+                        let resultado = CalculaRegistro(newLines[indiceD195], 3, contadorNovasLinhas, 'adicao').toString();
+                        newLines[indiceD195] = `|9900|D195|${resultado}|`;
+                    }
+                    if (indiceD197 !== -1) {
+                        let resultado = CalculaRegistro(newLines[indiceD197], 3, contadorNovasLinhas, 'adicao').toString();
+                        newLines[indiceD197] = `|9900|D197|${resultado}|`;
+                    }
+                    else if (indice !== -1) {
+                        newLines.splice(indice + 1, 0, novaLinha9900D195);
+                        newLines.splice(indice + 2, 0, novaLinha9900D197);
+                    }
+                }
+                    let indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
+                    if (indice9900 !== -1) {
+                        newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
+                    }
+                    let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                    if (indice9999 !== -1) {
+                    newLines[indice9999] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|9999|${newLines.length}|` : `|9999|${newLines.length -1}|`;
+                    }
+                    let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                    if (indice9 !== -1) {
+                        newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
+                    }
+
+                function converterLetraParaNumero(arrayLinhas, campoParaInserir = "") {
+                    const letrasAlfabeto = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"];
+                    let valoresConvertidos = [];
+
+                    arrayLinhas.forEach(linha => {
+                        let partes = linha.split('|');
+                        let letra = partes[2][0]; // Obtém a primeira letra
+                        if (letrasAlfabeto.includes(letra.toUpperCase())) {
+                            let numero = letra.toUpperCase().charCodeAt(0) - 64; // Converte a letra para número
+                            // Substitui a primeira letra pela conversão
+                            partes[2] = '99' + numero.toString() + partes[2].substring(1);
+                            // Junta as partes de volta e armazena no array
+                            linha = partes.join('|');
+                            valoresConvertidos.push(linha); // Adiciona a linha modificada ao array
+                        }
+                    });
+
+                    let campo = letrasAlfabeto.includes(campoParaInserir[0]) ? campoParaInserir.toUpperCase().charCodeAt(0) - 64 : campoParaInserir[0]
+                    let parametroAjustado = '99' + campo.toString() + campoParaInserir.substring(1);
+                    let resultado = encontrarValorAntesDoParametro(valoresConvertidos, parametroAjustado)
+                    return resultado == null ? null : resultado;
+                }
+
+
+                function encontrarValorAntesDoParametro(arrayLinhas, valorParametro) {
+                    let valorAnterior = null;
+                    let parte03 = '';
+
+                    for (let i = 0; i < arrayLinhas.length; i++) {
+                        let partes = arrayLinhas[i].split('|');
+                        let valorAtual = partes[2]; // valor atual
+
+                        if (parseInt(valorAtual) < parseInt(valorParametro)) {
+                            valorAnterior = valorAtual;
+                            parte03 = partes[3];
+                        }
+                    }
+                    let retorno = '';
+                    retorno = '|9900|' + numeroParaLetra(parseInt(valorAnterior[2])) + valorAnterior.substring(3) + '|' + parte03 + '|'
+                    return retorno;
+                }
+
+                function numeroParaLetra(numero) {
+                    // Transforma o número em letra correspondente
+                    return String.fromCharCode(numero + 64);
+                }
+
+                if (lines[LinhaUltimoRegistroAntes0460].startsWith(`|${UltimoRegistroAntes0460}|`) && ((contadorNovasLinhas > 0) || (alteracaoLinhas > 0))) {
+                    newLines.splice(LinhaUltimoRegistroAntes0460 + 1, 0, `|0460|${CodObservacao}|${DescricaoComplementar}|`);
+                }
+
+                fileContent = newLines.join('\n');
+                fileContentElement.textContent = fileContent;
+                files[index] = new File([fileContent], file.name, { type: file.type });
+            }
+        });
+
+        function VerificaCondicoesParaGerarD195D197(CfopArquivo,ModeloArquivo,SerieArquivo,line)
+        {
+            let values = line.split('|');
+            let retorno;
+            if ((parseFloat(values[6]) > 0) && (D100Campo2 == "1" && D100Campo3 == "0") && (TodosCfop || CfopArquivo == Cfop) && (Modelo == "Todos" || Modelo == ModeloArquivo) && (TodasSeries || SerieArquivo == Serie)) {
+                if ((!isNaN(parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) || (parseFloat(ValorCalculado.replace(",", "."))) > 0)) {
+                    retorno = true;
+                }
+                else {
+                    retorno = false;
+                }
+            } else{
+                retorno = false;
+            }
+            return retorno;
+        }
+
+        if (CodigoAjuste === "") {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
+        }
+        else if (DescricaoComplementar === "") {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Descricao Complementar');
+        }
+        else if (Aliquota === "") {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Aliquota');
+        }
+        else if (Modelo === "") {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar um Modelo para ajuste');
+        }
+        else if (Cfop == "" && !TodosCfop) {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar um Cfop ou marcar o campo Todos Cfops');
+        }
+        else if (Serie == "" && !TodasSeries) {
+            ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar uma Serie ou marcar o campo Todas Series');
+        }
+        else {
+            if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
+               // document.getElementById('loadingScreen').style.display = 'flex';
+                setTimeout(function() {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    var toastEl = document.getElementById('alertToastSucesso');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                    BtnDownloadAquivos.style.visibility = "visible";
+                    BtnGerarRelatorio.style.visibility = "visible";
+                    return;
+                }, 1000);
+            } else {
+                BtnDownloadAquivos.style.visibility = "";
+                var toastEl = document.getElementById('alertToastFalha');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                BtnDownloadAquivos.style.visibility = "hidden";
+                BtnGerarRelatorio.style.visibility = "hidden";
+                return;
+            }
+        }
+
+    }
+
+
+    function downloadArquivos() {
+        files.forEach((file, index) => {
+            const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+            const fileBytes = new TextEncoder().encode(fileContent);
+            const base64Data = arrayBufferToBase64(fileBytes.buffer);
+
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;base64,' + base64Data;
+            link.download = `Novo-${file.name}`;
+            link.click();
+        });
+    }
+
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
+
+    document.getElementById('CheckTodasSeries').addEventListener('click', function() {
+        document.getElementById("Serie").disabled = this.checked;
+        const Serie = document.getElementById("Serie").value;
+        document.getElementById("Serie").value = this.checked ? "" : Serie;
+    })
+
+    document.getElementById('CheckTodosCfops').addEventListener('click', function() {
+        document.getElementById("Cfop").disabled = this.checked;
+        const Cfop = document.getElementById("Cfop").value;
+        document.getElementById("Cfop").value = this.checked ? "" : Cfop;
+    })
+
+
+    function AtualizaRegistro(lines, posicaoAjuste, valorIncluir = '') { //Nova Função para melhorar o codigo
+        let values = lines.split('|');
+        values[posicaoAjuste] = valorIncluir;
+
+        lines = values.join('|');
+        return lines;
+    }
+
+    function CalculaRegistro(line, posicaoDoValor, valorParaCalcular, tipoOperacao = 'adicao', registro = '') { //Nova Função para melhorar o codigo
+        let values = line.split('|');
+        let resultado;
+
+        if (tipoOperacao === 'adicao') {
+            resultado = parseFloat(valorParaCalcular) + parseFloat(values[posicaoDoValor].replace(',', '.'))
+        } else if (tipoOperacao === 'multiplicacao' && registro === 'D990') {
+            resultado = parseInt(values[posicaoDoValor]) + (parseInt(valorParaCalcular) * 2)
+        } else if (tipoOperacao === 'multiplicacao' && registro === '9999') {
+            resultado = parseInt(values[posicaoDoValor]) + (parseInt(valorParaCalcular) * 2) + 4 //Esses 4 são : 1 0460 , 1 9900|D195 , 1 9900|D197, 1 9900|0460
+        }
+        return resultado;
+    }
+
+    function ModalValidaSistema(tipoValidacao, mensagem) { //Nova Função para melhorar o codigo
+        var toastEl = document.getElementById('ValidaSistema'), mensagemValidaSistema = document.getElementById('MensagemValidaSistema'),
+            tituloValidaSistema = document.getElementById('TituloValidaSistema');
+        if (tipoValidacao === 'Sucesso') {
+            toastEl.classList = 'toast bg-success text-dark border-0';
+            tituloValidaSistema.innerText = 'Sucesso';
+            mensagemValidaSistema.innerText = mensagem;
+        } else if (tipoValidacao === 'Falha') {
+            toastEl.classList = 'toast bg-danger text-dark border-0';
+            tituloValidaSistema.innerText = 'Falha';
+            mensagemValidaSistema.innerText = mensagem;
+        } else {
+            toastEl.classList = 'toast bg-warning text-dark border-0';
+            tituloValidaSistema.innerText = 'Alerta'
+            mensagemValidaSistema.innerText = mensagem;
+        }
+
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        return;
+    }
+
+    function calcularValorTributo(valorCalculado, aliquotaStr) {//Nova Função para melhorar o codigo
+
+        let baseCalculo = parseFloat(valorCalculado.replace(/\./g, "").replace(",", ".")), aliquota = parseFloat(aliquotaStr.replace(",", ".")),
+            valorTributo = baseCalculo * (aliquota / 100), valorTributoStr = valorTributo.toFixed(2).replace(".", ",");
+        // console.log('BC',baseCalculo,aliquota)
+        // console.log(valorTributoStr, valorTributo, valorTributo.toFixed(2).replace(".", ","))
+
+        //valorTributoStr = valorTributoStr.toString().split(",")[0] + "," + valorTributoStr.toString().split(",")[1].substring(0, 2)
+        valorTributoStr = valorTributoStr.padStart(valorCalculado.length, '0');
+        // console.log('BC', baseCalculo, aliquota)
+        // console.log(valorTributoStr, valorTributo.toFixed(2).replace(".", ","), valorTributo.toFixed(3).replace(".", ","))
+        return valorTributoStr;
+    }
+
+    function ConverteStringParaFloat(valor)
+    {
+        let retorno;
+        retorno = parseFloat(valor.replace(',', '.'));
+        return retorno
+    }
+
+
+    function processarArquivoSPED(conteudo) {
+        const linhas = conteudo.split('\n');
+        const ajustes = {};
+        let modelo = '';
+        let situacao = '';
+        let isSaidas = false;
+
+        linhas.forEach(linha => {
+            if (linha.startsWith('|D100|')) {
+                const campos = linha.split('|');
+                if (campos.length >= 6) {
+                    isSaidas = campos[2] == 1 && campos[3] == 0;
+                    if (isSaidas) {
+                    modelo = campos[5]; // Modelo
+                    situacao = campos[6]; // Situação
+                    }
+                }
+            }
+
+            if (linha.startsWith('|D197|')) {
+                const campos = linha.split('|');
+                if (campos.length >= 8) {
+                    const codigoAjuste = campos[2]; // Código Ajuste
+                    const totalAjuste = parseFloat(campos[7].replace(',', '.')); // Total Ajuste
+                    if (isSaidas) {
+                        if (!ajustes[modelo]) {
+                            ajustes[modelo] = {
+                                situacao: situacao,
+                                codigoAjuste: codigoAjuste,
+                                totalAjuste: 0
+                            };
+                        }
+                        ajustes[modelo].totalAjuste += totalAjuste; // Soma dos totais por modelo
+                    }
+                }
+            }
+        });
+
+        // Converte o objeto de ajustes em um array
+        return Object.keys(ajustes).map(key => ({
+            modelo: key,
+            situacao: ajustes[key].situacao,
+            codigoAjuste: ajustes[key].codigoAjuste,
+            totalAjuste: ajustes[key].totalAjuste
+        }));
+    }
+
+    function gerarRelatorioHTML(ajustes) {
+        let html = `
+                    <table class="relatorio-table">
+                        <thead>
+                            <tr>
+                                <th>Modelo</th>
+                                <th>Situação</th>
+                                <th>Código Ajuste</th>
+                                <th>Total Ajuste</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+
+        ajustes.forEach(ajuste => {
+            html += `
+                        <tr>
+                            <td>${ajuste.modelo}</td>
+                            <td>${ajuste.situacao}</td>
+                            <td>${ajuste.codigoAjuste}</td>
+                            <td>R$ ${ajuste.totalAjuste.toFixed(2)}</td>
+                        </tr>
+                    `;
+        });
+
+        html += `
+                        </tbody>
+                    </table>
+                `;
+
+        return html;
+    }
+
+    function btnGerarRelatorio_click() {
+        const arquivo = document.getElementById(`fileContent-0`).textContent//inputArquivoSPED.files[0];
+        const ajustes = processarArquivoSPED(arquivo);
+        const relatorioHTML = gerarRelatorioHTML(ajustes);
+        document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
+        document.getElementById('modal-relatorio-sped').style.display = 'block';
+    }
+        document.getElementById('modal-relatorio-sped').querySelector('.fechar').onclick = () => {
+            document.getElementById('modal-relatorio-sped').style.display = 'none';
+        };
+
+        window.onclick = (event) => {
+            if (event.target == document.getElementById('modal-relatorio-sped')) {
+                document.getElementById('modal-relatorio-sped').style.display = 'none';
+            }
+        };
+
+  </script>
+}
+else
+{
+  <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+    <div id="alertLogin" class="bg-danger text-dark border-0 p-3 rounded" role="alert">
+      <div class="d-flex justify-content-between align-items-center mb-2">
+        <strong class="me-auto">Alerta</strong>
+        <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+      <div class="toast-body">
+        <b>Para acessar esse módulo é necessário fazer Login.</b> <br /> <a href="/JeLSolucoesFiscais/EfdPisCofins"> <b>Clique aqui para fazer Login</b> </a>
+      </div>
+    </div>
+  </div>
+
+}
+
+
+@code {
+
+  private bool isAuthenticated;
+  private bool acessoLiberado;
+
+  protected override async Task OnInitializedAsync()
+  {
+    Descriptografa Descriptografia = new Descriptografa { };
+    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+
+    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+
+    isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+    acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+
+  }
+}

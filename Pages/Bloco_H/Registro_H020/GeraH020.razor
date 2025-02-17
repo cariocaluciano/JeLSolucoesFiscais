@@ -520,43 +520,70 @@
 
                  }
 
-                      function fnCriaLinhaH020(line){
-                      let values = line.split('|');
-                      let codSemZerosAEsquerda;
-                      let arrValoresH020;
-                      let linhaH020;
-                      let retorno;
+                 let indiceH990 = newLines.findIndex(linha => linha.startsWith('|H990|'))
+                 if (indiceH990 !== -1) {
+                 let indiceH010 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
+                 let quantidade =  newLines[indiceH010].split('|')
+                 let quantidadeH990 = newLines[indiceH990].split('|')
+                 let quantidadeH020 = quantidade[3]
+                 newLines[indiceH990] = `|H990|${parseInt(quantidadeH990[2]) + parseInt(quantidadeH020)}|`
+                 }
 
-                      codSemZerosAEsquerda = fnRemoveZerosAEsquerda(values[2]);
-                     // console.log(codSemZerosAEsquerda); //Luciano
-                      arrValoresH020 = fnRetornaValoresParaH020(codSemZerosAEsquerda);
+                 let indice9900 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
+                 if (indice9900 !== -1) {
+                 let quantidade = newLines[indice9900].split('|')
+                 newLines.splice(indice9900 + 1, 0, `|9900|H020|${quantidade[3]}|`)
+                 }
 
-                      linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${arrValoresH020[3]}|`
+                 let indice9990 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                 if (indice9990 !== -1) {
+                  let quantidade = newLines[indice9990].split('|')
+                  newLines[indice9990] = `|9990|${parseInt(quantidade[2]) + 1}|`
+                 }
 
-                       return linhaH020;
-                    }
+                  let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                  if (indice9999 !== -1) {
+                  newLines[indice9999] = `|9999|${newLines.length - 1}|`
+                  }
 
-                    function fnRetornaValoresParaH020(codProdutoSemZerosAEsquerda){
-                      let tr = document.getElementById(codProdutoSemZerosAEsquerda)
-                      let arr ;
 
-                       let tds = tr.querySelectorAll("td");
+                  function fnCriaLinhaH020(line){
+                    let values = line.split('|');
+                    let codSemZerosAEsquerda;
+                    let arrValoresH020;
+                    let linhaH020;
+                    let retorno;
 
-                       let CodProduto = tds[0].textContent;
-                       let Cst = tds[1].textContent;
-                       let BcICMS = fnArredondarDuasCasas(tds[2].textContent);
-                       let VrICMS = fnArredondarDuasCasas(tds[3].textContent);
+                    codSemZerosAEsquerda = fnRemoveZerosAEsquerda(values[2]);
+                    // console.log(codSemZerosAEsquerda); //Luciano
+                    arrValoresH020 = fnRetornaValoresParaH020(codSemZerosAEsquerda);
 
-                       arr = [CodProduto,Cst,BcICMS,VrICMS]
-                     //  console.log(arr); //Luciano
-                       return arr;
-                    }
-                    function fnRemoveZerosAEsquerda(codProduto){
-                       return codProduto.replace(/^0+/, '') || '0';
-                    }
-                    function fnArredondarDuasCasas(valor) {
-                      return parseFloat(valor).toFixed(2).toString().replace('.',',');
-                    }
+                    linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${arrValoresH020[3]}|`
+
+                      return linhaH020;
+                  }
+
+                  function fnRetornaValoresParaH020(codProdutoSemZerosAEsquerda){
+                    let tr = document.getElementById(codProdutoSemZerosAEsquerda)
+                    let arr ;
+
+                      let tds = tr.querySelectorAll("td");
+
+                      let CodProduto = tds[0].textContent;
+                      let Cst = tds[1].textContent;
+                      let BcICMS = fnArredondarDuasCasas(tds[2].textContent);
+                      let VrICMS = fnArredondarDuasCasas(tds[3].textContent);
+
+                      arr = [CodProduto,Cst,BcICMS,VrICMS]
+                    //  console.log(arr); //Luciano
+                      return arr;
+                  }
+                  function fnRemoveZerosAEsquerda(codProduto){
+                      return codProduto.replace(/^0+/, '') || '0';
+                  }
+                  function fnArredondarDuasCasas(valor) {
+                    return parseFloat(valor).toFixed(2).toString().replace('.',',');
+                  }
 
                  fileContent = newLines.join('\n');
                  fileContentElement.textContent = fileContent;

@@ -528,10 +528,10 @@
                       let retorno;
 
                       codSemZerosAEsquerda = fnRemoveZerosAEsquerda(values[2]);
-                      console.log(codSemZerosAEsquerda); //Luciano
+                     // console.log(codSemZerosAEsquerda); //Luciano
                       arrValoresH020 = fnRetornaValoresParaH020(codSemZerosAEsquerda);
 
-                      linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${fnArredondarDuasCasas(arrValoresH020[3])}|`
+                      linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${arrValoresH020[3]}|`
 
                        return linhaH020;
                     }
@@ -544,75 +544,19 @@
 
                        let CodProduto = tds[0].textContent;
                        let Cst = tds[1].textContent;
-                       let BcICMS = tds[2].textContent;
-                       let VrICMS = tds[3].textContent;
+                       let BcICMS = fnArredondarDuasCasas(tds[2].textContent);
+                       let VrICMS = fnArredondarDuasCasas(tds[3].textContent);
 
                        arr = [CodProduto,Cst,BcICMS,VrICMS]
-                       console.log(arr); //Luciano
+                     //  console.log(arr); //Luciano
                        return arr;
                     }
                     function fnRemoveZerosAEsquerda(codProduto){
                        return codProduto.replace(/^0+/, '') || '0';
                     }
                     function fnArredondarDuasCasas(valor) {
-                      return parseFloat(valor).toFixed(2);
+                      return parseFloat(valor).toFixed(2).toString().replace('.',',');
                     }
-
-
-
-
-
-                 // if (alteracaoLinhas > 0) {
-                 //     let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'));
-                 //     let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
-                 //     newLines[indice] = `|9900|0460|${resultado}|`;
-                 // } else if(contadorNovasLinhas > 0) {
-                 //     let indice9900 = newLines.findIndex(linha => linha.includes(LinhaUltimoRegistroAntesDo0460Indice02));
-                 //     let indice = newLines.findIndex(linha => linha.includes('|9900|0460|'))
-
-                 //     if (indice !== -1) {
-                 //         let resultado = CalculaRegistro(newLines[indice], 3, 1, 'adicao').toString();
-                 //         newLines[indice] = `|9900|0460|${resultado}|`;
-                 //     }
-                 //     else if (indice9900 !== -1) {
-                 //         newLines.splice(indice9900 + 1, 0,'|9900|0460|1|');
-                 //     }
-                 // }
-
-                 // if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
-
-                 //     let indice = newLines.findIndex(linha => linha.includes(converterLetraParaNumero(linhas9900, 'D195')));
-                 //     let indiceD195 = newLines.findIndex(linha => linha.includes('|9900|D195|'))
-                 //     let indiceD197 = newLines.findIndex(linha => linha.includes('|9900|D197|'))
-
-                 //     let novaLinha9900D195 = `|9900|D195|${contadorNovasLinhas}|`;
-                 //     let novaLinha9900D197 = `|9900|D197|${contadorNovasLinhas}|`;
-
-                 //     if (indiceD195 !== -1) {
-                 //         let resultado = CalculaRegistro(newLines[indiceD195], 3, contadorNovasLinhas, 'adicao').toString();
-                 //         newLines[indiceD195] = `|9900|D195|${resultado}|`;
-                 //     }
-                 //     if (indiceD197 !== -1) {
-                 //         let resultado = CalculaRegistro(newLines[indiceD197], 3, contadorNovasLinhas, 'adicao').toString();
-                 //         newLines[indiceD197] = `|9900|D197|${resultado}|`;
-                 //     }
-                 //     else if (indice !== -1) {
-                 //         newLines.splice(indice + 1, 0, novaLinha9900D195);
-                 //         newLines.splice(indice + 2, 0, novaLinha9900D197);
-                 //     }
-                 // }
-                 //     let indice9900 = newLines.findIndex(linha => linha.includes('|9900|9900|'))
-                 //     if (indice9900 !== -1) {
-                 //         newLines[indice9900] = `|9900|9900|${newLines.filter(elemento => elemento.startsWith("|9900|")).length}|`;
-                 //     }
-                 //     let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
-                 //     if (indice9999 !== -1) {
-                 //     newLines[indice9999] = contadorNovasLinhas > 0 || alteracaoLinhas > 0 ? `|9999|${newLines.length}|` : `|9999|${newLines.length -1}|`;
-                 //     }
-                 //     let indice9 = newLines.findIndex(linha => linha.startsWith('|9990|'))
-                 //     if (indice9 !== -1) {
-                 //         newLines[indice9] = `|9990|${newLines.filter(elemento => elemento.startsWith("|9")).length}|`;
-                 //     }
 
                  fileContent = newLines.join('\n');
                  fileContentElement.textContent = fileContent;
@@ -620,25 +564,6 @@
              }
          });
 
-         // if (CodigoAjuste === "") {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
-         // }
-         // else if (DescricaoComplementar === "") {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Descricao Complementar');
-         // }
-         // else if (Aliquota === "") {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Aliquota');
-         // }
-         // else if (Modelo === "") {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário selecionar um Modelo para ajuste');
-         // }
-         // else if (Cfop == "" && !TodosCfop) {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar um Cfop ou marcar o campo Todos Cfops');
-         // }
-         // else if (Serie == "" && !TodasSeries) {
-         //     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar uma Serie ou marcar o campo Todas Series');
-         // }
-         // else {
              if (1 + 1 == 2) {
                 // document.getElementById('loadingScreen').style.display = 'flex';
                  setTimeout(function() {
@@ -658,8 +583,6 @@
                  return;
              }
          }
-
-    // }
 
 
      function downloadArquivos() {

@@ -532,10 +532,16 @@
                 newLines[indiceH990] = `|H990|${parseInt(quantidadeH990[2]) + parseInt(quantidadeH020)}|`
                 }
 
+                let indice99009900 = newLines.findIndex(linha => linha.startsWith('|9900|9900|'))
+                if (indice99009900 !== -1) {
+                let quantidade = newLines[indice99009900].split('|')
+                newLines[indice99009900] = `|9900|9900|${parseInt(quantidade[3]) + 1}|`
+                }
+
                 let indice9900 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
                 if (indice9900 !== -1) {
                 let quantidade = newLines[indice9900].split('|')
-                newLines.splice(indice9900 + 1, 0, `|9900|H020|${parseInt(quantidade[3]) + 1}|`)
+                newLines.splice(indice9900 + 1, 0, `|9900|H020|${quantidade[3]}|`)
                 }
 
                 let indice9990 = newLines.findIndex(linha => linha.startsWith('|9990|'))

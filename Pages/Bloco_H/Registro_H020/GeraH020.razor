@@ -161,6 +161,25 @@
         box-shadow: 0 3px 6px rgba(0,0,0,0.15);
       }
 
+    #BtnAlteraAquivos, #BtnDownloadAquivos, #BtnGerarRelatorio {
+      padding: 12px 24px;
+      font-size: 16px;
+      border: none;
+      width: 100%;
+      background-color: #6f42c1;
+      color: white;
+      transition: all 0.3s ease;
+      border-radius: 30px;
+      box-shadow: 0 2px 3px rgba(0,0,0,0.1);
+    }
+
+      #BtnAlteraAquivos:hover, #BtnDownloadAquivos:hover, #BtnGerarRelatorio:hover {
+        background-color: #6610f2;
+        border: none;
+        transform: translateY(-2px);
+        box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+      }
+
     .toast {
       border-radius: 12px;
     }
@@ -363,6 +382,9 @@
       <div class="col">
         <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download</button>
       </div>
+      <div class="col">
+        <button id="BtnGerarRelatorio" onclick="btnGerarRelatorio_click()" style="visibility:hidden">Gerar Relatório</button>
+      </div>
     </div>
     <div class="row">
       <div class="col-6">
@@ -396,275 +418,316 @@
 
 
   <script>
-     if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-         let files = [];
-     } else {
-         files = [];
-     }
+    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
+        let files = [];
+    } else {
+        files = [];
+    }
 
-     // LEITOR DO SPED
-     function handleFilesSelected(event) {
-         files = Array.from(event.target.files);
-         displayFileContents();
-     }
+    // LEITOR DO SPED
+    function handleFilesSelected(event) {
+        files = Array.from(event.target.files);
+        displayFileContents();
+    }
 
-     function handleDrop(event) {
-         event.preventDefault();
-         files = Array.from(event.dataTransfer.files);
-         displayFileContents();
-     }
+    function handleDrop(event) {
+        event.preventDefault();
+        files = Array.from(event.dataTransfer.files);
+        displayFileContents();
+    }
 
-     function handleDragOver(event) {
-         event.preventDefault();
-     }
+    function handleDragOver(event) {
+        event.preventDefault();
+    }
 
-     function displayFileContents() {
-         const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
-         BtnalterarArquivos.style.visibility = "visible";
+    function displayFileContents() {
+        const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
+        BtnalterarArquivos.style.visibility = "visible";
 
-         const fileContentsContainer = document.getElementById('fileContents_sped');
-         fileContentsContainer.innerHTML = '';
-         files.forEach((file, index) => {
-             const reader = new FileReader();
-             reader.onload = function(e) {
-                 const fileContent = e.target.result;
-                 const fileEntry = document.createElement('div');
-                 fileEntry.classList.add('file-entry');
-                 fileEntry.innerHTML = `
-                             <h5>Arquivo ${index + 1}:</h5>
-                             <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
-                             `;
-                 fileContentsContainer.appendChild(fileEntry);
-             };
-             reader.readAsText(file);
-         });
-         document.getElementById('fileContentContainer_Sped').style.display = 'block';
-     }
-     //LEITOR DO EXCEL
+        const fileContentsContainer = document.getElementById('fileContents_sped');
+        fileContentsContainer.innerHTML = '';
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const fileContent = e.target.result;
+                const fileEntry = document.createElement('div');
+                fileEntry.classList.add('file-entry');
+                fileEntry.innerHTML = `
+                            <h5>Arquivo ${index + 1}:</h5>
+                            <pre class="file-content" id="fileContent-${index}">${fileContent}</pre>
+                            `;
+                fileContentsContainer.appendChild(fileEntry);
+            };
+            reader.readAsText(file);
+        });
+        document.getElementById('fileContentContainer_Sped').style.display = 'block';
+    }
+    //LEITOR DO EXCEL
 
-         document.getElementById('inputExcel').addEventListener('change', function(event) {
-         const file = event.target.files[0];
-         if (!file) return;
+        document.getElementById('inputExcel').addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if (!file) return;
 
-         const reader = new FileReader();
-         reader.onload = function(e) {
-             const data = new Uint8Array(e.target.result);
-             const workbook = XLSX.read(data, { type: 'array' });
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: 'array' });
 
-             const sheet = workbook.Sheets[workbook.SheetNames[0]];
-             const jsonData = XLSX.utils.sheet_to_json(sheet);
+            const sheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(sheet);
 
-             const tbody = document.querySelector("#tabelaExcel tbody");
-             tbody.innerHTML = "";
-             console.log(jsonData) //Luciano
-             jsonData.forEach(row => {
-                 const tr = document.createElement("tr");
-                 tr.id = row.CodProduto
-                 tr.innerHTML = `
-                     <td>${row.CodProduto || ''}</td>
-                     <td>${row.Cst || ''}</td>
-                     <td>${row.BcICMS || ''}</td>
-                     <td>${row.VrICMS || ''}</td>
-                 `;
-                 tbody.appendChild(tr);
-             });
-         };
-         reader.readAsArrayBuffer(file);
-     });
-
+            const tbody = document.querySelector("#tabelaExcel tbody");
+            tbody.innerHTML = "";
+            jsonData.forEach(row => {
+                const tr = document.createElement("tr");
+                tr.id = row.CodProduto
+                tr.innerHTML = `
+                    <td>${row.CodProduto || ''}</td>
+                    <td>${row.Cst || ''}</td>
+                    <td>${row.BcICMS || ''}</td>
+                    <td>${row.VrICMS || ''}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+        };
+        reader.readAsArrayBuffer(file);
+    });
 
 
+    function alterarArquivos() {
 
+        document.getElementById('loadingScreen').style.display = 'flex';
+        BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
+        BtnGerarRelatorio = document.getElementById('BtnGerarRelatorio');
 
+        let contadorNovasLinhas = 0, alteracaoLinhas = 0
 
+        files.forEach((file, index) => {
+            const fileContentElement = document.getElementById(`fileContent-${index}`);
+            if (fileContentElement) {
+                let fileContent = fileContentElement.textContent;
 
+                let lines = fileContent.split('\n');
+                let newLines = [];
 
+                for (let i = 0; i < lines.length; i++) {
 
+                    newLines.push(lines[i]);
+                    let valor = lines[i].split('|');
 
+                  if(lines[i].startsWith('|H010|'))
+                  {
+                     let linhaH020 = fnCriaLinhaH020(lines[i]);
+                       newLines.push(linhaH020);
+                  }
 
+                }
 
+                let indiceH990 = newLines.findIndex(linha => linha.startsWith('|H990|'))
+                if (indiceH990 !== -1) {
+                let indiceH010 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
+                let quantidade =  newLines[indiceH010].split('|')
+                let quantidadeH990 = newLines[indiceH990].split('|')
+                let quantidadeH020 = quantidade[3]
+                newLines[indiceH990] = `|H990|${parseInt(quantidadeH990[2]) + parseInt(quantidadeH020)}|`
+                }
 
+                let indice9900 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
+                if (indice9900 !== -1) {
+                let quantidade = newLines[indice9900].split('|')
+                newLines.splice(indice9900 + 1, 0, `|9900|H020|${parseInt(quantidade[3]) + 1}|`)
+                }
 
+                let indice9990 = newLines.findIndex(linha => linha.startsWith('|9990|'))
+                if (indice9990 !== -1) {
+                 let quantidade = newLines[indice9990].split('|')
+                 newLines[indice9990] = `|9990|${parseInt(quantidade[2]) + 1}|`
+                }
 
-
-
-
-
-
-
-     function alterarArquivos() {
-
-         document.getElementById('loadingScreen').style.display = 'flex';
-         BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
-
-         let contadorNovasLinhas = 0, alteracaoLinhas = 0
-
-         files.forEach((file, index) => {
-             const fileContentElement = document.getElementById(`fileContent-${index}`);
-             if (fileContentElement) {
-                 let fileContent = fileContentElement.textContent;
-
-                 let lines = fileContent.split('\n');
-                 let newLines = [];
-
-                 for (let i = 0; i < lines.length; i++) {
-
-                     newLines.push(lines[i]);
-                     let valor = lines[i].split('|');
-
-                   if(lines[i].startsWith('|H010|'))
-                   {
-                      let linhaH020 = fnCriaLinhaH020(lines[i]);
-                        newLines.push(linhaH020);
-                   }
-
+                 let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
+                 if (indice9999 !== -1) {
+                 newLines[indice9999] = `|9999|${newLines.length - 1}|`
                  }
 
-                 let indiceH990 = newLines.findIndex(linha => linha.startsWith('|H990|'))
-                 if (indiceH990 !== -1) {
-                 let indiceH010 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
-                 let quantidade =  newLines[indiceH010].split('|')
-                 let quantidadeH990 = newLines[indiceH990].split('|')
-                 let quantidadeH020 = quantidade[3]
-                 newLines[indiceH990] = `|H990|${parseInt(quantidadeH990[2]) + parseInt(quantidadeH020)}|`
+
+                 function fnCriaLinhaH020(line){
+                   let values = line.split('|');
+                   let codSemZerosAEsquerda;
+                   let arrValoresH020;
+                   let linhaH020;
+                   let retorno;
+
+                   codSemZerosAEsquerda = fnRemoveZerosAEsquerda(values[2]);
+                   arrValoresH020 = fnRetornaValoresParaH020(codSemZerosAEsquerda);
+
+                   linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${arrValoresH020[3]}|`
+
+                     return linhaH020;
                  }
 
-                 let indice9900 = newLines.findIndex(linha => linha.startsWith('|9900|H010|'))
-                 if (indice9900 !== -1) {
-                 let quantidade = newLines[indice9900].split('|')
-                 newLines.splice(indice9900 + 1, 0, `|9900|H020|${quantidade[3]}|`)
+                 function fnRetornaValoresParaH020(codProdutoSemZerosAEsquerda){
+                   let tr = document.getElementById(codProdutoSemZerosAEsquerda)
+                   let arr ;
+
+                     let tds = tr.querySelectorAll("td");
+
+                     let CodProduto = tds[0].textContent;
+                     let Cst = tds[1].textContent;
+                     let BcICMS = fnArredondarDuasCasas(tds[2].textContent);
+                     let VrICMS = fnArredondarDuasCasas(tds[3].textContent);
+
+                     arr = [CodProduto,Cst,BcICMS,VrICMS]
+                     return arr;
+                 }
+                 function fnRemoveZerosAEsquerda(codProduto){
+                     return codProduto.replace(/^0+/, '') || '0';
+                 }
+                 function fnArredondarDuasCasas(valor) {
+                   return parseFloat(valor).toFixed(2).toString().replace('.',',');
                  }
 
-                 let indice9990 = newLines.findIndex(linha => linha.startsWith('|9990|'))
-                 if (indice9990 !== -1) {
-                  let quantidade = newLines[indice9990].split('|')
-                  newLines[indice9990] = `|9990|${parseInt(quantidade[2]) + 1}|`
-                 }
+                fileContent = newLines.join('\n');
+                fileContentElement.textContent = fileContent;
+                files[index] = new File([fileContent], file.name, { type: file.type });
+            }
+        });
 
-                  let indice9999 = newLines.findIndex(linha => linha.startsWith('|9999|'))
-                  if (indice9999 !== -1) {
-                  newLines[indice9999] = `|9999|${newLines.length - 1}|`
-                  }
-
-
-                  function fnCriaLinhaH020(line){
-                    let values = line.split('|');
-                    let codSemZerosAEsquerda;
-                    let arrValoresH020;
-                    let linhaH020;
-                    let retorno;
-
-                    codSemZerosAEsquerda = fnRemoveZerosAEsquerda(values[2]);
-                    // console.log(codSemZerosAEsquerda); //Luciano
-                    arrValoresH020 = fnRetornaValoresParaH020(codSemZerosAEsquerda);
-
-                    linhaH020 = `|H020|${arrValoresH020[1]}|${arrValoresH020[2]}|${arrValoresH020[3]}|`
-
-                      return linhaH020;
-                  }
-
-                  function fnRetornaValoresParaH020(codProdutoSemZerosAEsquerda){
-                    let tr = document.getElementById(codProdutoSemZerosAEsquerda)
-                    let arr ;
-
-                      let tds = tr.querySelectorAll("td");
-
-                      let CodProduto = tds[0].textContent;
-                      let Cst = tds[1].textContent;
-                      let BcICMS = fnArredondarDuasCasas(tds[2].textContent);
-                      let VrICMS = fnArredondarDuasCasas(tds[3].textContent);
-
-                      arr = [CodProduto,Cst,BcICMS,VrICMS]
-                    //  console.log(arr); //Luciano
-                      return arr;
-                  }
-                  function fnRemoveZerosAEsquerda(codProduto){
-                      return codProduto.replace(/^0+/, '') || '0';
-                  }
-                  function fnArredondarDuasCasas(valor) {
-                    return parseFloat(valor).toFixed(2).toString().replace('.',',');
-                  }
-
-                 fileContent = newLines.join('\n');
-                 fileContentElement.textContent = fileContent;
-                 files[index] = new File([fileContent], file.name, { type: file.type });
-             }
-         });
-
-             if (1 + 1 == 2) {
-                // document.getElementById('loadingScreen').style.display = 'flex';
-                 setTimeout(function() {
-                     document.getElementById('loadingScreen').style.display = 'none';
-                     var toastEl = document.getElementById('alertToastSucesso');
-                     var toast = new bootstrap.Toast(toastEl);
-                     toast.show();
-                     BtnDownloadAquivos.style.visibility = "visible";
-                     return;
-                 }, 1000);
-             } else {
-                  BtnDownloadAquivos.style.visibility = "";
-                 var toastEl = document.getElementById('alertToastFalha');
-                 var toast = new bootstrap.Toast(toastEl);
-                 toast.show();
-                 BtnDownloadAquivos.style.visibility = "hidden";
-                 return;
-             }
-         }
+            if (1 + 1 == 2) {
+                setTimeout(function() {
+                    document.getElementById('loadingScreen').style.display = 'none';
+                    var toastEl = document.getElementById('alertToastSucesso');
+                    var toast = new bootstrap.Toast(toastEl);
+                    toast.show();
+                    BtnDownloadAquivos.style.visibility = "visible";
+                    BtnGerarRelatorio.style.visibility = "visible";
+                    return;
+                }, 1000);
+            } else {
+                 BtnDownloadAquivos.style.visibility = "";
+                var toastEl = document.getElementById('alertToastFalha');
+                var toast = new bootstrap.Toast(toastEl);
+                toast.show();
+                BtnDownloadAquivos.style.visibility = "hidden";
+                return;
+            }
+        }
 
 
-     function downloadArquivos() {
-         files.forEach((file, index) => {
-             const fileContent = document.getElementById(`fileContent-${index}`).textContent;
-             const fileBytes = new TextEncoder().encode(fileContent);
-             const base64Data = arrayBufferToBase64(fileBytes.buffer);
+    function downloadArquivos() {
+        files.forEach((file, index) => {
+            const fileContent = document.getElementById(`fileContent-${index}`).textContent;
+            const fileBytes = new TextEncoder().encode(fileContent);
+            const base64Data = arrayBufferToBase64(fileBytes.buffer);
 
-             const link = document.createElement('a');
-             link.href = 'data:text/plain;base64,' + base64Data;
-             link.download = `Novo-${file.name}`;
-             link.click();
-         });
-     }
+            const link = document.createElement('a');
+            link.href = 'data:text/plain;base64,' + base64Data;
+            link.download = `Novo-${file.name}`;
+            link.click();
+        });
+    }
 
-     function arrayBufferToBase64(buffer) {
-         let binary = '';
-         const bytes = new Uint8Array(buffer);
-         const len = bytes.byteLength;
-         for (let i = 0; i < len; i++) {
-             binary += String.fromCharCode(bytes[i]);
-         }
-         return window.btoa(binary);
-     }
+    function arrayBufferToBase64(buffer) {
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++) {
+            binary += String.fromCharCode(bytes[i]);
+        }
+        return window.btoa(binary);
+    }
 
-     function AtualizaRegistro(lines, posicaoAjuste, valorIncluir = '') { //Nova Função para melhorar o codigo
-         let values = lines.split('|');
-         values[posicaoAjuste] = valorIncluir;
+    function AtualizaRegistro(lines, posicaoAjuste, valorIncluir = '') { //Nova Função para melhorar o codigo
+        let values = lines.split('|');
+        values[posicaoAjuste] = valorIncluir;
 
-         lines = values.join('|');
-         return lines;
-     }
+        lines = values.join('|');
+        return lines;
+    }
 
 
-     function ModalValidaSistema(tipoValidacao, mensagem) { //Nova Função para melhorar o codigo
-         var toastEl = document.getElementById('ValidaSistema'), mensagemValidaSistema = document.getElementById('MensagemValidaSistema'),
-             tituloValidaSistema = document.getElementById('TituloValidaSistema');
-         if (tipoValidacao === 'Sucesso') {
-             toastEl.classList = 'toast bg-success text-dark border-0';
-             tituloValidaSistema.innerText = 'Sucesso';
-             mensagemValidaSistema.innerText = mensagem;
-         } else if (tipoValidacao === 'Falha') {
-             toastEl.classList = 'toast bg-danger text-dark border-0';
-             tituloValidaSistema.innerText = 'Falha';
-             mensagemValidaSistema.innerText = mensagem;
-         } else {
-             toastEl.classList = 'toast bg-warning text-dark border-0';
-             tituloValidaSistema.innerText = 'Alerta'
-             mensagemValidaSistema.innerText = mensagem;
-         }
+    function ModalValidaSistema(tipoValidacao, mensagem) { //Nova Função para melhorar o codigo
+        var toastEl = document.getElementById('ValidaSistema'), mensagemValidaSistema = document.getElementById('MensagemValidaSistema'),
+            tituloValidaSistema = document.getElementById('TituloValidaSistema');
+        if (tipoValidacao === 'Sucesso') {
+            toastEl.classList = 'toast bg-success text-dark border-0';
+            tituloValidaSistema.innerText = 'Sucesso';
+            mensagemValidaSistema.innerText = mensagem;
+        } else if (tipoValidacao === 'Falha') {
+            toastEl.classList = 'toast bg-danger text-dark border-0';
+            tituloValidaSistema.innerText = 'Falha';
+            mensagemValidaSistema.innerText = mensagem;
+        } else {
+            toastEl.classList = 'toast bg-warning text-dark border-0';
+            tituloValidaSistema.innerText = 'Alerta'
+            mensagemValidaSistema.innerText = mensagem;
+        }
 
-         var toast = new bootstrap.Toast(toastEl);
-         toast.show();
-         return;
-     }
+        var toast = new bootstrap.Toast(toastEl);
+        toast.show();
+        return;
+    }
+
+    function processarArquivoSPED(conteudo) {
+        const linhas = conteudo.split('\n');
+        let somaBaseCalculo = 0;
+        let somaTotalAjuste = 0;
+
+        linhas.forEach(linha => {
+            if (linha.startsWith('|H020|')) {
+                const campos = linha.split('|');
+                if (campos.length >= 5) {
+                    let BaseCalculo = parseFloat(campos[3].replace(',', '.')) || 0;
+                    let totalAjuste = parseFloat(campos[4].replace(',', '.')) || 0;
+
+                    somaBaseCalculo += BaseCalculo;
+                    somaTotalAjuste += totalAjuste;
+                }
+            }
+        });
+
+        return {
+            somaBaseCalculo,
+            somaTotalAjuste
+        };
+    }
+
+    function gerarRelatorioHTML(somas) {
+        let html = `
+        <table class="relatorio-table">
+          <thead>
+            <tr>
+              <th>Base Cálculo Total</th>
+              <th>Valor ICMS Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>${somas.somaBaseCalculo.toFixed(2)}</td>
+              <td>R$ ${somas.somaTotalAjuste.toFixed(2)}</td>
+            </tr>
+          </tbody>
+        </table>`;
+
+        return html;
+    }
+
+      function btnGerarRelatorio_click() {
+      const arquivo = document.getElementById(`fileContent-0`).textContent//inputArquivoSPED.files[0];
+      const ajustes = processarArquivoSPED(arquivo);
+      const relatorioHTML = gerarRelatorioHTML(ajustes);
+      document.getElementById('relatorio-conteudo').innerHTML = relatorioHTML;
+      document.getElementById('modal-relatorio-sped').style.display = 'block';
+      }
+      document.getElementById('modal-relatorio-sped').querySelector('.fechar').onclick = () => {
+          document.getElementById('modal-relatorio-sped').style.display = 'none';
+      };
+
+      window.onclick = (event) => {
+          if (event.target == document.getElementById('modal-relatorio-sped')) {
+              document.getElementById('modal-relatorio-sped').style.display = 'none';
+          }
+      };
+
   </script>
 }
 else

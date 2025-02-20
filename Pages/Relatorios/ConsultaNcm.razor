@@ -1,0 +1,215 @@
+﻿@page "/RelatorioMonofasico/ConsultaPorNcm"
+
+<PageTitle>SoluFiscal</PageTitle>
+
+  <style>
+    /* Estilos globais */
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+
+    .container {
+      max-width: auto;
+      margin: 20px auto;
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+    /* Estilos da pesquisa */
+    .search-container {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    #searchNCM {
+      width: 60%;
+      padding: 10px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      color: white;
+      font-size: 14px;
+    }
+
+    .search-button {
+      background-color: #008CBA;
+    }
+
+      .search-button:hover {
+        background-color: #007bb5;
+      }
+
+    .load-button {
+      background-color: #4CAF50;
+      margin-top: 10px;
+    }
+
+      .load-button:hover {
+        background-color: #45a049;
+      }
+    /* Estilos da tabela */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+      font-weight: bold;
+    }
+
+    tr:nth-child(even) {
+      background-color: #f9f9f9;
+    }
+    /* Estilos da paginação */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .pagination-button {
+      background-color: #4CAF50;
+      color: white;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+      .pagination-button:disabled {
+        background-color: #ccc;
+        cursor: not-allowed;
+      }
+
+    .page-info {
+      font-size: 16px;
+      font-weight: bold;
+    }
+  </style>
+
+  <div class="container">
+    <h1>Consulta de NCM</h1>
+    <div class="search-container">
+      <input type="text" id="searchNCM" placeholder="Digite o NCM para buscar...">
+      <button class="search-button" onclick="searchNCM()">Pesquisar</button>
+    </div>
+    <button class="load-button" onclick="fetchData()">Carregar Dados</button>
+    <table>
+      <thead>
+        <tr>
+          <th>NCM</th>
+          <th>Descrição</th>
+          <th>CST</th>
+          <th>Monofásico</th>
+        </tr>
+      </thead>
+      <tbody id="table-body"></tbody>
+    </table>
+    <div class="pagination">
+      <button class="pagination-button" id="prevPage" onclick="changePage(-1)" disabled>Anterior</button>
+      <span class="page-info" id="pageInfo">0/0</span>
+      <button class="pagination-button" id="nextPage" onclick="changePage(1)" disabled>Próximo</button>
+    </div>
+  </div>
+
+  <script>
+    const apiUrl = "https://gist.githubusercontent.com/cariocaluciano/9e86aecc9603fc0fb3369f507aae2e69/raw/ec92e58b6170d1cba179ac3f022adca829ddbbef/NcmProdutos.json";
+    let data = [];
+    let filteredData = [];
+    let currentPage = 1;
+    const rowsPerPage = 50;
+
+    function fetchData() {
+        fetch(apiUrl)
+            .then(response => response.json())
+            .then(jsonData => {
+                data = jsonData;
+                filteredData = [...data]; // Mantém os dados originais
+                currentPage = 1;
+                renderTable();
+                updatePagination();
+            })
+            .catch(error => console.error("Erro ao buscar os dados: ", error));
+    }
+
+    function renderTable() {
+        const tableBody = document.getElementById("table-body");
+        tableBody.innerHTML = "";
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = start + rowsPerPage;
+        const paginatedData = filteredData.slice(start, end);
+
+        paginatedData.forEach(item => {
+            const row = `<tr>
+                <td>${item.NCM}</td>
+                <td>${item.DESCRIÇÃO}</td>
+                <td>${item.CST || "N/A"}</td>
+                <td>${item.MONOFASICO || "N/A"}</td>
+            </tr>`;
+            tableBody.innerHTML += row;
+        });
+
+        updatePagination();
+    }
+
+    function updatePagination() {
+        const prevButton = document.getElementById("prevPage");
+        const nextButton = document.getElementById("nextPage");
+        const pageInfo = document.getElementById("pageInfo");
+
+        const totalItems = filteredData.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage);
+        const start = (currentPage - 1) * rowsPerPage;
+        const end = Math.min(start + rowsPerPage, totalItems);
+
+        pageInfo.textContent = `${start + 1}/${end}`;
+
+        prevButton.disabled = currentPage === 1;
+        nextButton.disabled = currentPage >= totalPages;
+    }
+
+    function changePage(direction) {
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+        if ((direction === -1 && currentPage > 1) || (direction === 1 && currentPage < totalPages)) {
+            currentPage += direction;
+            renderTable();
+        }
+    }
+
+    function searchNCM() {
+        const query = document.getElementById("searchNCM").value.trim();
+        if (query) {
+            filteredData = data.filter(item => item.NCM.includes(query));
+        } else {
+            filteredData = [...data]; // Restaura os dados completos
+        }
+        currentPage = 1;
+        renderTable();
+    }
+  </script>

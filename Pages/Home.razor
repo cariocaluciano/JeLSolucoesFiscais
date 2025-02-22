@@ -3,62 +3,69 @@
 @using Microsoft.AspNetCore.Components
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
+@inject IJSRuntime JS
 
 @if (!acessoLiberado)
 {
-    <div class="container mt-5">
-        <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
-            <p class="lead text-center">Para utilizar nosso sistema, entre em contato conosco clicando no nosso Chat <br/> Ou:</p>
-            <div class="text-center mb-4">
-                <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
-            </div>
-            <p class="text-center">Para fazer login, clique no botão abaixo:</p>
-            <div class="text-center">
-                <a href="/JeLSolucoesFiscais/Login" class="btn btn-success btn-lg">Fazer Login</a>
-            </div>
-        </div>
+  <div class="container mt-5">
+    <div class="jumbotron bg-light p-5 rounded">
+      <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
+      <p class="lead text-center">Para utilizar nosso sistema, entre em contato conosco clicando no nosso Chat <br /> Ou:</p>
+      <div class="text-center mb-4">
+        <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
+      </div>
+      <p class="text-center">Para fazer login, clique no botão abaixo:</p>
+      <div class="text-center">
+        <a href="/JeLSolucoesFiscais/Login" class="btn btn-success btn-lg">Fazer Login</a>
+      </div>
     </div>
+  </div>
 }
 else
 {
-    <div class="container mt-5">
-        <div class="jumbotron bg-light p-5 rounded">
-            <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
-            <p class="lead text-center">Sugestões  ou melhorias entrar em contato conosco clicando no nosso Chat <br/> Ou:</p>
-            <div class="text-center mb-4">
-                <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
-            </div>
-        </div>
+  <div class="container mt-5">
+    <div class="jumbotron bg-light p-5 rounded">
+      <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
+      <p class="lead text-center">Sugestões  ou melhorias entrar em contato conosco clicando no nosso Chat <br /> Ou:</p>
+      <div class="text-center mb-4">
+        <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
+      </div>
     </div>
+  </div>
 }
 
 
 <style>
-    .jumbotron {
-        background-color: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: .3rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
-    }
+  .jumbotron {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: .3rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+  }
 </style>
 
+@code {
+  private bool isAuthenticated;
+  private bool acessoLiberado;
 
-@code{
-    private bool isAuthenticated;
-    private bool acessoLiberado;
+  protected override async Task OnInitializedAsync()
+  {
+    string? retorno = await JS.InvokeAsync<string>("VerificaLogin");
 
-    protected override async Task OnInitializedAsync()
-    {
-        Descriptografa Descriptografia = new Descriptografa { };
-        UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+    Descriptografa Descriptografia = new Descriptografa { };
+    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
-        string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-        string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    acessoLiberado = retorno == "usuario não logado" ? false : true;
 
-        isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
-        acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
-
-    }
-
+  }
+  /*Somente um exemplo para eu não esquecer como utilizar o local storage*/
+  // Descriptografa Descriptografia = new Descriptografa { };
+  // UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+  // string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+  // string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+  // isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+  // acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
 }
+

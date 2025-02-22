@@ -2,26 +2,27 @@
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
 @inject NavigationManager Navigation
+@inject IJSRuntime JS
 
 <style>
   /* Ocultar submenus inicialmente */
   .nav-submenu {
-    display: none;
-    margin-left: 15px;
+  display: none;
+  margin-left: 15px;
   }
 
   /* Estilizando os links como nav-link */
   a.nav-link {
-    cursor: pointer;
-    color: #007bff;
-    text-decoration: none;
-    display: block;
-    padding: 0.5rem 1rem;
+  cursor: pointer;
+  color: #007bff;
+  text-decoration: none;
+  display: block;
+  padding: 0.5rem 1rem;
   }
 
-    a.nav-link:hover {
-      text-decoration: underline;
-    }
+  a.nav-link:hover {
+  text-decoration: underline;
+  }
 </style>
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -216,7 +217,7 @@
   }
 
   private bool isAuthenticated;
-  private bool acessoLiberado;
+  private bool acessoLiberado = false;
   private bool isAdministrador = false;
 
   protected override async Task OnInitializedAsync()
@@ -224,12 +225,8 @@
     Descriptografa Descriptografia = new Descriptografa { };
     UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
-    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
-
-    isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
-    acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
-    isAdministrador = Descriptografia.RetornaValorDescriptografado(email) == "Adm" && Descriptografia.RetornaValorDescriptografado(senha) == "123456789" && acessoLiberado == true && isAuthenticated == true;
+    acessoLiberado = await JS.InvokeAsync<string>("VerificaLogin") == "usuario não logado" ? false : true;
+    isAdministrador = true; //incluir o adm no firebase para posteriormente verificar. 
   }
 
   private void NavigateToCadastraNcmMonofasico()

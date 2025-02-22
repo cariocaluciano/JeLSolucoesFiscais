@@ -3,399 +3,392 @@
 @using JeLSolucoesFiscais.Aplicacao.ServicosTrello
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @using Newtonsoft.Json.Linq
+@inject IJSRuntime JS
 
 <PageTitle>SoluFiscal</PageTitle>
 
 <style>
-    body { 
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 0;
-        background-color: #f4f4f4;
-    }
+  body {
+  font-family: Arial, sans-serif;
+  line-height: 1.6;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  }
 
-    .container {
-        width: 80%;
-        margin: auto;
-        overflow: hidden;
-        padding: 20px;
-    }
+  .container {
+  width: 80%;
+  margin: auto;
+  overflow: hidden;
+  padding: 20px;
+  }
 
-    header {
-        background: #35424a;
-        color: #ffffff;
-        padding-top: 30px;
-        min-height: 70px;
-        border-bottom: #6f42c1 3px solid;
-        text-align: center;
-    }
+  header {
+  background: #35424a;
+  color: #ffffff;
+  padding-top: 30px;
+  min-height: 70px;
+  border-bottom: #6f42c1 3px solid;
+  text-align: center;
+  }
 
-    section {
-        flex-basis: 30%;
-        margin-bottom: 20px;
-    }
+  section {
+  flex-basis: 30%;
+  margin-bottom: 20px;
+  }
 
-    .card {
-        background: #fff;
-        padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-        margin-top: 15px;
-    }
+  .card {
+  background: #fff;
+  padding: 20px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  margin-top: 15px;
+  }
 
-    button {
-        display: inline-block;
-        padding: 10px 20px;
-        color: #ffffff;
-        background-color: #6f42c1;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        font-size: 16px;
-    }
+  button {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #ffffff;
+  background-color: #6f42c1;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 16px;
+  }
 
-        button:hover {
-            background-color: #6610f2;
-        }
+  button:hover {
+  background-color: #6610f2;
+  }
 
-    .grid-clientes {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 20px;
-    }
+  .grid-clientes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 20px;
+  }
 
-    .cliente-card {
-        background: #fff;
-        padding: 15px;
-        border-radius: 5px;
-        box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
+  .cliente-card {
+  background: #fff;
+  padding: 15px;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  }
 
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        background-color: rgba(0,0,0,0.4);
-    }
+  .modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background-color: rgba(0,0,0,0.4);
+  }
 
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto;
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 800px;
-        height: 80vh;
-        border-radius: 5px;
-        display: flex;
-        flex-direction: column;
-    }
+  .modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+  max-width: 800px;
+  height: 80vh;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  }
 
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
+  .modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  }
 
-    .modal-body {
-        flex-grow: 1;
-        overflow-y: auto;
-        padding-right: 10px;
-    }
+  .modal-body {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding-right: 10px;
+  }
 
-    .fechar {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+  .fechar {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+  cursor: pointer;
+  }
 
-        .fechar:hover,
-        .fechar:focus {
-            color: #000;
-            text-decoration: none;
-            cursor: pointer;
-        }
+  .fechar:hover,
+  .fechar:focus {
+  color: #000;
+  text-decoration: none;
+  cursor: pointer;
+  }
 
-    form {
-        display: flex;
-        flex-direction: column;
-    }
+  form {
+  display: flex;
+  flex-direction: column;
+  }
 
-        form label {
-            margin-top: 10px;
-        }
+  form label {
+  margin-top: 10px;
+  }
 
-        form input {
-            padding: 5px;
-            margin-top: 5px;
-        }
+  form input {
+  padding: 5px;
+  margin-top: 5px;
+  }
 
-        form button {
-            margin-top: 20px;
-        }
+  form button {
+  margin-top: 20px;
+  }
 
-    body.modal-open {
-        overflow: hidden;
-    }
+  body.modal-open {
+  overflow: hidden;
+  }
 
 </style>
 <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
-    <div id="alertToastSucesso" class="toast bg-success text-dark border-0 @(mostrarModalSucesso ? "show" : "")" style="display:@(mostrarModalSucesso ? "block" : "none");" role="alert" aria-live="assertive" aria-atomic="true">
-        <div class="toast-header">
-            <strong class="me-auto">Sucesso</strong>
-            <button @onclick="FecharModalSucesso" type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
-        </div>
-        <div class="toast-body">
-            <b>Cliente Cadastrado com Sucesso!</b>
-        </div>
+  <div id="alertToastSucesso" class="toast bg-success text-dark border-0 @(mostrarModalSucesso ? "show" : "")" style="display:@(mostrarModalSucesso ? "block" : "none");" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast-header">
+      <strong class="me-auto">Sucesso</strong>
+      <button @onclick="FecharModalSucesso" type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
     </div>
+    <div class="toast-body">
+      <b>Cliente Cadastrado com Sucesso!</b>
+    </div>
+  </div>
 </div>
 
 <div class="container">
-    <header>
-        <h1>Gerenciamento de Clientes</h1>
-    </header>
+  <header>
+    <h1>Gerenciamento de Clientes</h1>
+  </header>
 
-    <main class="row">
-        <section class="col-4" id="cadastro-cliente">
-            <div class="card">
-                <h2>Cadastrar Novo Cliente</h2>
-                <button @onclick="AbreModalCadastro" id="btn-abrir-cadastro">Incluir Cliente</button>
-            </div>
-        </section>
+  <main class="row">
+    <section class="col-4" id="cadastro-cliente">
+      <div class="card">
+        <h2>Cadastrar Novo Cliente</h2>
+        <button @onclick="AbreModalCadastro" id="btn-abrir-cadastro">Incluir Cliente</button>
+      </div>
+    </section>
 
-        <section class="col-4" id="clientes">
-            <div class="card">
-                <h2>Clientes Cadastrados</h2>
-                <button @onclick="ExibirClientes" id="btn-exibir-clientes">Exibir Clientes</button>
-            </div>
-        </section>
+    <section class="col-4" id="clientes">
+      <div class="card">
+        <h2>Clientes Cadastrados</h2>
+        <button @onclick="ExibirClientes" id="btn-exibir-clientes">Exibir Clientes</button>
+      </div>
+    </section>
 
-        <section class="col-4" id="inadimplentes">
-            <div class="card">
-                <h2>Clientes Inadimplentes</h2>
-                <button id="btn-ver-inadimplentes">Ver Detalhes</button>
-            </div>
-        </section>
-    </main>
+    <section class="col-4" id="inadimplentes">
+      <div class="card">
+        <h2>Clientes Inadimplentes</h2>
+        <button id="btn-ver-inadimplentes">Ver Detalhes</button>
+      </div>
+    </section>
+  </main>
 </div>
 
 <!-- Modal de Cadastro -->
 <div id="modal-cadastro" class="modal @(mostrarModalCadastro ? "show" : "")" style="display:@(mostrarModalCadastro ? "block" : "none");">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Cadastrar Novo Cliente</h2>
-            <span class="fechar" @onclick="FecharModalCadastro">&times;</span>
-        </div>
-        <div class="modal-body">
-            <EditForm Model="cliente" OnValidSubmit="CadastrarCliente">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-                <label for="nome">Nome:</label>
-                <InputText id="nome" @bind-Value="cliente.Nome" />
-
-                <label for="email">E-mail:</label>
-                <InputText id="email" @bind-Value="cliente.Email" />
-
-                <label for="data-pagamento">Data de Pagamento:</label>
-                <InputText id="data-pagamento" @bind-Value="cliente.DataPagamento" />
-
-                <label for="contato">Contato:</label>
-                <InputText id="contato" @bind-Value="cliente.Contato" />
-
-                <button type="submit">Cadastrar</button>
-            </EditForm>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Cadastrar Novo Cliente</h2>
+      <span class="fechar" @onclick="FecharModalCadastro">&times;</span>
     </div>
+    <div class="modal-body">
+      <EditForm Model="cliente" OnValidSubmit="CadastrarCliente">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <label for="nome">Nome:</label>
+        <InputText id="nome" @bind-Value="cliente.Nome" />
+
+        <label for="email">E-mail:</label>
+        <InputText id="email" @bind-Value="cliente.Email" />
+
+        <label for="data-pagamento">Data vencimento:</label>
+        <InputText id="data-pagamento" @bind-Value="cliente.DataVencimento" />
+
+        <label for="contato">Contato:</label>
+        <InputText id="contato" @bind-Value="cliente.Contato" />
+
+        <label for="valor">valor:</label>
+        <InputText id="valor" @bind-Value="cliente.Valor" />
+
+        <label for="contato">Usuario administrador:</label>
+        <InputText id="IsAdm" @bind-Value="cliente.IsAdm" />
+
+        <label for="contato">Modulos liberados:</label>
+        <InputText id="ModulosLiberado" @bind-Value="cliente.ModulosLiberado" />
+
+        <label for="contato">Senha:</label>
+        <InputText id="Senha" @bind-Value="cliente.Senha" />
+
+        <button type="submit">Cadastrar</button>
+      </EditForm>
+    </div>
+  </div>
 </div>
 
 
 <!-- Modal de Clientes -->
 <div id="modal-clientes" class="modal @(mostrarModal ? "show" : "")" style="display:@(mostrarModal ? "block" : "none");">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Clientes Cadastrados</h2>
-            <span class="fechar" @onclick="FecharModal">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="lista-clientes" class="grid-clientes">
-                @if (clientes != null && clientes.Any())
-                {
-                    @foreach (var cliente in clientes)
-                    {
-                        <div class="cliente-card">
-                            <h3>@cliente.Nome</h3>
-                            <p>E-mail: @cliente.Email</p>
-                            <p>Contato: @cliente.Contato</p>
-                            <p>Data de Pagamento: @cliente.DataPagamento</p>
-                        </div>
-                    }
-                }
-                else
-                {
-                    <p>Nenhum cliente cadastrado.</p>
-                }
-            </div>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Clientes Cadastrados</h2>
+      <span class="fechar" @onclick="FecharModal">&times;</span>
     </div>
+    <div class="modal-body">
+      <div id="lista-clientes" class="grid-clientes">
+        @if (clientes != null && clientes.Any())
+        {
+          @foreach (var cliente in clientes)
+          {
+            <div class="cliente-card">
+              <h3>@cliente.Nome</h3>
+              <p>E-mail: @cliente.Email</p>
+              <p>Contato: @cliente.Contato</p>
+              <p>Valor: @cliente.Valor</p>
+              <p>Data de vencimento: @cliente.DataVencimento</p>
+            </div>
+          }
+        }
+        else
+        {
+          <p>Nenhum cliente cadastrado.</p>
+        }
+      </div>
+    </div>
+  </div>
 </div>
 
 
 <!-- Modal de Inadimplentes -->
 <div id="modal-inadimplentes" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h2>Clientes Inadimplentes</h2>
-            <span class="fechar">&times;</span>
-        </div>
-        <div class="modal-body">
-            <div id="lista-inadimplentes"></div>
-        </div>
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2>Clientes Inadimplentes</h2>
+      <span class="fechar">&times;</span>
     </div>
+    <div class="modal-body">
+      <div id="lista-inadimplentes"></div>
+    </div>
+  </div>
 </div>
 
 <script>
-    // Funções auxiliares
-    function formatarData(data) {
-        return new Date(data).toLocaleDateString('pt-BR');
-    }
+  // Funções auxiliares
+  function formatarData(data) {
+  return new Date(data).toLocaleDateString('pt-BR');
+  }
 
-    function estaInadimplente(dataPagamento) {
-        return new Date(dataPagamento) < new Date();
-    }
+  function estaInadimplente(dataPagamento) {
+  return new Date(dataPagamento) < new Date();
+  }
 
-    function exibirInadimplentes(clientes) {
-        const inadimplentes = clientes.filter(cliente => estaInadimplente(JSON.parse(cliente.desc).dataPagamento));
+  function exibirInadimplentes(clientes) {
+  const inadimplentes = clientes.filter(cliente => estaInadimplente(JSON.parse(cliente.desc).dataPagamento));
 
-        const listaInadimplentes = document.getElementById('lista-inadimplentes');
-        listaInadimplentes.innerHTML = '';
+  const listaInadimplentes = document.getElementById('lista-inadimplentes');
+  listaInadimplentes.innerHTML = '';
 
-        inadimplentes.forEach(cliente => {
-            const dados = JSON.parse(cliente.desc);
-            const item = document.createElement('div');
-            item.innerHTML = `
-                                        <h3>${dados.nome}</h3>
-                                        <p>E-mail: ${dados.email}</p>
-                                        <p>Contato: ${dados.contato}</p>
-                                        <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
-                                    `;
-            listaInadimplentes.appendChild(item);
-        });
-    }
+  inadimplentes.forEach(cliente => {
+  const dados = JSON.parse(cliente.desc);
+  const item = document.createElement('div');
+  item.innerHTML = `
+  <h3>${dados.nome}</h3>
+  <p>E-mail: ${dados.email}</p>
+  <p>Contato: ${dados.contato}</p>
+  <p>Data de Pagamento: ${formatarData(dados.dataPagamento)}</p>
+  `;
+  listaInadimplentes.appendChild(item);
+  });
+  }
 
-    function abrirModal(modal) {
-        modal.style.display = 'block';
-        document.body.classList.add('modal-open');
-    }
+  function abrirModal(modal) {
+  modal.style.display = 'block';
+  document.body.classList.add('modal-open');
+  }
 
-    function fecharModal(modal) {
-        modal.style.display = 'none';
-        document.body.classList.remove('modal-open');
-    }
+  function fecharModal(modal) {
+  modal.style.display = 'none';
+  document.body.classList.remove('modal-open');
+  }
 
-    document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-inadimplentes'));
+  document.getElementById('modal-inadimplentes').querySelector('.fechar').onclick = () => fecharModal(document.getElementById('modal-inadimplentes'));
 
-    // Fechar modais ao clicar fora deles
-    window.onclick = (event) => {
-        if (event.target == document.getElementById('modal-cadastro')) {
-            fecharModal(document.getElementById('modal-cadastro'));
-        }
-        if (event.target == document.getElementById('modal-clientes')) {
-            fecharModal(document.getElementById('modal-clientes'));
-        }
-        if (event.target == document.getElementById('modal-inadimplentes')) {
-            fecharModal(document.getElementById('modal-clientes'));
-        }
-    };
+  // Fechar modais ao clicar fora deles
+  window.onclick = (event) => {
+  if (event.target == document.getElementById('modal-cadastro')) {
+  fecharModal(document.getElementById('modal-cadastro'));
+  }
+  if (event.target == document.getElementById('modal-clientes')) {
+  fecharModal(document.getElementById('modal-clientes'));
+  }
+  if (event.target == document.getElementById('modal-inadimplentes')) {
+  fecharModal(document.getElementById('modal-clientes'));
+  }
+  };
 </script>
 
 
 
 @code {
-    private bool mostrarModal = false;
-    private bool mostrarModalSucesso = false;
-    private bool mostrarModalCadastro = false;
-    private Cliente cliente = new Cliente();
-    public string ChaveDescriptografada { get; set; }
-    private List<Cliente> clientes = new List<Cliente>();
-    Descriptografa descriptografa = new Descriptografa { };
-    ServicosTrello ServicosTrello = new ServicosTrello { };
+  private bool mostrarModal = false;
+  private bool mostrarModalSucesso = false;
+  private bool mostrarModalCadastro = false;
+  private Cliente cliente = new Cliente();
+  public string ChaveDescriptografada { get; set; }
+  private List<Cliente> clientes = new List<Cliente>();
+  Descriptografa descriptografa = new Descriptografa { };
+  ServicosTrello ServicosTrello = new ServicosTrello { };
 
-    public string Desc(string chave)
-    {
-        ChaveDescriptografada = descriptografa.RetornaValorDescriptografado(chave);
-        return descriptografa.RetornaValorDescriptografado(chave);
+  public string Desc(string chave)
+  {
+    ChaveDescriptografada = descriptografa.RetornaValorDescriptografado(chave);
+    return descriptografa.RetornaValorDescriptografado(chave);
 
-    }
+  }
 
-    private async Task ExibirClientes()
-    {
-        clientes = await ObterClientesDoTrelloAsync();
-        mostrarModal = true;
-    }
-    private void FecharModal()
-    {
-        mostrarModal = false;
-    }
+  private async Task ExibirClientes()
+  {
+    string clientes_db = await JS.InvokeAsync<string>("Usuarios");
 
-    private async Task<List<Cliente>> ObterClientesDoTrelloAsync()
-    {
-        JArray cards = await ServicosTrello.ObterClientesAsync();
+    clientes = Newtonsoft.Json.JsonConvert.DeserializeObject<List<Cliente>>(clientes_db);
+    mostrarModal = true;
+  }
+  private void FecharModal()
+  {
+    mostrarModal = false;
+  }
 
-        if (cards == null)
-        {
-            Console.WriteLine("Erro ao buscar clientes.");
-            return new List<Cliente>();
-        }
+  private string FormatarData(DateTime data)
+  {
+    return data.ToString("dd/MM/yyyy");
+  }
 
-        List<Cliente> listaClientes = new List<Cliente>();
+  private void AbreModalCadastro()
+  {
+    mostrarModalCadastro = true;
+  }
+  private void FecharModalCadastro()
+  {
+    mostrarModalCadastro = false;
+  }
 
-        foreach (var card in cards)
-        {
-            var desc = card["desc"].ToString();
+  private async Task CadastrarCliente()
+  {
+    await JS.InvokeAsync<string>("CadastraUsuario", cliente.Email, cliente.Senha, cliente.Nome, cliente.IsAdm, cliente.ModulosLiberado, cliente.DataVencimento, cliente.Valor, cliente.Contato);
+    mostrarModalSucesso = true;
+    FecharModalCadastro();
+    cliente = new Cliente();
+  }
 
-            var clienteData = Newtonsoft.Json.JsonConvert.DeserializeObject<Cliente>(desc);
-            listaClientes.Add(clienteData);
-        }
-
-        return listaClientes;
-    }
-
-    private string FormatarData(DateTime data)
-    {
-        return data.ToString("dd/MM/yyyy");
-    }
-
-    private void AbreModalCadastro()
-    {
-        mostrarModalCadastro = true;
-    }
-    private void FecharModalCadastro()
-    {
-        mostrarModalCadastro = false;
-    }
-
-    private async Task CadastrarCliente()
-    {
-        await ServicosTrello.CadastrarClienteAsync(cliente);
-        mostrarModalSucesso = true;
-        FecharModalCadastro();
-        cliente = new Cliente();
-    }
-
-    private void FecharModalSucesso()
-    {
-        mostrarModalSucesso = false;
-    }
+  private void FecharModalSucesso()
+  {
+    mostrarModalSucesso = false;
+  }
 
 
 }

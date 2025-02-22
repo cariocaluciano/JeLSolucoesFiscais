@@ -3,54 +3,61 @@
 @inherits LayoutComponentBase
 @inject LocalStorageService LocalStorageService
 @inject NavigationManager NavigationManager
+@inject IJSRuntime JS
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+  <div class="sidebar">
+    <NavMenu />
+  </div>
 
-    <main>
-        @if (acessoLiberado)
-        {
-            <div class="top-row px-4">
-                <button class="btn btn-link" @onclick="Sair">Sair</button>
-            </div>
-        }
+  <main>
+    @if (acessoLiberado)
+    {
+      <div class="top-row px-4">
+        <button class="btn btn-link" @onclick="Sair">Sair</button>
+      </div>
+    }
 
-        <article class="content px-4">
-            @Body
-            <ChatBoot/>
-        </article>
+    <article class="content px-4">
+      @Body
+      <ChatBoot />
+    </article>
 
-    </main>
+  </main>
 </div>
 
-
 @code {
-    private async Task Sair()
-    {
-        LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "ZmFsc2U="); //isAuthenticated
-        LocalStorageService.SetItemAsync("ZW1haWw=", "");
-        LocalStorageService.SetItemAsync("c2VuaGE=", "");
 
-        NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
-    }
+  private bool isAuthenticated;
+  private bool acessoLiberado;
 
-    private bool isAuthenticated;
-    private bool acessoLiberado;
+  private async Task Sair()
+  {
+    string? retorno = await JS.InvokeAsync<string>("Sair");
 
-    protected override async Task OnInitializedAsync()
-    {
-        Descriptografa Descriptografia = new Descriptografa { };
-        UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+    NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
 
-        string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-        string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    acessoLiberado = false;
+  }
 
-        isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
-        acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
 
-    }
+  protected override async Task OnInitializedAsync()
+  {
+    string? retorno = await JS.InvokeAsync<string>("VerificaLogin");
 
+    Descriptografa Descriptografia = new Descriptografa { };
+    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+
+    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+
+    acessoLiberado = retorno == "usuario não logado" ? false : true;
+
+  }
+
+  /*Apenas uma anotação para não esquecer como utilizar o local storage*/
+  // LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "ZmFsc2U="); //isAuthenticated
+  // LocalStorageService.SetItemAsync("ZW1haWw=", "");
+  // LocalStorageService.SetItemAsync("c2VuaGE=", "");
 }
 

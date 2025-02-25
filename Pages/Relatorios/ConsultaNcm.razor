@@ -2,124 +2,143 @@
 
 <PageTitle>SoluFiscal</PageTitle>
 
-  <style>
-    /* Estilos globais */
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background-color: #f0f0f0;
+<style>
+  /* Garante que o corpo da página não role */
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+  }
+
+  .container {
+    width: 90%;
+    max-width: 1200px;
+    height: 100vh;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  h1 {
+    color: #333;
+  }
+
+  /* Estilos da pesquisa */
+  .search-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  #searchNCM {
+    width: 60%;
+    padding: 10px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+  }
+
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+  }
+
+  .search-button {
+    background-color: #008CBA;
+  }
+
+    .search-button:hover {
+      background-color: #007bb5;
     }
 
-    .container {
-      max-width: auto;
-      margin: 20px auto;
-      background-color: white;
-      padding: 20px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      text-align: center;
+  .load-button {
+    background-color: #4CAF50;
+    margin-top: 10px;
+  }
+
+    .load-button:hover {
+      background-color: #45a049;
     }
 
-    h1 {
-      color: #333;
-    }
-    /* Estilos da pesquisa */
-    .search-container {
-      display: flex;
-      justify-content: center;
-      gap: 10px;
-      margin-bottom: 10px;
-    }
+  /* Tabela com scroll */
+  .table-container {
+    flex-grow: 1;
+    width: 100%;
+    max-height: 60vh; /* Define um limite para a altura */
+    overflow-y: auto;
+    border: 1px solid #ddd;
+  }
 
-    #searchNCM {
-      width: 60%;
-      padding: 10px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
 
-    button {
-      padding: 10px 15px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      color: white;
-      font-size: 14px;
-    }
+  th, td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
 
-    .search-button {
-      background-color: #008CBA;
-    }
+  th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
 
-      .search-button:hover {
-        background-color: #007bb5;
-      }
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
 
-    .load-button {
-      background-color: #4CAF50;
-      margin-top: 10px;
-    }
+  /* Paginação fixa */
+  .pagination {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    padding: 10px;
+  }
 
-      .load-button:hover {
-        background-color: #45a049;
-      }
-    /* Estilos da tabela */
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
+  .pagination-button {
+    background-color: #4CAF50;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
 
-    th, td {
-      border: 1px solid #ddd;
-      padding: 10px;
-      text-align: left;
+    .pagination-button:disabled {
+      background-color: #ccc;
+      cursor: not-allowed;
     }
 
-    th {
-      background-color: #f2f2f2;
-      font-weight: bold;
-    }
+  .page-info {
+    font-size: 16px;
+    font-weight: bold;
+  }
+</style>
+<div class="container">
+  <h1>Consulta de NCM</h1>
+  <div class="search-container">
+    <input type="text" id="searchNCM" placeholder="Digite o NCM para buscar..." onkeydown="if(event.key === 'Enter') searchNCM()">
+    <button class="search-button" onclick="searchNCM()">Pesquisar</button>
+  </div>
+  <button class="load-button" onclick="fetchData()">Carregar Dados</button>
 
-    tr:nth-child(even) {
-      background-color: #f9f9f9;
-    }
-    /* Estilos da paginação */
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 10px;
-      margin-top: 15px;
-    }
-
-    .pagination-button {
-      background-color: #4CAF50;
-      color: white;
-      padding: 8px 12px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-      .pagination-button:disabled {
-        background-color: #ccc;
-        cursor: not-allowed;
-      }
-
-    .page-info {
-      font-size: 16px;
-      font-weight: bold;
-    }
-  </style>
-
-  <div class="container">
-    <h1>Consulta de NCM</h1>
-    <div class="search-container">
-      <input type="text" id="searchNCM" placeholder="Digite o NCM para buscar...">
-      <button class="search-button" onclick="searchNCM()">Pesquisar</button>
-    </div>
-    <button class="load-button" onclick="fetchData()">Carregar Dados</button>
+  <!-- Container da tabela com rolagem -->
+  <div class="table-container">
     <table>
       <thead>
         <tr>
@@ -131,14 +150,18 @@
       </thead>
       <tbody id="table-body"></tbody>
     </table>
-    <div class="pagination">
-      <button class="pagination-button" id="prevPage" onclick="changePage(-1)" disabled>Anterior</button>
-      <span class="page-info" id="pageInfo">0/0</span>
-      <button class="pagination-button" id="nextPage" onclick="changePage(1)" disabled>Próximo</button>
-    </div>
   </div>
 
-  <script>
+  <!-- Paginação -->
+  <div class="pagination">
+    <button class="pagination-button" id="prevPage" onclick="changePage(-1)" disabled>Anterior</button>
+    <span class="page-info" id="pageInfo">0/0</span>
+    <button class="pagination-button" id="nextPage" onclick="changePage(1)" disabled>Próximo</button>
+  </div>
+</div>
+
+
+<script>
     const apiUrl = "https://gist.githubusercontent.com/cariocaluciano/9e86aecc9603fc0fb3369f507aae2e69/raw/ec92e58b6170d1cba179ac3f022adca829ddbbef/NcmProdutos.json";
     let data = [];
     let filteredData = [];
@@ -169,8 +192,8 @@
             const row = `<tr>
                 <td>${item.NCM}</td>
                 <td>${item.DESCRIÇÃO}</td>
-                <td>${item.CST || "N/A"}</td>
-                <td>${item.MONOFASICO || "N/A"}</td>
+                <td>${item.CST.substring(0, 2) + " - " + item.CST.substring(2) || "-"}</td>
+                <td>${item.MONOFASICO || "-"}</td>
             </tr>`;
             tableBody.innerHTML += row;
         });
@@ -202,14 +225,22 @@
         }
     }
 
-    function searchNCM() {
-        const query = document.getElementById("searchNCM").value.trim();
-        if (query) {
-            filteredData = data.filter(item => item.NCM.includes(query));
-        } else {
-            filteredData = [...data]; // Restaura os dados completos
-        }
-        currentPage = 1;
-        renderTable();
-    }
-  </script>
+  function searchNCM() {
+      const query = document.getElementById("searchNCM").value.replace(/\./g, '').trim();
+
+      if (!query) {
+          filteredData = [...data]; // Restaura os dados completos se não houver busca
+      } else {
+          // Filtra primeiro pelo campo NCM
+          filteredData = data.filter(item => item.NCM.replace(/\./g, '').includes(query));
+
+          // Se não encontrou nada no NCM, tenta filtrar pela descrição (ignorando maiúsculas/minúsculas)
+          if (filteredData.length === 0) {
+              filteredData = data.filter(item => item.DESCRIÇÃO.toLowerCase().includes(query.toLowerCase()));
+          }
+      }
+
+      currentPage = 1;
+      renderTable();
+  }
+</script>

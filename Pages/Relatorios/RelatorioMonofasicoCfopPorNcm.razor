@@ -2,333 +2,554 @@
 
 <PageTitle>SoluFiscal</PageTitle>
 
-<style>
-    /* Estilos básicos */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        background-color: #f0f0f0;
-    }
-    .container {
-        max-width: 600px;
-        margin: 0 auto;
-        background-color: white;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-    h1 {
-        color: #333;
-    }
+@* <style>
+  /* Estilos básicos */
+  body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    background-color: #f0f0f0;
+  }
 
-    #fileInputRel {
-        margin-bottom: 10px;
-    }
-    #importButton {
-        background-color: #4CAF50;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-    }
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  }
+
+  h1 {
+    color: #333;
+  }
+
+  #fileInputRel {
+    margin-bottom: 10px;
+  }
+
+  #importButton {
+    background-color: #4CAF50;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
     #importButton:hover {
-        background-color: #45a049;
+      background-color: #45a049;
     }
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: auto;
-        background-color: rgba(0,0,0,0.4);
-    }
-    .modal-content {
-        background-color: #fefefe;
-        margin: 5% auto; /* Alterado de 15% para 5% para dar mais espaço */
-        padding: 20px;
-        border: 1px solid #888;
-        width: 80%;
-        max-width: 800px; /* Aumentado para dar mais espaço ao conteúdo */
-        height: 80vh; /* Altura fixa de 80% da altura da viewport */
-        border-radius: 8px;
-        display: flex;
-        flex-direction: column;
-    }
-    .modal-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 10px;
-    }
-    .modal-body {
-        flex-grow: 1;
-        overflow-y: auto; /* Adiciona scroll vertical */
-        padding-right: 10px; /* Espaço para a barra de rolagem */
-    }
-    .close {
-        color: #aaa;
-        float: right;
-        font-size: 28px;
-        font-weight: bold;
-        cursor: pointer;
-    }
+
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    background-color: rgba(0,0,0,0.4);
+  }
+
+  .modal-content {
+    background-color: #fefefe;
+    margin: 5% auto; /* Alterado de 15% para 5% para dar mais espaço */
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 800px; /* Aumentado para dar mais espaço ao conteúdo */
+    height: 80vh; /* Altura fixa de 80% da altura da viewport */
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .modal-body {
+    flex-grow: 1;
+    overflow-y: auto; /* Adiciona scroll vertical */
+    padding-right: 10px; /* Espaço para a barra de rolagem */
+  }
+
+  .close {
+    color: #aaa;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
     .close:hover {
-        color: #000;
+      color: #000;
     }
-    #downloadButton {
-        background-color: #008CBA;
-        color: white;
-        padding: 10px 15px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        margin-top: 10px;
-        align-self: flex-end;
-    }
+
+  #downloadButton {
+    background-color: #008CBA;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+    align-self: flex-end;
+  }
+
     #downloadButton:hover {
-        background-color: #007B9A;
+      background-color: #007B9A;
     }
-    /* Estilos para a tabela no relatório */
-    #reportContent table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-bottom: 20px;
+  /* Estilos para a tabela no relatório */
+  #reportContent table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px;
+  }
+
+  #reportContent th, #reportContent td {
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: left;
+  }
+
+  #reportContent th {
+    background-color: #f2f2f2;
+    font-weight: bold;
+  }
+
+  #reportContent tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+
+  #importedFilesCount {
+    margin-top: 10px;
+    font-weight: bold;
+  }
+
+  .total-row {
+    font-weight: bold;
+    background-color: #e6e6e6;
+  }
+</style> *@
+<style>
+  body {
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+  }
+
+  h2, h5 {
+    color: #6f42c1;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  .fw-bold {
+    font-weight: bold;
+  }
+
+  .box {
+    padding: 20px;
+    background: #6f42c1;
+    color: white;
+    text-align: center;
+    border-radius: 8px;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+  }
+
+    .box:hover {
+      background: #6610f2;
     }
-    #reportContent th, #reportContent td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
+
+  .border {
+    border: 2px solid #6f42c1;
+  }
+
+  .shadow {
+    box-shadow: 0px 0px 10px rgba(0, 0, 0, 0.1);
+  }
+
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+
+  .mt-4 {
+    margin-top: 1.5rem;
+  }
+
+  .p-3 {
+    padding: 1rem;
+  }
+
+  .row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+  }
+
+  .col-6 {
+    flex: 1 1 45%;
+  }
+
+  .col-12 {
+    flex: 1 1 100%;
+  }
+
+
+  /* Estilos adicionais para botões */
+  button {
+    background-color: #6f42c1;
+    color: white;
+    border: none;
+    padding: 10px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+    button:hover {
+      background-color: #6610f2;
     }
-    #reportContent th {
-        background-color: #f2f2f2;
-        font-weight: bold;
+
+  /* Estilos para upload container */
+  .upload-container {
+    background-color: #f8f9fa;
+    border: 3px dashed #007bff;
+    border-radius: 12px;
+    padding: 40px;
+    text-align: center;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+  }
+
+    .upload-container:hover {
+      background-color: #e3f2fd;
+      border-color: #0056b3;
     }
-    #reportContent tr:nth-child(even) {
-        background-color: #f9f9f9;
+
+    .upload-container p {
+      color: #007bff;
+      font-size: 20px;
+      margin-top: 10px;
+      font-weight: bold;
     }
-    #importedFilesCount {
-        margin-top: 10px;
-        font-weight: bold;
+
+    .upload-container input[type="file"] {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      cursor: pointer;
     }
-    .total-row {
-        font-weight: bold;
-        background-color: #e6e6e6;
-    }
+
 </style>
-
-        <div class="container">
-        <h1>Importação de XML e Geração de Relatório</h1>
-        <input type="file" id="fileInputRel" accept=".xml" multiple>
-        <button id="importButton">Importar e Gerar Relatório</button>
-        <div id="importedFilesCount"></div>
+<div class="container">
+  <div class="row mt-1 justify-content-between">
+    <div class="col-12">
+      <div class="upload-container m-0 p-0"
+           id="uploadContainer_Xml"
+           ondrop="updateFileCount()"
+           ondragover="updateFileCount()">
+        <input type="file" id="xmlFile" accept=".xml" multiple onchange="updateFileCount()" />
+        <p id="fileCount">Clique ou arraste aqui seu arquivo XML</p>
+      </div>
     </div>
+  </div>
+  <h5 id="emitente" class="mt-4 text-center fw-bold"></h5>
 
-    <div id="reportModal" class="modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2>Relatório</h2>
-                <span class="close" onclick="CloseButon_Onclick"&times;</span>
+
+
+  @*   <div class="totalizador">
+    <div class="box" id="cfopVendas">CFOP Vendas: R$ 0,00</div>
+    <div class="box" id="cfopVendasMono">CFOP Vendas Monofásico: R$ 0,00</div>
+    <div class="box" id="cfopDevolucao">CFOP Devolução: R$ 0,00</div>
+    <div class="box" id="cfopDevolucaoMono">CFOP Devolução Monofásico: R$ 0,00</div>
+  </div> *@
+
+
+
+  <h3 class="text-center fw-bold mt-4">Totalizador - CFOP</h3>
+
+  <div class="row mt-4">
+    <div class="col-12 col-md-6">
+      <div class="border p-3 mb-4 rounded shadow">
+        <h5 class="text-center fw-bold mb-3">Vendas</h5>
+        <div class="row justify-content-center">
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Tributado</p>
+              <div id="cfopVendas" class="valor">R$ 0,00</div>
             </div>
-            <div class="modal-body">
-                <div id="reportContent"></div>
+          </div>
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Monofásico</p>
+              <div id="cfopVendasMono" class="valor">R$ 0,00</div>
             </div>
-            <button id="downloadButton">Download do Relatório</button>
+          </div>
         </div>
+      </div>
     </div>
 
+    <div class="col-12 col-md-6">
+      <div class="border p-3 mb-4 rounded shadow">
+        <h5 class="text-center fw-bold mb-3">Devolução</h5>
+        <div class="row justify-content-center">
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Tributado</p>
+              <div id="cfopDevolucao" class="valor">R$ 0,00</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Monofásico</p>
+              <div id="cfopDevolucaoMono" class="valor">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-        <script>
 
 
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        const fileInputRel = document.getElementById('fileInputRel');
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <!-- Totalizadores de Saídas e Outras Saídas -->
+  <div class="totalizador-saidas">
+    <h3>Totalizadores de Saídas</h3>
+    <div class="box" id="totalSaidas">Saídas: R$ 0,00</div>
+    <div class="box" id="totalOutrasSaidas">Outras Saídas: R$ 0,00</div>
+  </div>
+
+  <!-- Totalizador por CFOP Fixo -->
+  <div class="totalizador-cfop">
+    <h3>Totalizadores por CFOP</h3>
+    <div id="cfopTotalizadores"></div> <!-- Aqui vamos preencher dinamicamente -->
+  </div>
+
+  <button onclick="gerarRelatorio()">Gerar Relatório</button>
+</div>
+
+<div id="modal" class="modal">
+  <div class="modal-content">
+    <h3>Relatório</h3>
+    <div class="table-container">
+      <table id="summaryTable">
+        <thead>
+          <tr>
+            <th>NCM</th>
+            <th>CFOP</th>
+            <th>Valor Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <div class="table-container">
+      <table id="monoTable">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th>NCM</th>
+            <th>CFOP</th>
+            <th>Valor Total</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+    <button onclick="baixarExcel()">Baixar Excel</button>
+    <button onclick="fecharModal()">Fechar</button>
+  </div>
+</div>
+
+<script>
+  let monoData = [];
+  let totalizadoresPorCfop = {};  // Novo objeto para armazenar totais por CFOP
+  let totalSaidas = 0;
+  let totalOutrasSaidas = 0;
+
+
+
+
+  function updateFileCount() {
+    const fileInput = document.getElementById('xmlFile');
+    const fileCountText = document.getElementById('fileCount');
+
+    const files = fileInput.files;
+    if (files.length === 0) {
+      fileCountText.textContent = 'Nenhum arquivo selecionado';
     } else {
-        fileInputRel = document.getElementById('fileInputRel');
+      fileCountText.textContent = `${files.length} arquivo(s) selecionado(s)`;
     }
 
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        const importButton = document.getElementById('importButton');
-    } else {
-        importButton = document.getElementById('importButton');
+    processFiles();
+  }
+
+
+
+
+
+
+
+
+
+  async function fetchMonoData() {
+    const response = await fetch("https://gist.githubusercontent.com/cariocaluciano/9e86aecc9603fc0fb3369f507aae2e69/raw/ec92e58b6170d1cba179ac3f022adca829ddbbef/NcmProdutos.json");
+    monoData = await response.json();
+  }
+
+  async function processFiles() {
+    await fetchMonoData();
+    const files = document.getElementById("xmlFile").files;
+    if (!files.length) return alert("Selecione pelo menos um arquivo XML");
+
+    let summary = {};
+    let monofasicos = [];
+    let totalizadores = { vendas: 0, vendasMono: 0, devolucao: 0, devolucaoMono: 0 };
+
+    // Inicializar totalizadores por CFOP
+    totalizadoresPorCfop = {};
+    totalSaidas = 0;
+    totalOutrasSaidas = 0;
+
+    for (let file of files) {
+      const text = await file.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(text, "text/xml");
+
+      document.getElementById("emitente").innerText = xmlDoc.querySelector("xNome")?.textContent + " - CNPJ " + xmlDoc.querySelector("CNPJ")?.textContent;
+
+      xmlDoc.querySelectorAll("det").forEach(item => {
+        const ncm = item.querySelector("NCM")?.textContent || "-";
+        const cfop = item.querySelector("CFOP")?.textContent || "-";
+        const valor = parseFloat(item.querySelector("vProd")?.textContent || "0");
+        const descricao = item.querySelector("xProd")?.textContent || "-";
+
+        const key = `${ncm}-${cfop}`;
+        summary[key] = summary[key] || { NCM: ncm, CFOP: cfop, total: 0 };
+        summary[key].total += valor;
+
+        // Atualizando o totalizador por CFOP
+        totalizadoresPorCfop[cfop] = totalizadoresPorCfop[cfop] || { total: 0, monofasico: 0, naoMonofasico: 0 };
+        totalizadoresPorCfop[cfop].total += valor;
+
+        if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm)) {
+          monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
+          totalizadoresPorCfop[cfop].monofasico += valor;
+          totalizadores.vendasMono += valor;
+        } else {
+          totalizadores.vendas += valor;
+          totalizadoresPorCfop[cfop].naoMonofasico += valor;
+        }
+
+        // Cálculo de Saídas e Outras Saídas
+        if (cfop === "5XXX") {  // Ajuste o código CFOP conforme sua lógica de "Saídas"
+          totalSaidas += valor;
+        } else {
+          totalOutrasSaidas += valor;
+        }
+      });
     }
 
-    // if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-    //     const modal = document.getElementById('reportModal');
-    // } else {
-    //     modal = document.getElementById('reportModal');
-    // }
+    // Atualizando os totais gerais
+    document.getElementById("cfopVendas").innerText = `R$ ${totalizadores.vendas.toFixed(2)}`;
+    document.getElementById("cfopVendasMono").innerText = `R$ ${totalizadores.vendasMono.toFixed(2)}`;
 
-    // if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-    //     const closeButton = document.getElementsByClassName('close')[0];
-    // } else {
-    //     closeButton = document.getElementsByClassName('close')[0];
-    // }
+    // Atualizando os novos totalizadores
+    document.getElementById("totalSaidas").innerText = `R$ ${totalSaidas.toFixed(2)}`;
+    document.getElementById("totalOutrasSaidas").innerText = `R$ ${totalOutrasSaidas.toFixed(2)}`;
 
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        const reportContent = document.getElementById('reportContent');
-    } else {
-        reportContent = document.getElementById('reportContent');
-    }
+    populateTables(summary, monofasicos);
+    updateCfopTotalizadores();  // Atualizar o totalizador por CFOP
+  }
 
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        const downloadButton = document.getElementById('downloadButton');
-    } else {
-        downloadButton = document.getElementById('downloadButton');
-    }
+  function updateCfopTotalizadores() {
+    // Limpa os totalizadores por CFOP na tela antes de adicionar novos
+    const cfopTotalizadoresDiv = document.getElementById("cfopTotalizadores");
+    cfopTotalizadoresDiv.innerHTML = "";  // Limpa antes de adicionar
 
-    if (performance.navigation.type === performance.navigation.TYPE_RELOAD) {
-        const importedFilesCount = document.getElementById('importedFilesCount');
-    } else {
-        importedFilesCount = document.getElementById('importedFilesCount');
-    }
+    // Atualizando os totalizadores por CFOP na tela
+    Object.keys(totalizadoresPorCfop).forEach(cfop => {
+      const { total, monofasico, naoMonofasico } = totalizadoresPorCfop[cfop];
+      let cfopDiv = document.createElement("div");
+      cfopDiv.innerHTML = `
+        <div><strong>CFOP ${cfop}</strong></div>
+        <div><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
+        <div><strong>MONOFÁSICO:</strong> R$ ${monofasico.toFixed(2)}</div>
+        <div><strong>NÃO MONOFÁSICO:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
+      `;
+      cfopTotalizadoresDiv.appendChild(cfopDiv);
+    });
+  }
 
+  function populateTables(summary, monofasicos) {
+    const summaryTable = document.querySelector("#summaryTable tbody");
+    summaryTable.innerHTML = "";
+    Object.values(summary).forEach(({ NCM, CFOP, total }) => {
+      summaryTable.innerHTML += `<tr><td>${NCM}</td><td>${CFOP}</td><td>R$ ${total.toFixed(2)}</td></tr>`;
+    });
 
-        importButton.addEventListener('click', () => {
-            const files = fileInputRel.files;
-            if (files.length > 0) {
-                importedFilesCount.textContent = `Arquivos selecionados: ${files.length}`;
-                processFiles(files);
-            } else {
-                alert('Por favor, selecione pelo menos um arquivo XML.');
-            }
-        });
+    const monoTable = document.querySelector("#monoTable tbody");
+    monoTable.innerHTML = "";
+    monofasicos.forEach(({ descricao, NCM, CFOP, total }) => {
+      monoTable.innerHTML += `<tr><td>${descricao}</td><td>${NCM}</td><td>${CFOP}</td><td>R$ ${total.toFixed(2)}</td></tr>`;
+    });
+  }
 
-        async function processFiles(files) {
-            const reports = [];
-            for (let file of files) {
-                const xmlContent = await readFile(file);
-                const report = generateReport(xmlContent);
-                reports.push(report);
-            }
-            const combinedReport = combineReports(reports);
-            displayReport(combinedReport);
-        }
+  function baixarExcel() {
+    let wb = XLSX.utils.book_new();
+    let summaryTable = document.getElementById("summaryTable");
+    let monoTable = document.getElementById("monoTable");
 
-        function readFile(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onload = (e) => resolve(e.target.result);
-                reader.onerror = (e) => reject(e);
-                reader.readAsText(file);
-            });
-        }
+    let summarySheet = XLSX.utils.table_to_sheet(summaryTable);
+    let monoSheet = XLSX.utils.table_to_sheet(monoTable);
 
-        function generateReport(xmlContent) {
-            const parser = new DOMParser();
-            const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
+    XLSX.utils.book_append_sheet(wb, summarySheet, "Resumo");
+    XLSX.utils.book_append_sheet(wb, monoSheet, "Monofásico");
 
-            return Array.from(xmlDoc.getElementsByTagName('det')).map(det => {
-                const ncm = det.querySelector('NCM')?.textContent || 'N/A';
-                const cfop = det.querySelector('CFOP')?.textContent || 'N/A';
-                const totalValue = parseFloat(det.querySelector('vProd')?.textContent) || 0;
+    XLSX.writeFile(wb, "relatorio.xlsx");
+  }
 
-                return { ncm, cfop, totalValue };
-            });
-        }
+  function gerarRelatorio() {
+    document.getElementById("modal").style.display = "block";
+  }
 
-        function combineReports(reports) {
-            const cfopByNcm = {};
-            let grandTotal = 0;
+  function fecharModal() {
+    document.getElementById("modal").style.display = "none";
+  }
+</script>
 
-            reports.flat().forEach(item => {
-                if (!cfopByNcm[item.ncm]) {
-                    cfopByNcm[item.ncm] = {};
-                }
-                if (!cfopByNcm[item.ncm][item.cfop]) {
-                    cfopByNcm[item.ncm][item.cfop] = 0;
-                }
-                cfopByNcm[item.ncm][item.cfop] += item.totalValue;
-                grandTotal += item.totalValue;
-            });
-
-            return generateReportHtml(cfopByNcm, grandTotal);
-        }
-
-        function generateReportHtml(cfopByNcm, grandTotal) {
-            let reportHtml = '<h2>Relatório de Total de Valores de CFOP por NCM</h2>';
-            reportHtml += '<table><tr><th>NCM</th><th>CFOP</th><th>Valor Total</th></tr>';
-
-            for (const [ncm, cfopData] of Object.entries(cfopByNcm)) {
-                for (const [cfop, totalValue] of Object.entries(cfopData)) {
-                    reportHtml += `
-                        <tr>
-                            <td>${ncm}</td>
-                            <td>${cfop}</td>
-                            <td>R$ ${totalValue.toFixed(2)}</td>
-                        </tr>
-                    `;
-                }
-            }
-
-            // Adiciona a linha de total geral
-            reportHtml += `
-                <tr class="total-row">
-                    <td colspan="2">Total Geral</td>
-                    <td>R$ ${grandTotal.toFixed(2)}</td>
-                </tr>
-            `;
-
-            reportHtml += '</table>';
-            return reportHtml;
-        }
-
-        function displayReport(report) {
-            reportContent.innerHTML = report;
-            document.getElementById('reportModal').style.display = 'block';
-        }
-
-        // closeButton.onclick = () => {
-        //     modal.style.display = 'none';
-        // };
-
-        function CloseButon_Onclick() {
-            document.getElementById('reportModal').style.display = 'none';
-        }
-
-        window.onclick = (event) => {
-            if (event.target == document.getElementById('reportModal')) {
-                document.getElementById('reportModal').style.display = 'none';
-            }
-        };
-
-        downloadButton.onclick = async () => {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const content = document.getElementById('reportContent');
-            const canvas = await html2canvas(content);
-            const imgData = canvas.toDataURL('image/png');
-
-            const imgProps = doc.getImageProperties(imgData);
-            const pdfWidth = doc.internal.pageSize.getWidth();
-            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-
-            const margin = 20; // Margem em milímetros
-            const contentWidth = pdfWidth - (2 * margin);
-            const contentHeight = (contentWidth * imgProps.height) / imgProps.width;
-
-            doc.addImage(imgData, 'PNG', margin, margin, contentWidth, contentHeight);
-
-            // Adicionar páginas adicionais se o conteúdo for muito longo
-            if (contentHeight > doc.internal.pageSize.getHeight() - (2 * margin)) {
-                let remainingHeight = contentHeight;
-                let position = -(doc.internal.pageSize.getHeight() - (2 * margin));
-
-                while (remainingHeight > 0) {
-                    doc.addPage();
-                    doc.addImage(imgData, 'PNG', margin, margin + position, contentWidth, contentHeight);
-                    remainingHeight -= (doc.internal.pageSize.getHeight() - (2 * margin));
-                    position -= (doc.internal.pageSize.getHeight() - (2 * margin));
-                }
-            }
-
-            doc.save('relatorio_combinado.pdf');
-        };
-    </script>
 
 
 @code {

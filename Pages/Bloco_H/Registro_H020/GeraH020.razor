@@ -3,6 +3,7 @@
 @using JeLSolucoesFiscais.Aplicacao.Criptografias
 @using JeLSolucoesFiscais.Aplicacao.Usuario
 @inject LocalStorageService LocalStorageService
+@inject IJSRuntime JS
 
 <PageTitle>SoluFiscal</PageTitle>
 
@@ -760,14 +761,15 @@ else
 
   protected override async Task OnInitializedAsync()
   {
-    Descriptografa Descriptografia = new Descriptografa { };
-    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+    // Descriptografa Descriptografia = new Descriptografa { };
+    // UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
-    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    // string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    // string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
 
-    isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
-    acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+    // isAuthenticated = await LocalStorageService.GetItemAsync("aXNBdXRoZW50aWNhdGVk") == "dHJ1ZQ=="; //IsAuthenticated == true
+    // acessoLiberado = usuariosCadastrados.VerificaCadastrousuario(Descriptografia.RetornaValorDescriptografado(email), Descriptografia.RetornaValorDescriptografado(senha)) && isAuthenticated;
+    acessoLiberado = await JS.InvokeAsync<string>("VerificaLogin") == "usuario não logado" ? false : true;
 
   }
 }

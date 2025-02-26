@@ -1,4 +1,5 @@
 ﻿@page "/RelatorioMonofasico/ConsultaPorNcm"
+@inject IJSRuntime JS
 
 <PageTitle>SoluFiscal</PageTitle>
 
@@ -13,12 +14,12 @@
   }
 
   .container {
-    width: 90%;
-    max-width: 1200px;
+    width: 100%;
+    /*max-width: 1200px;*/
     height: 100vh;
-    margin: 0 auto;
+    margin: 0;
     background-color: white;
-    padding: 20px;
+    padding: 0;
     border-radius: 8px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     display: flex;
@@ -32,6 +33,7 @@
 
   /* Estilos da pesquisa */
   .search-container {
+    width: 60%;
     display: flex;
     justify-content: center;
     gap: 10px;
@@ -39,7 +41,7 @@
   }
 
   #searchNCM {
-    width: 60%;
+    width: 100%;
     padding: 10px;
     border-radius: 4px;
     border: 1px solid #ddd;
@@ -100,28 +102,40 @@
     background-color: #f9f9f9;
   }
 
-  /* Paginação fixa */
   .pagination {
-    width: 100%;
     display: flex;
     justify-content: center;
     align-items: center;
-    gap: 10px;
-    padding: 10px;
+    gap: 5px;
+    margin-top: 20px;
   }
 
-  .pagination-button {
-    background-color: #4CAF50;
-    color: white;
-    padding: 8px 12px;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+    .pagination button {
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      background-color: #f8f9fa;
+      color: #333;
+      cursor: pointer;
+      border-radius: 5px;
+      transition: background-color 0.3s, transform 0.2s;
+    }
 
-    .pagination-button:disabled {
-      background-color: #ccc;
-      cursor: not-allowed;
+      .pagination button:hover {
+        background-color: #ddd;
+        transform: scale(1.1);
+      }
+
+      .pagination button.active {
+        background-color: #007bff;
+        color: white;
+        border-color: #007bff;
+        font-weight: bold;
+      }
+
+    .pagination span {
+      padding: 8px 12px;
+      font-size: 16px;
+      color: #666;
     }
 
   .page-info {
@@ -132,12 +146,9 @@
 <div class="container">
   <h1>Consulta de NCM</h1>
   <div class="search-container">
-    <input type="text" id="searchNCM" placeholder="Digite o NCM para buscar..." onkeydown="if(event.key === 'Enter') searchNCM()">
+    <input type="text" id="searchNCM" placeholder="Digite o NCM ou a descrição para buscar..." onkeydown="if(event.key === 'Enter') searchNCM()">
     <button class="search-button" onclick="searchNCM()">Pesquisar</button>
   </div>
-  <button class="load-button" onclick="fetchData()">Carregar Dados</button>
-
-  <!-- Container da tabela com rolagem -->
   <div class="table-container">
     <table>
       <thead>
@@ -151,13 +162,7 @@
       <tbody id="table-body"></tbody>
     </table>
   </div>
-
-  <!-- Paginação -->
-  <div class="pagination">
-    <button class="pagination-button" id="prevPage" onclick="changePage(-1)" disabled>Anterior</button>
-    <span class="page-info" id="pageInfo">0/0</span>
-    <button class="pagination-button" id="nextPage" onclick="changePage(1)" disabled>Próximo</button>
-  </div>
+  <div class="pagination" id="pagination"></div>
 </div>
 
 
@@ -243,4 +248,65 @@
       currentPage = 1;
       renderTable();
   }
+    function updatePagination() {
+        const paginationContainer = document.getElementById("pagination");
+        paginationContainer.innerHTML = "";
+
+        const totalItems = filteredData.length;
+        const totalPages = Math.ceil(totalItems / rowsPerPage);
+
+        if (totalPages <= 1) return;
+
+        let maxVisibleButtons = 10;
+        let startPage = Math.max(1, currentPage - Math.floor(maxVisibleButtons / 2));
+        let endPage = startPage + maxVisibleButtons - 1;
+
+        if (endPage > totalPages) {
+            endPage = totalPages;
+            startPage = Math.max(1, endPage - maxVisibleButtons + 1);
+        }
+
+        // Botão "Primeiro" e reticências anteriores
+        if (startPage > 1) {
+            paginationContainer.innerHTML += `<button onclick="changePage(1)">1</button>`;
+            paginationContainer.innerHTML += `<span>...</span>`;
+        }
+
+        // Botões de página visíveis
+        for (let i = startPage; i <= endPage; i++) {
+            paginationContainer.innerHTML += `<button onclick="changePage(${i})" ${i === currentPage ? 'class="active"' : ""}>${i}</button>`;
+        }
+
+        // Reticências e botão "Último"
+        if (endPage < totalPages) {
+            paginationContainer.innerHTML += `<span>...</span>`;
+            paginationContainer.innerHTML += `<button onclick="changePage(${totalPages})">${totalPages}</button>`;
+        }
+    }
+
+    function changePage(page) {
+        const totalPages = Math.ceil(filteredData.length / rowsPerPage);
+
+        if (page >= 1 && page <= totalPages) {
+            currentPage = page;
+            renderTable();
+
+            updatePagination();
+        }
+    }
 </script>
+
+@code {
+  protected override async Task OnAfterRenderAsync(bool firstRender)
+  {
+    if (firstRender)
+    {
+      await MinhaFuncaoAsync();
+    }
+  }
+
+  private async Task MinhaFuncaoAsync()
+  {
+    await JS.InvokeVoidAsync("fetchData");
+  }
+}

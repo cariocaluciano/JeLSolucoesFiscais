@@ -264,9 +264,9 @@
     <div class="col-12">
       <div class="upload-container m-0 p-0"
            id="uploadContainer_Xml"
-           ondrop="updateFileCount()"
-           ondragover="updateFileCount()">
-        <input type="file" id="xmlFile" accept=".xml" multiple onchange="updateFileCount()" />
+           ondrop="handleDrop(event)"
+           ondragover="handleDragOver(event)">
+        <input type="file" id="xmlFile" accept=".xml" multiple onchange="handleFilesSelectedhandleFilesSelected()" />
         <p id="fileCount">Clique ou arraste aqui seu arquivo XML</p>
       </div>
     </div>
@@ -401,8 +401,26 @@
 
 
 
+  function handleFilesSelected() {
+      updateFileCount();
+  }
 
-  function updateFileCount() {
+  function handleDrop(event) {
+      event.preventDefault();
+
+      // Captura os arquivos do evento de drop e atribui ao input
+      const fileInput = document.getElementById('xmlFile');
+      fileInput.files = event.dataTransfer.files;
+
+      updateFileCount();
+  }
+
+  function handleDragOver(event) {
+      event.preventDefault();
+  }
+
+  async function updateFileCount() {
+
     const fileInput = document.getElementById('xmlFile');
     const fileCountText = document.getElementById('fileCount');
 
@@ -413,7 +431,7 @@
       fileCountText.textContent = `${files.length} arquivo(s) selecionado(s)`;
     }
 
-    processFiles();
+    await processFiles(event);
   }
 
 
@@ -430,6 +448,7 @@
   }
 
   async function processFiles() {
+    event.preventDefault();
     await fetchMonoData();
     const files = document.getElementById("xmlFile").files;
     if (!files.length) return alert("Selecione pelo menos um arquivo XML");

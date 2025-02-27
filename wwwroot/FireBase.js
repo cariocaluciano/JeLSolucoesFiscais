@@ -75,21 +75,24 @@ async function Sair() {
   });
 }
 
-async function CadastraUsuario(usuario, senha, nome, isAdm, modulosLiberados, dataVencimento, valor) {
-
+async function CadastraUsuario(usuario, senha, nome, isAdm, modulosLiberados, dataVencimento, valor, contato) {
+  var idUsuario;
   var firebaseConfig = CredenciaisFireBase();
   var retorno;
   var retornoDb;
+  var cadEmpresa = 'null'
 
   if (!firebase.apps.length) {
     firebase.initializeApp(firebaseConfig);
   }
 
+  console.log(contato);
 
   await firebase.auth().createUserWithEmailAndPassword(usuario, senha)
     .then((userCredential) => {
       const user = userCredential.user;
-      console.log('usuario cadastrado')
+      idUsuario = user.uid;
+      console.log(idUsuario)
       retorno = 'sucesso'
     })
     .catch((error) => {
@@ -100,7 +103,7 @@ async function CadastraUsuario(usuario, senha, nome, isAdm, modulosLiberados, da
     });
 
   if (retorno == 'sucesso') {
-    retornoDb = CadastraUsuario_Db(usuario, nome, isAdm, modulosLiberados, dataVencimento, valor)
+    retornoDb = CadastraUsuario_Db(usuario, nome, isAdm, modulosLiberados, dataVencimento, valor, contato, idUsuario, cadEmpresa)
   } else {
     retornoDb = 'falha'
   }
@@ -108,7 +111,7 @@ async function CadastraUsuario(usuario, senha, nome, isAdm, modulosLiberados, da
   return retornoDb;
 }
 
-async function CadastraUsuario_Db(email, nome, isAdm, modulosLiberados, dataVencimento, valor, contato) {
+async function CadastraUsuario_Db(email, nome, isAdm, modulosLiberados, dataVencimento, valor, contato, idUsuario, cadEmpresa) {
   var firebaseConfig = CredenciaisFireBase();
   var retorno;
 
@@ -127,7 +130,9 @@ async function CadastraUsuario_Db(email, nome, isAdm, modulosLiberados, dataVenc
     ModulosLiberados: modulosLiberados,
     Nome: nome,
     Valor: valor,
-    Contato: contato
+    Contato: contato || 'null' ,
+    IdUsuario: idUsuario,
+    CadEmpresa: cadEmpresa
   };
 
   usuariosRef.add(novoUsuario)

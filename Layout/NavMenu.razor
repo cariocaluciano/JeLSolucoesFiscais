@@ -65,6 +65,14 @@
           </div>
         </div>
       }
+      <div class="nav-item px-3">
+        <a class="nav-link" onclick="toggleSubMenu(this)">Cad_Empresas</a>
+        <div class="nav-submenu">
+          <NavLink class="nav-link" href="CadEmpresas/Cadastrar">
+            <span aria-hidden="true"></span> Cadastrar
+          </NavLink>
+        </div>
+      </div>
 
       <div class="nav-item px-3">
         <a class="nav-link" onclick="toggleSubMenu(this)"> EFD-Fiscal</a>
@@ -196,9 +204,9 @@
             <NavLink class="nav-link" href="RelatorioMonofasico/ConsultaPorNcm">
               <span aria-hidden="true"></span> Consulta_NCMs
             </NavLink>
-            <NavLink class="nav-link" @onclick="NavigateToCadastraNcmMonofasico">
+ @*            <NavLink class="nav-link" @onclick="NavigateToCadastraNcmMonofasico">
               <span aria-hidden="true"></span> CadastraNcmMonofasico
-            </NavLink>
+            </NavLink> *@
           </div>
         </div>
       </div>

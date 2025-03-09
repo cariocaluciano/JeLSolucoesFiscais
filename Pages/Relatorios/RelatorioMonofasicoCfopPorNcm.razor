@@ -258,8 +258,23 @@
       cursor: pointer;
     }
 
+  .search-container {
+    width: 60%;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
 </style>
 <div class="container">
+@* 
+  <div class="search-container">
+    <input type="text" id="searchNCM" placeholder="Digite o NCM ou a descrição para buscar..." onkeydown="if(event.key === 'Enter') searchNCM()">
+    <button class="search-button" onclick="searchNCM()">Pesquisar</button>
+  </div>
+
+ *@
   <div class="row mt-1 justify-content-between">
     <div class="col-12">
       <div class="upload-container m-0 p-0"
@@ -447,89 +462,121 @@
     monoData = await response.json();
   }
 
-  async function processFiles() {
-    event.preventDefault();
-    await fetchMonoData();
-    const files = document.getElementById("xmlFile").files;
-    if (!files.length) return alert("Selecione pelo menos um arquivo XML");
+  async function processFiles(event) {
+      event.preventDefault();
+      await fetchMonoData();
+      const files = document.getElementById("xmlFile").files;
+      if (!files.length) return alert("Selecione pelo menos um arquivo XML");
 
-    let summary = {};
-    let monofasicos = [];
-    let totalizadores = { vendas: 0, vendasMono: 0, devolucao: 0, devolucaoMono: 0 };
+      let summary = {};
+      let monofasicos = [];
+      let totalizadores = { vendas: 0, vendasMono: 0, devolucao: 0, devolucaoMono: 0, devolucaoNaoMono: 0 };
+      const devolucaoCfops = ["1201", "1202", "1410", "1411", "2201", "2202", "2410", "2411"];
 
-    // Inicializar totalizadores por CFOP
-    totalizadoresPorCfop = {};
-    totalSaidas = 0;
-    totalOutrasSaidas = 0;
 
-    for (let file of files) {
-      const text = await file.text();
-      const parser = new DOMParser();
-      const xmlDoc = parser.parseFromString(text, "text/xml");
+      // Inicializar totalizadores por CFOP
+      totalizadoresPorCfop = {};
+      totalSaidas = 0;
+      totalOutrasSaidas = 0;
 
-      document.getElementById("emitente").innerText = xmlDoc.querySelector("xNome")?.textContent + " - CNPJ " + xmlDoc.querySelector("CNPJ")?.textContent;
+      for (let file of files) {
+          const text = await file.text();
+          const parser = new DOMParser();
+          const xmlDoc = parser.parseFromString(text, "text/xml");
 
-      xmlDoc.querySelectorAll("det").forEach(item => {
-        const ncm = item.querySelector("NCM")?.textContent || "-";
-        const cfop = item.querySelector("CFOP")?.textContent || "-";
-        const valor = parseFloat(item.querySelector("vProd")?.textContent || "0");
-        const descricao = item.querySelector("xProd")?.textContent || "-";
+          document.getElementById("emitente").innerText = xmlDoc.querySelector("xNome")?.textContent + " - CNPJ " + xmlDoc.querySelector("CNPJ")?.textContent;
 
-        const key = `${ncm}-${cfop}`;
-        summary[key] = summary[key] || { NCM: ncm, CFOP: cfop, total: 0 };
-        summary[key].total += valor;
+          xmlDoc.querySelectorAll("det").forEach(item => {
+              const ncm = item.querySelector("NCM")?.textContent || "-";
+              const cfop = item.querySelector("CFOP")?.textContent || "-";
+              const valor = parseFloat(item.querySelector("vProd")?.textContent || "0");
+              const descricao = item.querySelector("xProd")?.textContent || "-";
+              const natOp = xmlDoc.querySelector("natOp")?.textContent || ""; // Buscando a tag natOp
 
-        // Atualizando o totalizador por CFOP
-        totalizadoresPorCfop[cfop] = totalizadoresPorCfop[cfop] || { total: 0, monofasico: 0, naoMonofasico: 0 };
-        totalizadoresPorCfop[cfop].total += valor;
+              // Definir se é devolução
+              const isDevolucao = devolucaoCfops.includes(cfop);// Verificando se é devolução
 
-        if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm)) {
-          monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
-          totalizadoresPorCfop[cfop].monofasico += valor;
-          totalizadores.vendasMono += valor;
-        } else {
-          totalizadores.vendas += valor;
-          totalizadoresPorCfop[cfop].naoMonofasico += valor;
-        }
+              const key = `${ncm}-${cfop}`;
+              summary[key] = summary[key] || { NCM: ncm, CFOP: cfop, total: 0 };
+              summary[key].total += valor;
 
-        // Cálculo de Saídas e Outras Saídas
-        if (cfop === "5XXX") {  // Ajuste o código CFOP conforme sua lógica de "Saídas"
-          totalSaidas += valor;
-        } else {
-          totalOutrasSaidas += valor;
-        }
-      });
-    }
+              // Atualizando o totalizador por CFOP
+              totalizadoresPorCfop[cfop] = totalizadoresPorCfop[cfop] || { total: 0, monofasico: 0, naoMonofasico: 0, devolucao: 0, devolucaoMono: 0, devolucaoNaoMono: 0 };
+              totalizadoresPorCfop[cfop].total += valor;
 
-    // Atualizando os totais gerais
-    document.getElementById("cfopVendas").innerText = `R$ ${totalizadores.vendas.toFixed(2)}`;
-    document.getElementById("cfopVendasMono").innerText = `R$ ${totalizadores.vendasMono.toFixed(2)}`;
+              // Se for devolução, soma no totalizador de devoluções
+              if (isDevolucao) {
+                  totalizadores.devolucao += valor;
+                  totalizadoresPorCfop[cfop].devolucao += valor;
 
-    // Atualizando os novos totalizadores
-    document.getElementById("totalSaidas").innerText = `R$ ${totalSaidas.toFixed(2)}`;
-    document.getElementById("totalOutrasSaidas").innerText = `R$ ${totalOutrasSaidas.toFixed(2)}`;
+                  // Verificando se a devolução é monofásica
+                  if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
+                      totalizadores.devolucaoMono += valor;
+                      totalizadoresPorCfop[cfop].devolucaoMono += valor;
+                  } else {
+                      totalizadores.devolucaoNaoMono += valor;
+                      totalizadoresPorCfop[cfop].devolucaoNaoMono += valor;
+                  }
+              } else {
+                  // Verificando se o item é monofásico
+                  if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
+                      // Se for monofásico, adiciona no totalizador monofásico
+                      monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
+                      totalizadoresPorCfop[cfop].monofasico += valor;
+                      totalizadores.vendasMono += valor;
+                  } else {
+                      // Caso contrário, é não monofásico
+                      totalizadores.vendas += valor;
+                      totalizadoresPorCfop[cfop].naoMonofasico += valor;
+                  }
+              }
 
-    populateTables(summary, monofasicos);
-    updateCfopTotalizadores();  // Atualizar o totalizador por CFOP
+              // Atualizando os totais gerais
+              if (!isDevolucao) {
+                  if (cfop.startsWith("5")) {
+                      totalSaidas += valor;
+                  } else {
+                      totalOutrasSaidas += valor;
+                  }
+              }
+          });
+      }
+
+      // Exibindo os totalizadores na tela
+      document.getElementById("cfopVendas").innerText = `R$ ${totalizadores.vendas.toFixed(2)}`;
+      document.getElementById("cfopVendasMono").innerText = `R$ ${totalizadores.vendasMono.toFixed(2)}`;
+      document.getElementById("cfopDevolucao").innerText = `R$ ${totalizadores.devolucao.toFixed(2)}`;
+      document.getElementById("cfopDevolucaoMono").innerText = `R$ ${totalizadores.devolucaoMono.toFixed(2)}`;
+      document.getElementById("cfopDevolucao").innerText = `R$ ${totalizadores.devolucaoNaoMono.toFixed(2)}`;
+
+      // Atualizando os novos totalizadores
+      document.getElementById("totalSaidas").innerText = `R$ ${totalSaidas.toFixed(2)}`;
+      document.getElementById("totalOutrasSaidas").innerText = `R$ ${totalOutrasSaidas.toFixed(2)}`;
+
+      populateTables(summary, monofasicos);
+      updateCfopTotalizadores();  // Atualizar o totalizador por CFOP
   }
 
   function updateCfopTotalizadores() {
-    // Limpa os totalizadores por CFOP na tela antes de adicionar novos
-    const cfopTotalizadoresDiv = document.getElementById("cfopTotalizadores");
-    cfopTotalizadoresDiv.innerHTML = "";  // Limpa antes de adicionar
+      // Limpa os totalizadores por CFOP na tela antes de adicionar novos
+      const cfopTotalizadoresDiv = document.getElementById("cfopTotalizadores");
+      cfopTotalizadoresDiv.innerHTML = "";  // Limpa antes de adicionar
 
-    // Atualizando os totalizadores por CFOP na tela
-    Object.keys(totalizadoresPorCfop).forEach(cfop => {
-      const { total, monofasico, naoMonofasico } = totalizadoresPorCfop[cfop];
-      let cfopDiv = document.createElement("div");
-      cfopDiv.innerHTML = `
-        <div><strong>CFOP ${cfop}</strong></div>
-        <div><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
-        <div><strong>MONOFÁSICO:</strong> R$ ${monofasico.toFixed(2)}</div>
-        <div><strong>NÃO MONOFÁSICO:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
-      `;
-      cfopTotalizadoresDiv.appendChild(cfopDiv);
-    });
+      // Atualizando os totalizadores por CFOP na tela
+      Object.keys(totalizadoresPorCfop).forEach(cfop => {
+          const { total, monofasico, naoMonofasico, devolucao, devolucaoMono, devolucaoNaoMono } = totalizadoresPorCfop[cfop];
+          let cfopDiv = document.createElement("div");
+          cfopDiv.innerHTML = `
+              <div><strong>CFOP ${cfop}</strong></div>
+              <div><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
+              <div><strong>MONOFÁSICO:</strong> R$ ${monofasico.toFixed(2)}</div>
+              <div><strong>NÃO MONOFÁSICO:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
+              <div><strong>DEVOLUÇÃO:</strong> R$ ${devolucao.toFixed(2)}</div>
+              <div><strong>DEVOLUÇÃO MONOFÁSICO:</strong> R$ ${devolucaoMono.toFixed(2)}</div>
+              <div><strong>DEVOLUÇÃO NÃO MONOFÁSICO:</strong> R$ ${devolucaoNaoMono.toFixed(2)}</div>
+          `;
+          cfopTotalizadoresDiv.appendChild(cfopDiv);
+      });
   }
 
   function populateTables(summary, monofasicos) {

@@ -1,0 +1,190 @@
+﻿@page "/CadEmpresas/Cadastrar"
+@using Newtonsoft.Json
+@inject IJSRuntime JS
+
+<style>
+  html, body {
+    height: 100%;
+    overflow: hidden;
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f0f0f0;
+  }
+
+  .container {
+    width: 100%;
+    /*max-width: 1200px;*/
+    height: 80vh;
+    margin: 0;
+    background-color: white;
+    padding: 0;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    color: white;
+    font-size: 14px;
+    background-color: #6f42c1;
+  }
+
+    button:hover {
+      background-color: #6610f2;
+    }
+  .modal {
+    display: none;
+    position: fixed;
+    z-index: 1;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    justify-content: center;
+    align-items: center;
+  }
+
+    .modal.show {
+      display: flex;
+    }
+
+  .modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 500px;
+  }
+
+  .modal input {
+    width: 90%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+  }
+
+  table, th, td {
+    border: 1px solid #ddd;
+  }
+
+  th, td {
+    padding: 10px;
+    text-align: left;
+  }
+
+  th {
+    background-color: #007bff;
+    color: black;
+  }
+</style>
+
+<div class="container">
+  <div style="width:100%" class="justify-content-start align-items-start">
+    <button class="button m-3" @onclick="AbrirModalCadastro">Incluir empresa</button>
+  </div>
+  @if (mostrarModalCadastro)
+  {
+    <div class="modal show">
+      <div class="modal-content">
+        <div class="modal-header justify-content-center align-items-center">
+          <h5 class="modal-title">Cadastrar Empresa</h5>
+        </div>
+        <div class="modal-body justify-content-center align-items-center">
+          <input @bind="novaEmpresa.RazSoc" placeholder="Nome da Empresa" class="form-control mb-2" />
+          <input @bind="novaEmpresa.Cnpj" placeholder="CNPJ" class="form-control" />
+        </div>
+        <div class="modal-footer justify-content-center align-items-center">
+          <button class="button" @onclick="FecharModalCadastro">Fechar</button>
+          <button class="button" @onclick="CadastrarEmpresa">Incluir</button>
+        </div>
+      </div>
+    </div>
+  }
+
+  @if (mostrarEmpresas)
+  {
+    <table class="table table-striped mt-3">
+      <thead>
+        <tr>
+          <th>CNPJ</th>
+          <th>Nome</th>
+        </tr>
+      </thead>
+      <tbody>
+        @foreach (var empresa in empresas)
+        {
+          <tr>
+            <td>@empresa.Cnpj</td>
+            <td>@empresa.RazSoc</td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  }
+</div>
+
+@code {
+  private bool mostrarModalCadastro = false;
+  private bool mostrarEmpresas = false;
+  private Empresa novaEmpresa = new Empresa();
+  private List<Empresa> empresas = new List<Empresa>();
+
+  protected override async Task OnInitializedAsync()
+  {
+    await ExibirEmpresas();
+  }
+
+  private async Task CarregarEmpresas()
+  {
+
+    empresas = await JS.InvokeAsync<List<Empresa>>("ExibeEmpresasPorUsuario");
+
+  }
+
+  private async Task CadastrarEmpresa()
+  {
+    await JS.InvokeAsync<string>("CadastraEmpresaPorUsuario", novaEmpresa.RazSoc, novaEmpresa.Cnpj);
+
+    await CarregarEmpresas();
+
+    FecharModalCadastro();
+  }
+
+  private void AbrirModalCadastro()
+  {
+    mostrarModalCadastro = true;
+  }
+
+  private void FecharModalCadastro()
+  {
+    mostrarModalCadastro = false;
+    novaEmpresa = new Empresa();
+  }
+
+  private async Task ExibirEmpresas()
+  {
+    await CarregarEmpresas();
+    mostrarEmpresas = true;
+  }
+
+  private class Empresa
+  {
+    public string Cnpj { get; set; }
+    public string RazSoc { get; set; }
+  }
+}
+

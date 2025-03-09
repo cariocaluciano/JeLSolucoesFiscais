@@ -52,9 +52,6 @@ async function Login(usuario, senha) {
       var errorMessage = error.message;
       retorno = 'falha'
     });
-
-  console.log(retorno);
-
   return retorno;
 
 }
@@ -71,7 +68,6 @@ async function Sair() {
 
 
   auth.signOut().then(() => {
-    console.log('Saindo')
   });
 }
 
@@ -86,19 +82,15 @@ async function CadastraUsuario(usuario, senha, nome, isAdm, modulosLiberados, da
     firebase.initializeApp(firebaseConfig);
   }
 
-  console.log(contato);
-
   await firebase.auth().createUserWithEmailAndPassword(usuario, senha)
     .then((userCredential) => {
       const user = userCredential.user;
       idUsuario = user.uid;
-      console.log(idUsuario)
       retorno = 'sucesso'
     })
     .catch((error) => {
       const errorCode = error.code;
       const errorMessage = error.message;
-      console.log("Erro ao registrar usuário:", errorCode, errorMessage);
       retorno = 'falha'
     });
 
@@ -137,7 +129,6 @@ async function CadastraUsuario_Db(email, nome, isAdm, modulosLiberados, dataVenc
 
   usuariosRef.add(novoUsuario)
     .then((docRef) => {
-      console.log("Documento adicionado com ID: ", docRef.id);
       retorno = 'sucesso'
     })
     .catch((error) => {
@@ -172,3 +163,122 @@ async function Usuarios() {
       });
   });
 }
+
+async function Usuario() {
+  var firebaseConfig = CredenciaisFireBase();
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  return new Promise((resolve, reject) => {
+    const user = firebase.auth().currentUser;
+
+    if (!user) {
+      reject("Nenhum usuário autenticado.");
+      return;
+    }
+
+    const db = firebase.firestore();
+    db.collection("Usuarios")
+      .where("IdUsuario", "==", user.uid) // Filtra pelo ID do usuário autenticado
+      .get()
+      .then((snapshot) => {
+        let usuarios = [];
+        snapshot.forEach((doc) => {
+          usuarios.push({ id: doc.id, ...doc.data() });
+        });
+
+        resolve(JSON.stringify(usuarios)); // Retorna os dados do usuário autenticado
+      })
+      .catch((error) => {
+        reject(error);
+      });
+  });
+}
+
+async function CadastraEmpresaPorUsuario(razSoc, cnpj) {
+  var firebaseConfig = CredenciaisFireBase();
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const user = firebase.auth().currentUser;
+
+  if (!user) {
+    return Promise.reject("Usuário não autenticado.");
+  }
+
+  const db = firebase.firestore();
+  const CadEmpresaRef = db.collection("CadEmpresas_Usuarios");
+
+  const novaEmpresa = {
+    Cnpj: cnpj,
+    Id_Usuario: user.uid, // Corrigido de user.id para user.uid
+    RazSoc: razSoc
+  };
+
+  try {
+    const docRef = await CadEmpresaRef.add(novaEmpresa);
+    return "sucesso";
+  } catch (error) {
+    console.error("Erro ao adicionar o documento: ", error);
+    return "falha";
+  }
+}
+
+async function ExibeEmpresasPorUsuario() {
+  var firebaseConfig = CredenciaisFireBase();
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  return new Promise(async (resolve, reject) => {
+    var user = await firebase.auth().currentUser;
+
+    if (!user) {
+      await new Promise((res) => {
+        firebase.auth().onAuthStateChanged((u) => {
+          if (u) {
+            user = u;
+            res();
+          }
+        });
+      });
+    }
+
+    if (!user) {
+      reject("Nenhum usuário autenticado.");
+      return;
+    }
+    console.log(user)
+    const db = firebase.firestore();
+
+    try {
+      const snapshot = await db.collection("CadEmpresas_Usuarios")
+        .where("Id_Usuario", "==", user.uid)
+        .get();
+      let empresas = [];
+
+      if (snapshot.empty) {
+        resolve([]); // Retorna um array vazio ao invés de um erro
+        return;
+      }
+
+      // Percorre TODOS os documentos retornados
+      snapshot.forEach((doc) => {
+        empresas.push({ id: doc.id, ...doc.data() });
+      });
+      console.log(empresas)
+      resolve(empresas); // Retorna um array de objetos JSON
+
+    } catch (error) {
+      console.error("Erro ao buscar empresas:", error);
+      reject(error);
+    }
+  });
+}
+
+

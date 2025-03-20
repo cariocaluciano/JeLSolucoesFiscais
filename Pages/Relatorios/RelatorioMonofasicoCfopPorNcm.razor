@@ -268,14 +268,29 @@
 
 </style>
 <div class="container">
-@* 
-  <div class="search-container">
-    <input type="text" id="searchNCM" placeholder="Digite o NCM ou a descrição para buscar..." onkeydown="if(event.key === 'Enter') searchNCM()">
-    <button class="search-button" onclick="searchNCM()">Pesquisar</button>
+
+  <div class="row g-3 justify-content-between">
+    <div class="form-floating col-6">
+      <label for="cnpjInput">Cnpj</label>
+      <div class="input-group">
+        <input type="text" id="cnpjInput" class="form-control form-control-sm" maxlength="15" placeholder="Digite o Cnpj">
+        <button class="btn btn-primary" type="button">
+          <img src="search.png" alt="Pesquisar" width="16" height="16">
+        </button>
+      </div>
+    </div>
+    <div class="form-floating col-3">
+      <input type="date" id="dateInputInicial" class="form-control form-control-sm" placeholder="Data Inicial:">
+      <label for="dateInputInicial">Data inicial</label>
+    </div>
+    <div class="form-floating col-3">
+      <input type="date" id="dateInputFinal" class="form-control form-control-sm" placeholder="Data Final:">
+      <label for="dateInputFinal">Data Final</label>
+    </div>
   </div>
 
- *@
-  <div class="row mt-1 justify-content-between">
+
+  <div class="row mt-4 justify-content-between">
     <div class="col-12">
       <div class="upload-container m-0 p-0"
            id="uploadContainer_Xml"
@@ -287,17 +302,6 @@
     </div>
   </div>
   <h5 id="emitente" class="mt-4 text-center fw-bold"></h5>
-
-
-
-  @*   <div class="totalizador">
-    <div class="box" id="cfopVendas">CFOP Vendas: R$ 0,00</div>
-    <div class="box" id="cfopVendasMono">CFOP Vendas Monofásico: R$ 0,00</div>
-    <div class="box" id="cfopDevolucao">CFOP Devolução: R$ 0,00</div>
-    <div class="box" id="cfopDevolucaoMono">CFOP Devolução Monofásico: R$ 0,00</div>
-  </div> *@
-
-
 
   <h3 class="text-center fw-bold mt-4">Totalizador - CFOP</h3>
 
@@ -344,35 +348,34 @@
   </div>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  <!-- Totalizadores de Saídas e Outras Saídas -->
-  <div class="totalizador-saidas">
-    <h3>Totalizadores de Saídas</h3>
-    <div class="box" id="totalSaidas">Saídas: R$ 0,00</div>
-    <div class="box" id="totalOutrasSaidas">Outras Saídas: R$ 0,00</div>
+  <h3 class="text-center fw-bold mt-4">Totalizadores de Saídas</h3>
+  <div class="row mt-4">
+    <div class="col-12 col-md-6">
+      <div class="border p-3 mb-4 rounded shadow">
+        <h5 class="text-center fw-bold mb-3">Saídas</h5>
+        <div class="row justify-content-center">
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Saídas</p>
+              <div id="totalSaidas" class="valor">R$ 0,00</div>
+            </div>
+          </div>
+          <div class="col-4">
+            <div class="box">
+              <p class="fw-bold mb-1">Outras Saídas</p>
+              <div id="totalOutrasSaidas" class="valor">R$ 0,00</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <!-- Totalizador por CFOP Fixo -->
-  <div class="totalizador-cfop">
-    <h3>Totalizadores por CFOP</h3>
-    <div id="cfopTotalizadores"></div> <!-- Aqui vamos preencher dinamicamente -->
+
+  <div class="row col-12 mt-4" id="cfopTotalizadores">
   </div>
 
-  <button onclick="gerarRelatorio()">Gerar Relatório</button>
+  <button class="mt-2" onclick="gerarRelatorio()">Gerar Relatório</button>
 </div>
 
 <div id="modal" class="modal">
@@ -409,7 +412,7 @@
 </div>
 
 <script>
-  let monoData = [];
+  let MonoData = [];
   let totalizadoresPorCfop = {};  // Novo objeto para armazenar totais por CFOP
   let totalSaidas = 0;
   let totalOutrasSaidas = 0;
@@ -459,7 +462,7 @@
 
   async function fetchMonoData() {
     const response = await fetch("https://gist.githubusercontent.com/cariocaluciano/9e86aecc9603fc0fb3369f507aae2e69/raw/ec92e58b6170d1cba179ac3f022adca829ddbbef/NcmProdutos.json");
-    monoData = await response.json();
+    MonoData = await response.json();
   }
 
   async function processFiles(event) {
@@ -510,7 +513,7 @@
                   totalizadoresPorCfop[cfop].devolucao += valor;
 
                   // Verificando se a devolução é monofásica
-                  if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
+                  if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
                       totalizadores.devolucaoMono += valor;
                       totalizadoresPorCfop[cfop].devolucaoMono += valor;
                   } else {
@@ -519,7 +522,7 @@
                   }
               } else {
                   // Verificando se o item é monofásico
-                  if (monoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
+                  if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
                       // Se for monofásico, adiciona no totalizador monofásico
                       monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
                       totalizadoresPorCfop[cfop].monofasico += valor;
@@ -566,14 +569,20 @@
       Object.keys(totalizadoresPorCfop).forEach(cfop => {
           const { total, monofasico, naoMonofasico, devolucao, devolucaoMono, devolucaoNaoMono } = totalizadoresPorCfop[cfop];
           let cfopDiv = document.createElement("div");
+          cfopDiv.classList.add("col-6");
           cfopDiv.innerHTML = `
-              <div><strong>CFOP ${cfop}</strong></div>
-              <div><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
-              <div><strong>MONOFÁSICO:</strong> R$ ${monofasico.toFixed(2)}</div>
-              <div><strong>NÃO MONOFÁSICO:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
-              <div><strong>DEVOLUÇÃO:</strong> R$ ${devolucao.toFixed(2)}</div>
-              <div><strong>DEVOLUÇÃO MONOFÁSICO:</strong> R$ ${devolucaoMono.toFixed(2)}</div>
-              <div><strong>DEVOLUÇÃO NÃO MONOFÁSICO:</strong> R$ ${devolucaoNaoMono.toFixed(2)}</div>
+          <div class="border p-3 mb-4 rounded shadow">
+          <div class="row justify-content-center">
+
+          <div class="mt-2"><strong>CFOP: ${cfop}</strong></div>
+          <div><strong>Monofásico:</strong> R$ ${monofasico.toFixed(2)}</div>
+          <div><strong>Não Monofásico:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
+          <div><strong>Devolução Monofásico:</strong> R$ ${devolucaoMono.toFixed(2)}</div>
+          <div><strong>Devolução não Monofásico:</strong> R$ ${devolucaoNaoMono.toFixed(2)}</div>
+          <div class="mb-2"><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
+          </div>
+          </div>
+
           `;
           cfopTotalizadoresDiv.appendChild(cfopDiv);
       });

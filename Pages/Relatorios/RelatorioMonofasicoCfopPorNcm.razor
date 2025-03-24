@@ -533,14 +533,14 @@
                       totalizadoresPorCfop[cfop].naoMonofasico += valor;
                   }
               }
-
+              //if(["5", "6", "7"].some(prefix => cfop.startsWith(prefix)))
               // Atualizando os totais gerais
               if (!isDevolucao) {
-                  if (cfop.startsWith("5")) {
-                      totalSaidas += valor;
-                  } else {
-                      totalOutrasSaidas += valor;
-                  }
+                  // if (cfop.startsWith("5")) {
+                  //     totalSaidas += valor;
+                  // } else {
+                  //     totalOutrasSaidas += valor;
+                  // }
               }
           });
       }

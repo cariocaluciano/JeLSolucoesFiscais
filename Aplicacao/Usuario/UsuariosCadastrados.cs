@@ -1,4 +1,5 @@
 ﻿using JeLSolucoesFiscais.Aplicacao.Criptografias;
+using System.Text;
 
 namespace JeLSolucoesFiscais.Aplicacao.Usuario;
 
@@ -62,8 +63,20 @@ public class UsuariosCadastrados
     {
       return true;
     }
+  }
 
+  public string GeraHash(int quantidade)
+  {
+    const string chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    StringBuilder result = new StringBuilder(quantidade);
+    Random random = new Random();
 
+    for (int i = 0; i < quantidade; i++)
+    {
+      result.Append(chars[random.Next(chars.Length)]);
+    }
+
+    return result.ToString();
   }
 
 }

@@ -175,7 +175,7 @@ async function Usuario() {
     const user = firebase.auth().currentUser;
 
     if (!user) {
-      reject("Nenhum usuário autenticado.");
+     // reject("Nenhum usuário autenticado.");
       return;
     }
 
@@ -280,5 +280,6 @@ async function ExibeEmpresasPorUsuario() {
     }
   });
 }
+
 
 

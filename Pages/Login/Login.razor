@@ -68,9 +68,18 @@
 
     if (retorno == "sucesso")
     {
+      string hash = UsuariosCadastrados.GeraHash(20);
+      LocalStorageService.SetItemAsync("Hash", hash);
+
+      await JS.InvokeAsync<string>("AtualizaTabela", "Usuarios_LoginLogOff", "IdLogin", hash);
+
+      await Task.Delay(800);
+
+      await JS.InvokeAsync<string>("getTabela", "Usuarios_LoginLogOff", "IdLogin"); //Vou utilizar nas telas para garantir que só poderá ter um login por usuário.
       NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
     }
-    else {
+    else
+    {
       loginFailed = true;
     }
   }

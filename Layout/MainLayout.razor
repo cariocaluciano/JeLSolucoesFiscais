@@ -43,21 +43,17 @@
 
   protected override async Task OnInitializedAsync()
   {
+
     string? retorno = await JS.InvokeAsync<string>("VerificaLogin");
 
-    Descriptografa Descriptografia = new Descriptografa { };
-    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+    // Descriptografa Descriptografia = new Descriptografa { };
+    // UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
-    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    // string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    // string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
 
     acessoLiberado = retorno == "usuario não logado" ? false : true;
 
   }
-
-  /*Apenas uma anotação para não esquecer como utilizar o local storage*/
-  // LocalStorageService.SetItemAsync("aXNBdXRoZW50aWNhdGVk", "ZmFsc2U="); //isAuthenticated
-  // LocalStorageService.SetItemAsync("ZW1haWw=", "");
-  // LocalStorageService.SetItemAsync("c2VuaGE=", "");
 }
 

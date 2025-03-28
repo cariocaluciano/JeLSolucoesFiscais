@@ -1,39 +1,112 @@
 ﻿@page "/EfdFiscal/Bloco_D/Registro_D100/AlterarData"
 
-
-<style>
+@using JeLSolucoesFiscais.Aplicacao.Criptografias
+@using JeLSolucoesFiscais.Aplicacao.Usuario
+@inject IJSRuntime JS
+@inject LocalStorageService LocalStorageService
+@inject NavigationManager NavigationManager
+@if (acessoLiberado)
+{
+  <style>
     .coming-soon-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-        background-color: #f8f9fa;
-        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background-color: #f8f9fa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     }
 
     .content-wrapper {
-        text-align: center;
-        background-color: white;
-        padding: 50px;
-        border-radius: 15px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      background-color: white;
+      padding: 50px;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .main-text {
-        font-size: 48px;
-        color: #007bff;
-        margin-bottom: 20px;
+      font-size: 48px;
+      color: #007bff;
+      margin-bottom: 20px;
     }
 
     .sub-text {
-        font-size: 18px;
-        color: #6c757d;
+      font-size: 18px;
+      color: #6c757d;
     }
-</style>
+  </style>
 
-<div class="coming-soon-container">
+  <div class="coming-soon-container">
     <div class="content-wrapper">
-        <h1 class="main-text">Em breve</h1>
-        <p class="sub-text">Estamos trabalhando para trazer novidades incríveis para você!</p>
+      <h1 class="main-text">Em breve</h1>
+      <p class="sub-text">Estamos trabalhando para trazer novidades incríveis para você!</p>
     </div>
-</div>
+  </div>
+}
+else
+{
+  @if (usuarioJaAutenticado == true)
+  {
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+      <div id="alertLogin" class="bg-danger text-dark border-0 p-3 rounded" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong class="me-auto">Alerta</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          <b>Já existe um usuário logado com essa conta, redirecionando para o Login</b>
+        </div>
+      </div>
+    </div>
+  }
+  else
+  {
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
+      <div id="alertLogin" class="bg-danger text-dark border-0 p-3 rounded" role="alert">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+          <strong class="me-auto">Alerta</strong>
+          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+        <div class="toast-body">
+          <b>Para acessar esse módulo é necessário fazer Login.</b> <br /> <a href="/JeLSolucoesFiscais/EfdPisCofins"> <b>Clique aqui para fazer Login</b> </a>
+        </div>
+      </div>
+    </div>
+  }
+}
+
+
+@code {
+
+  private bool isAuthenticated;
+  private bool acessoLiberado = true;
+  private bool usuarioJaAutenticado;
+  private string idLoginDb = "";
+  private string idLoginCach = "";
+
+  protected override async Task OnInitializedAsync()
+  {
+
+    acessoLiberado = await JS.InvokeAsync<string>("VerificaLogin") == "usuario não logado" ? false : true;
+
+    idLoginDb = await JS.InvokeAsync<string>("getTabela", "Usuarios_LoginLogOff", "IdLogin");
+    idLoginCach = await LocalStorageService.GetItemAsync("Hash");
+
+    usuarioJaAutenticado = idLoginDb == idLoginCach ? false : true;
+
+    if (usuarioJaAutenticado == true)
+    {
+      usuarioJaLogado();
+    }
+  }
+  protected async void usuarioJaLogado()
+  {
+    acessoLiberado = false;
+    await Task.Delay(1000);
+    await JS.InvokeAsync<string>("Sair");
+    await Task.Delay(1000);
+    NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
+
+  }
+}

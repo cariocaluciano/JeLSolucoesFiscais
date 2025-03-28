@@ -13,6 +13,69 @@ async function UsuarioAdm() {
 async function ModulosLiberados() {
   const promisse = Usuario();
   const resultado = await ResolvePromisses(promisse, "ModulosLiberados");
-  console.log(resultado);
   return resultado;
+}
+
+async function AtualizaTabela(nomeTabela, campo, valor) {
+  var firebaseConfig = CredenciaisFireBase();
+
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+  const promisse = Usuario();
+  const idUsuario = await ResolvePromisses(promisse, "IdUsuario");
+
+  try {
+    const db = await firebase.firestore();
+    const RefCollection = await db.collection(nomeTabela);
+    const consulta = await RefCollection.where("IdUsuario", "==", idUsuario).get();
+
+    if (!consulta.empty) {
+      consulta.forEach(async (doc) => {
+        await doc.ref.update({ [campo]: valor });
+      });
+    } else {
+    }
+
+  } catch (error) {
+    console.error("Erro ao atualizar:", error);
+  }
+}
+
+async function getTabela(nomeTabela, campo) {
+  var firebaseConfig = CredenciaisFireBase();
+
+  // Inicializa o Firebase apenas se ainda não estiver inicializado
+  if (!firebase.apps.length) {
+    firebase.initializeApp(firebaseConfig);
+  }
+
+  const promisse = Usuario();
+  const idUsuario = await ResolvePromisses(promisse, "IdUsuario");
+
+  try {
+    const db = firebase.firestore(); 
+    const RefCollection = db.collection(nomeTabela);
+
+    const consulta = await RefCollection.where("IdUsuario", "==", idUsuario).get();
+
+    if (!consulta.empty) {
+      let valorCampo = null;
+
+      consulta.forEach((doc) => {
+        const dados = doc.data();
+        valorCampo = dados[campo]; 
+      });
+
+      return valorCampo;
+
+    } else {
+      console.log('Nenhum documento encontrado');
+      return null;
+    }
+
+  } catch (error) {
+    console.error("Erro ao buscar dado:", error);
+    return null;
+  }
 }

@@ -115,10 +115,10 @@
 
 
 <script>
-            const chatbotButton = document.getElementById('chatbot-button');
-            const chatbotModal = document.getElementById('chatbot-modal');
-            const chatMessages = document.getElementById('chat-messages');
-            const userInput = document.getElementById('user-input');
+            //const chatbotButton = document.getElementById('chatbot-button');
+           // const chatbotModal = document.getElementById('chatbot-modal');
+            //const chatMessages = document.getElementById('chat-messages');
+            //const userInput = document.getElementById('user-input');
 
             let currentStep = 0;
             const steps = ['nome', 'email', 'whatsapp', 'mensagem'];
@@ -130,9 +130,9 @@
                 unreadIndicator.style.display = hasUnreadMessage ? 'flex' : 'none';
             }
 
-            chatbotButton.addEventListener('click', () => {
-                if (chatbotModal.style.display === 'none') {
-                    chatbotModal.style.display = 'block';
+          document.getElementById('chatbot-button').addEventListener('click', () => {
+              if (document.getElementById('chatbot-modal').style.display === 'none') {
+                  document.getElementById('chatbot-modal').style.display = 'block';
                     if (currentStep === 0) {
                         nextStep();
                     }
@@ -141,23 +141,23 @@
                 } else {
                     if (currentStep === 0) {
                         // Limpa o conteúdo do chat
-                        chatMessages.innerHTML = '';
+                        document.getElementById('chat-messages').innerHTML = '';
                         // Reseta o passo atual
                         currentStep = 0;
                         // Limpa as informações do usuário
                         Object.keys(userInfo).forEach(key => delete userInfo[key]);
                     }
-                    chatbotModal.style.display = 'none';
+                  document.getElementById('chatbot-modal').style.display = 'none';
                 }
             });
 
-            userInput.addEventListener('keypress', (e) => {
+            document.getElementById('user-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
-                    const userMessage = userInput.value.trim();
+                    const userMessage = document.getElementById('user-input').value.trim();
                     if (userMessage) {
                         addMessage(userMessage, 'user');
                         userInfo[steps[currentStep]] = userMessage;
-                        userInput.value = '';
+                        document.getElementById('user-input').value = '';
                         currentStep++;
                         nextStep();
                     }
@@ -168,23 +168,23 @@
                 const messageElement = document.createElement('div');
                 messageElement.classList.add('message', sender);
                 messageElement.textContent = message;
-                chatMessages.appendChild(messageElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                document.getElementById('chat-messages').appendChild(messageElement);
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
             }
 
             function showTyping() {
                 const typingElement = document.createElement('div');
                 typingElement.classList.add('message', 'bot', 'typing');
                 typingElement.textContent = "Digitando...";
-                chatMessages.appendChild(typingElement);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
+                document.getElementById('chat-messages').appendChild(typingElement);
+                document.getElementById('chat-messages').scrollTop = document.getElementById('chat-messages').scrollHeight;
                 return typingElement;
             }
 
             function nextStep() {
                 const typingElement = showTyping();
                 setTimeout(() => {
-                    chatMessages.removeChild(typingElement);
+                    document.getElementById('chat-messages').removeChild(typingElement);
                     switch (currentStep) {
                         case 0:
                             addMessage("Olá! Como você gostaria de ser chamado.", 'bot');
@@ -221,11 +221,11 @@
                     message: formattedMessage
                 }).then(function(response) {
                     console.log("SUCCESS", response);
-                    chatMessages.removeChild(typingElement);
+                    document.getElementById('chat-messages').removeChild(typingElement);
                     addMessage("Entraremos em contato com você em breve!", 'bot');
                 }, function(error) {
                     console.log("FAILED", error);
-                    chatMessages.removeChild(typingElement);
+                    document.getElementById('chat-messages').removeChild(typingElement);
                     addMessage("Hmmm... parece que houve um erro. mas fique tranquilo você pode entrar em contato com a gente através do nosso email: jelSolucoesFiscais@gmail.com", 'bot');
                 });
             }

@@ -5,6 +5,16 @@
 @inject LocalStorageService LocalStorageService
 @inject IJSRuntime JS
 
+
+<style>
+  .jumbotron {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: .3rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
+  }
+</style>
+
 @if (!acessoLiberado)
 {
   <div class="container mt-5">
@@ -12,11 +22,7 @@
       <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
       <p class="lead text-center">Para utilizar nosso sistema, entre em contato conosco clicando no nosso Chat <br /> Ou:</p>
       <div class="text-center mb-4">
-        <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
-      </div>
-      <p class="text-center">Para fazer login, clique no botão abaixo:</p>
-      <div class="text-center">
-        <a href="/JeLSolucoesFiscais/Login" class="btn btn-success btn-lg">Fazer Login</a>
+        <a href="https://wa.me/37984112000?text=Olá,%20gostaria%20de%20mais%20informações!" target="_blank" class="btn btn-primario btn-lg">Clique aqui</a>
       </div>
     </div>
   </div>
@@ -28,21 +34,12 @@ else
       <h1 class="display-4 text-center">Seja bem-vindo ao JeL Soluções Fiscais!</h1>
       <p class="lead text-center">Sugestões  ou melhorias entrar em contato conosco clicando no nosso Chat <br /> Ou:</p>
       <div class="text-center mb-4">
-        <a href="mailto:jelSolucoesFiscais@gmail.com?subject=Contato%20para%20JeL%20Solu%C3%A7%C3%B5es%20Fiscais&body=Olá,%0D%0A%0D%0ADesejo%20obter%20mais%20informações%20sobre%20o%20sistema.%0D%0A%0D%0AObrigado!" class="btn btn-primary btn-lg">Clique aqui</a>
+        <a href="https://wa.me/37984112000?text=Olá,%20gostaria%20de%20mais%20informações!" target="_blank" class="btn btn-primario btn-lg">Clique aqui</a>
       </div>
     </div>
   </div>
 }
 
-
-<style>
-  .jumbotron {
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
-    border-radius: .3rem;
-    box-shadow: 0 0.125rem 0.25rem rgba(0,0,0,.075);
-  }
-</style>
 
 @code {
   private bool isAuthenticated;
@@ -52,11 +49,11 @@ else
   {
     string? retorno = await JS.InvokeAsync<string>("VerificaLogin");
 
-    Descriptografa Descriptografia = new Descriptografa { };
-    UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
+    // Descriptografa Descriptografia = new Descriptografa { };
+    // UsuariosCadastrados usuariosCadastrados = new UsuariosCadastrados { };
 
-    string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
-    string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
+    // string email = await LocalStorageService.GetItemAsync("ZW1haWw=");
+    // string senha = await LocalStorageService.GetItemAsync("c2VuaGE=");
     acessoLiberado = retorno == "usuario não logado" ? false : true;
 
   }

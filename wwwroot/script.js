@@ -79,3 +79,11 @@ async function getTabela(nomeTabela, campo) {
     return null;
   }
 }
+
+function chamaLoading() {
+  document.getElementById('loadingScreen').style.display = 'flex';
+}
+
+function cancelaLoading() {
+  document.getElementById('loadingScreen').style.display = 'none';
+}

@@ -11,6 +11,11 @@
   margin-left: 15px;
   }
 
+  .nav-submenu-b {
+    display: block;
+    margin-left: 15px;
+  }
+
   /* Estilizando os links como nav-link */
   a.nav-link {
   cursor: pointer;
@@ -23,6 +28,12 @@
   a.nav-link:hover {
   text-decoration: underline;
   }
+
+  a.nav-link-b {
+    text-decoration: none;
+    display: block;
+    padding: 0.5rem 1rem;
+  }
 </style>
 
 <div class="top-row ps-3 navbar navbar-dark">
@@ -34,10 +45,10 @@
   </div>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
+<div class="nav-scrollable" @onclick="ToggleNavMenu">
   <nav class="flex-column">
     <div class="nav-item px-3">
-      <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+      <NavLink class="nav-link-b" href="" Match="NavLinkMatch.All">
         <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Início
       </NavLink>
     </div>
@@ -65,7 +76,7 @@
           </div>
         </div>
       }
-      @if (modulosLiberados.Contains("CadEmpresas"))
+      @if (modulosLiberados.Contains("CadEmpresas") && 1 == 2)
       {
         <div class="nav-item px-3">
           <a class="nav-link" onclick="toggleSubMenu(this)">Cad_Empresas</a>
@@ -79,119 +90,119 @@
       @if (modulosLiberados.Contains("EfdFiscal"))
       {
         <div class="nav-item px-3">
-          <a class="nav-link" onclick="toggleSubMenu(this)"> EFD-Fiscal</a>
-          <div class="nav-submenu">
-            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco_0</a>
+          <a class="nav-link-b"> EFD-Fiscal</a>
+          <div class="nav-submenu-b">
+            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco 0</a>
             <div class="nav-submenu">
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_0150</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro 0150</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_0150/AtualizaRfb">
-                  <span aria-hidden="true"></span> Atualizar_RFB
+                  <span aria-hidden="true"></span> Atualizar RFB
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_0200</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro 0200</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_200/AlterarNcm">
-                  <span aria-hidden="true"></span> AlterarNcm
+                  <span aria-hidden="true"></span> Alterar Ncm
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_200/TipoProduto">
-                  <span aria-hidden="true"></span> Tipo_Produto
+                  <span aria-hidden="true"></span> Tipo Produto
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_200/GeneroItem">
-                  <span aria-hidden="true"></span> Genero_Item
+                  <span aria-hidden="true"></span> Genero Item
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_200/AlterarAliquota">
-                  <span aria-hidden="true"></span> Alterar_Aliquota
+                  <span aria-hidden="true"></span> Alterar Aliquota
                 </NavLink>
               </div>
             </div>
-            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco_C</a>
+            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco C</a>
             <div class="nav-submenu">
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_C100</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro C100</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C100/AlterarData">
-                  <span aria-hidden="true"></span> Alterar_Data
+                  <span aria-hidden="true"></span> Alterar Data
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C100/AlterarTipoPagamento">
-                  <span aria-hidden="true"></span> Alterar_Tipo_Pagamento
+                  <span aria-hidden="true"></span> Alterar Tipo Pagamento
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_C170</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro C170</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C170/AlterarCstCfop">
-                  <span aria-hidden="true"></span> Alterar_Cst/Cfop
+                  <span aria-hidden="true"></span> Alterar Cst/Cfop
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C170/AlterarCampoMovimentaFisica">
-                  <span aria-hidden="true"></span> Alterar_Camp.Movimenta_Fisica
+                  <span aria-hidden="true"></span> Alterar Camp.Movimenta Fisica
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C170/AlterarCstIpi">
-                  <span aria-hidden="true"></span> Alterar_Cst/Ipi
+                  <span aria-hidden="true"></span> Alterar Cst/Ipi
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C170/AlterarInformacoesPisCofins">
-                  <span aria-hidden="true"></span> Alterar_Inf.PisCofins
+                  <span aria-hidden="true"></span> Alterar Inf.PisCofins
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C170/IncluirCodigoContaAnalitica">
-                  <span aria-hidden="true"></span> Incluir_Cod.Conta_Analitica
+                  <span aria-hidden="true"></span> Incluir Cod.Conta Analitica
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_C195/C197</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro C195/C197</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C195C197/AjusteRetIcms">
-                  <span aria-hidden="true"></span> Ajuste_RetIcms
+                  <span aria-hidden="true"></span> Ajuste RetIcms
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C195C197/AjusteUsoConsumo">
-                  <span aria-hidden="true"></span> Ajuste_UsoConsumo
+                  <span aria-hidden="true"></span> Ajuste UsoConsumo
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_C/Registro_C195C197/AjusteCreditoIcmsSimplesNacional">
-                  <span aria-hidden="true"></span> Ajuste_CreditoIcms_Simples
+                  <span aria-hidden="true"></span> Ajuste CreditoIcms Simples
                 </NavLink>
               </div>
             </div>
-            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco_D</a>
+            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco D</a>
             <div class="nav-submenu">
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_D100</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro D100</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D100/AlterarData">
-                  <span aria-hidden="true"></span> Alterar_Data
+                  <span aria-hidden="true"></span> Alterar Data
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D100/AlterarTipoFrete">
-                  <span aria-hidden="true"></span> Alterar_TipoFrete
+                  <span aria-hidden="true"></span> Alterar TipoFrete
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D100/IncluirCodigoContaAnalitica">
-                  <span aria-hidden="true"></span> Incluir_ContaAnalitica
+                  <span aria-hidden="true"></span> Incluir Conta Analitica
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_D190</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro D190</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D190/AlterarCstCfop">
-                  <span aria-hidden="true"></span> Alterar_Cst/Cfop
+                  <span aria-hidden="true"></span> Alterar Cst/Cfop
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D190/GerarValoresIcms">
-                  <span aria-hidden="true"></span> Gerar_ValoresIcms
+                  <span aria-hidden="true"></span> Gerar ValoresIcms
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_D195/D197</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro D195/D197</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_D/Registro_D195D197/AjusteCreditoPresumido">
-                  <span aria-hidden="true"></span> Ajustar_CredPresumido
+                  <span aria-hidden="true"></span> Ajustar CredPresumido
                 </NavLink>
               </div>
             </div>
-            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco_H</a>
+            <a class="nav-link" onclick="toggleSubMenu(this)">Bloco H</a>
             <div class="nav-submenu">
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_H010</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro H010</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_H/Registro_H010/IncluirCodContaAnalitica">
-                  <span aria-hidden="true"></span> Incluir_CodContaAnalitica
+                  <span aria-hidden="true"></span> Incluir Cod.Conta Analitica
                 </NavLink>
                 <NavLink class="nav-link" href="EfdFiscal/Bloco_0/Registro_H010/GerarRelatorio">
-                  <span aria-hidden="true"></span> Gerar_Relatorio
+                  <span aria-hidden="true"></span> Gerar Relatorio
                 </NavLink>
               </div>
-              <a class="nav-link" onclick="toggleSubMenu(this)">Registro_H020</a>
+              <a class="nav-link" onclick="toggleSubMenu(this)">Registro H020</a>
               <div class="nav-submenu">
                 <NavLink class="nav-link" href="/EfdFiscal/Bloco_H/Registro_H020/GeraH020">
-                  <span aria-hidden="true"></span> Gerar_H020
+                  <span aria-hidden="true"></span> Gerar H020
                 </NavLink>
               </div>
             </div>
@@ -201,17 +212,14 @@
       @if (modulosLiberados.Contains("Relatorios"))
       {
         <div class="nav-item px-3">
-          <a class="nav-link" onclick="toggleSubMenu(this)">Monofásicos</a>
-        <div class="nav-submenu">
+          <a class="nav-link-b">Monofásicos</a>
+        <div class="nav-submenu-b">
             <NavLink class="nav-link" href="RelatorioMonofasico/CfopPorNcm">
               <span aria-hidden="true"></span> Relatorio
             </NavLink>
             <NavLink class="nav-link" href="RelatorioMonofasico/ConsultaPorNcm">
-              <span aria-hidden="true"></span> Consulta_NCMs
+              <span aria-hidden="true"></span> Consulta NCMs
             </NavLink>
-            @*            <NavLink class="nav-link" @onclick="NavigateToCadastraNcmMonofasico">
-              <span aria-hidden="true"></span> CadastraNcmMonofasico
-            </NavLink> *@
         </div>
       </div>
       }
@@ -232,7 +240,7 @@
   private bool isAuthenticated;
   private bool acessoLiberado = false;
   private bool isAdministrador = false;
-  private string modulosLiberados;
+  private string modulosLiberados = "";
 
   protected override async Task OnInitializedAsync()
   {

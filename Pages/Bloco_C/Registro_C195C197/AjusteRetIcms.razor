@@ -161,16 +161,16 @@
     </div>
     <div class="row mt-3">
       <div class="upload-container"
-      id="uploadContainer"
-      ondrop="handleDrop(event)"
-      ondragover="handleDragOver(event)">
+           id="uploadContainer"
+           ondrop="handleDrop(event)"
+           ondragover="handleDragOver(event)">
         <input type="file" id="fileInput" multiple onchange="handleFilesSelected(event)" />
         <p>Clique ou arraste os arquivos aqui</p>
       </div>
     </div>
     <div class="row col-6">
       <div class="col">
-        <button id="BtnAlteraAquivos" onclick="alterarArquivos()" style="visibility:hidden">Alterar Arquivos</button>
+        <button id="BtnAlteraAquivos" onclick="fnChamaAlteraArquivos()" style="visibility:hidden">Alterar Arquivos</button>
       </div>
       <div class="col">
         <button id="BtnDownloadAquivos" onclick="downloadArquivos()" style="visibility:hidden">Download</button>
@@ -218,6 +218,8 @@
     const BtnalterarArquivos = document.getElementById('BtnAlteraAquivos');
     BtnalterarArquivos.style.visibility = "visible";
 
+    document.getElementById('loadingScreen').style.display = 'flex';
+
     const fileContentsContainer = document.getElementById('fileContents');
     fileContentsContainer.innerHTML = '';
     files.forEach((file, index) => {
@@ -235,9 +237,23 @@
     reader.readAsText(file);
     });
     document.getElementById('fileContentContainer').style.display = 'block';
+
+      setTimeout(function () {
+      document.getElementById('loadingScreen').style.display = 'none';},1000);
+
     }
 
-    function alterarArquivos() {
+   async function fnChamaAlteraArquivos(){
+    await chamaCarregamento();
+      setTimeout(function () {
+       alterarArquivos();},1000);
+   }
+
+     async function chamaCarregamento(){
+        document.getElementById('loadingScreen').style.display = 'flex';
+     }
+    async function alterarArquivos() {
+    try{
     Modelo = document.getElementById("ModeloDropDown").value,
     Serie = document.getElementById("Serie").value,
     Cfop = document.getElementById("Cfop").value,
@@ -250,7 +266,7 @@
     BtnDownloadAquivos = document.getElementById('BtnDownloadAquivos');
     BtnGerarRelatorio = document.getElementById('BtnGerarRelatorio');
 
-    AliquotaInput = document.getElementById("Aliquota").value.replace(/\./g, ","),//Luciano
+   // AliquotaInput = document.getElementById("Aliquota").value.replace(/\./g, ",");//Luciano
 
     let contadorNovasLinhas = 0, alteracaoLinhas = 0, ValorIcms = "0", ValorBc = "0", ValorCalculado = "0",
     C100Campo2, C100Campo3, C100Campo6, ModeloArquivo = "Não", CfopArquivo = "", ValorParaCalculo,
@@ -293,10 +309,10 @@
     VrIcms = valor[7];
     ArrC190.push({ posicao: i, valorCampo: lines[i] });
 
-    if(AliquotaInput > 0) //Luciano
-    {
-    Aliquota = AliquotaInput;
-    }
+    // if(AliquotaInput > 0) //Luciano
+    // {
+    // Aliquota = AliquotaInput;
+    // }
 
     if (lines[i + 1] != '|C195|') {
     if (VerificaCondicoesParaGerarC195C197(CfopArquivo, ModeloArquivo, SerieArquivo, lines[i]) == true && parseFloat(ValorBc.replace(',', '.')) > 0) {
@@ -666,6 +682,10 @@
     }
     return retorno;
     }
+     //    setTimeout(function () {
+     // document.getElementById('loadingScreen').style.display = 'none';},3000);
+    document.getElementById('loadingScreen').style.display = 'none';
+
 
     if (CodigoAjuste === "") {
     ModalValidaSistema('Alerta', 'Para prosseguir é necessário informar o campo Codigo Ajuste');
@@ -687,16 +707,16 @@
     }
     else {
     if (contadorNovasLinhas > 0 || alteracaoLinhas > 0) {
-    document.getElementById('loadingScreen').style.display = 'flex';
-    setTimeout(function () {
-    document.getElementById('loadingScreen').style.display = 'none';
+    // document.getElementById('loadingScreen').style.display = 'flex';
+    // setTimeout(function () {
+    // document.getElementById('loadingScreen').style.display = 'none';
     var toastEl = document.getElementById('alertToastSucesso');
     var toast = new bootstrap.Toast(toastEl);
     toast.show();
     BtnDownloadAquivos.style.visibility = "visible";
     BtnGerarRelatorio.style.visibility = "visible";
     return;
-    }, 1000);
+    //}, 1000);
     } else {
     BtnDownloadAquivos.style.visibility = "";
     var toastEl = document.getElementById('alertToastFalha');
@@ -707,7 +727,10 @@
     return;
     }
     }
-
+    }catch(error){
+     document.getElementById('loadingScreen').style.display = 'none';
+     console.log(error)
+    }
     }
 
 
@@ -941,7 +964,9 @@ else
         </div>
       </div>
     </div>
-  } else {
+  }
+  else
+  {
     <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
       <div id="alertLogin" class="bg-danger text-dark border-0 p-3 rounded" role="alert">
         <div class="d-flex justify-content-between align-items-center mb-2">
@@ -981,12 +1006,12 @@ else
     }
   }
   protected async void usuarioJaLogado()
-  { 
-      acessoLiberado = false;
-      await Task.Delay(1000);
-      await JS.InvokeAsync<string>("Sair");
-      await Task.Delay(1000);
-      NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
+  {
+    acessoLiberado = false;
+    await Task.Delay(1000);
+    await JS.InvokeAsync<string>("Sair");
+    await Task.Delay(1000);
+    NavigationManager.NavigateTo("/JeLSolucoesFiscais", true);
 
   }
 }

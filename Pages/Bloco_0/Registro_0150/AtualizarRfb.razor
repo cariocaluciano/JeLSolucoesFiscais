@@ -9,33 +9,33 @@
 {
   <style>
     .coming-soon-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height:90vh;
-      background-color: #282A36;
-      font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height:90vh;
+    background-color: #282A36;
+    font-family: 'Poppins', sans-serif;
     }
 
     .content-wrapper {
-      text-align: center;
-      background-color: white;
-      padding: 50px;
-      border-radius: 15px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    background-color: white;
+    padding: 50px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
     .main-text {
-      font-size: 48px;
-      color: #007bff;
-      margin-bottom: 20px;
-      font-family: 'Poppins', sans-serif;
+    font-size: 48px;
+    color: #007bff;
+    margin-bottom: 20px;
+    font-family: 'Poppins', sans-serif;
     }
 
     .sub-text {
-      font-size: 18px;
-      color: #6c757d;
-      font-family: 'Poppins', sans-serif;
+    font-size: 18px;
+    color: #6c757d;
+    font-family: 'Poppins', sans-serif;
     }
   </style>
 
@@ -86,9 +86,15 @@ else
   private bool usuarioJaAutenticado;
   private string idLoginDb = "";
   private string idLoginCach = "";
+  private bool tempoAcessoExpirado = false;
 
   protected override async Task OnInitializedAsync()
   {
+
+    string dataUltimoAcesso = await JS.InvokeAsync<string>("getTabela", "Usuarios_LoginLogOff", "UltimoAcesso");
+    DateTime dataAtual = DateTime.Now;
+
+
 
     acessoLiberado = await JS.InvokeAsync<string>("VerificaLogin") == "usuario não logado" ? false : true;
 
@@ -96,6 +102,8 @@ else
     idLoginCach = await LocalStorageService.GetItemAsync("Hash");
 
     usuarioJaAutenticado = idLoginDb == idLoginCach ? false : true;
+
+   // tempoAcessoExpirado = await JS.InvokeAsync<string>("getTabela", "Usuarios_LoginLogOff", "UltimoAcesso") ;
 
     if (usuarioJaAutenticado == true)
     {

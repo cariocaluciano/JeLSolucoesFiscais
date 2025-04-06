@@ -37,10 +37,12 @@ async function fetchMonoData() {
 
 async function processFiles(event) {
   event.preventDefault();
+  chamaLoading();
   await fetchMonoData();
   const files = document.getElementById("xmlFile").files;
   if (!files.length) return alert("Selecione pelo menos um arquivo XML");
 
+  let notasValidacao = [];
   let summary = {};
   let monofasicos = [];
   let totalizadores = { vendas: 0, vendasMono: 0, devolucao: 0, devolucaoMono: 0, devolucaoNaoMono: 0 };
@@ -56,82 +58,77 @@ async function processFiles(event) {
   totalSaidas = 0;
   totalOutrasSaidas = 0;
 
-  for (let file of files) {
-    const text = await file.text();
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(text, "text/xml");
-    const cnpjNaNota = xmlDoc.querySelector("CNPJ")?.textContent;
-    const dataDaNota = xmlDoc.querySelector("dhEmi")?.textContent;
-    const dataInicial = new Date(dateInputInicial.value);
-    const dataFinal = new Date(dateInputFinal.value);
-    const dataDaNotaDate = new Date(dataDaNota);
+  const BATCH_SIZE = 100;
+  const fileArray = Array.from(files);
 
-    console.log(cnpjNaNota, 'DATA:', dataDaNota) //Luciano
+  for (let i = 0; i < fileArray.length; i += BATCH_SIZE) {
+    const batch = fileArray.slice(i, i + BATCH_SIZE);
 
-    if (cnpjInput.value != cnpjNaNota) {
-      console.log("O arquivo " + file + " Não é do Emitente nem do destinatário")
-    } else if (dataInicial >= dataDaNotaDate || dataFinal <= dataDaNotaDate) {
-      console.log("O arquivo " + file + " Não está dentro do período definido")
-    }
-    else {
-      document.getElementById("emitente").innerText = xmlDoc.querySelector("xNome")?.textContent + " - CNPJ " + xmlDoc.querySelector("CNPJ")?.textContent;
+    await Promise.all(batch.map(async (file) => {
+      const text = await file.text();
+      const parser = new DOMParser();
+      const xmlDoc = parser.parseFromString(text, "text/xml");
+      const cnpjNaNota = xmlDoc.querySelector("CNPJ")?.textContent;
+      const dataDaNota = xmlDoc.querySelector("dhEmi")?.textContent;
+      const dataInicial = new Date(dateInputInicial.value);
+      const dataFinal = new Date(dateInputFinal.value);
+      const dataDaNotaDate = new Date(dataDaNota);
+      const docN = xmlDoc.querySelector("nNF")?.textContent;
 
-      xmlDoc.querySelectorAll("det").forEach(item => {
-        const ncm = item.querySelector("NCM")?.textContent || "-";
-        const cfop = item.querySelector("CFOP")?.textContent || "-";
-        const valor = parseFloat(item.querySelector("vProd")?.textContent || "0");
-        const descricao = item.querySelector("xProd")?.textContent || "-";
-        const natOp = xmlDoc.querySelector("natOp")?.textContent || ""; // Buscando a tag natOp
+      if (cnpjInput.value != cnpjNaNota) {
+        notasValidacao.push(docN);
+      } else if (dataInicial >= dataDaNotaDate || dataFinal <= dataDaNotaDate) {
+      } else {
+        document.getElementById("emitente").innerText = xmlDoc.querySelector("xNome")?.textContent + " - CNPJ " + xmlDoc.querySelector("CNPJ")?.textContent;
 
-        // Definir se é devolução
-        const isDevolucao = devolucaoCfops.includes(cfop);// Verificando se é devolução
-        const isVenda = cfopVendas.includes(cfop)
+        xmlDoc.querySelectorAll("det").forEach(item => {
+          const ncm = item.querySelector("NCM")?.textContent || "-";
+          const cfop = item.querySelector("CFOP")?.textContent || "-";
+          const valor = parseFloat(item.querySelector("vProd")?.textContent || "0");
+          const descricao = item.querySelector("xProd")?.textContent || "-";
+          const natOp = xmlDoc.querySelector("natOp")?.textContent || "";
 
-        const key = `${ncm}-${cfop}`;
-        summary[key] = summary[key] || { NCM: ncm, CFOP: cfop, total: 0 };
-        summary[key].total += valor;
+          const isDevolucao = devolucaoCfops.includes(cfop);
+          const isVenda = cfopVendas.includes(cfop);
+          const key = `${ncm}-${cfop}`;
+          summary[key] = summary[key] || { NCM: ncm, CFOP: cfop, total: 0 };
+          summary[key].total += valor;
 
-        // Atualizando o totalizador por CFOP
-        totalizadoresPorCfop[cfop] = totalizadoresPorCfop[cfop] || { total: 0, monofasico: 0, naoMonofasico: 0, devolucao: 0, devolucaoMono: 0, devolucaoNaoMono: 0 };
-        totalizadoresPorCfop[cfop].total += valor;
+          totalizadoresPorCfop[cfop] = totalizadoresPorCfop[cfop] || { total: 0, monofasico: 0, naoMonofasico: 0, devolucao: 0, devolucaoMono: 0, devolucaoNaoMono: 0 };
+          totalizadoresPorCfop[cfop].total += valor;
 
-        // Se for devolução, soma no totalizador de devoluções
-        if (isDevolucao) {
-          totalizadores.devolucao += valor;
-          totalizadoresPorCfop[cfop].devolucao += valor;
+          if (isDevolucao) {
+            totalizadores.devolucao += valor;
+            totalizadoresPorCfop[cfop].devolucao += valor;
 
-          // Verificando se a devolução é monofásica
-          if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
-            totalizadores.devolucaoMono += valor;
-            totalizadoresPorCfop[cfop].devolucaoMono += valor;
+            if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO)) {
+              totalizadores.devolucaoMono += valor;
+              totalizadoresPorCfop[cfop].devolucaoMono += valor;
+            } else {
+              totalizadores.devolucaoNaoMono += valor;
+              totalizadoresPorCfop[cfop].devolucaoNaoMono += valor;
+            }
           } else {
-            totalizadores.devolucaoNaoMono += valor;
-            totalizadoresPorCfop[cfop].devolucaoNaoMono += valor;
+            if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO) && isVenda) {
+              monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
+              totalizadoresPorCfop[cfop].monofasico += valor;
+              totalizadores.vendasMono += valor;
+            } else if (isVenda) {
+              totalizadores.vendas += valor;
+              totalizadoresPorCfop[cfop].naoMonofasico += valor;
+            }
           }
-        } else {
-          // Verificando se o item é monofásico
-          if (MonoData.some(m => m.NCM.replace(/\./g, '') === ncm && m.MONOFASICO) && isVenda) {
-            // Se for monofásico, adiciona no totalizador monofásico
-            monofasicos.push({ descricao, NCM: ncm, CFOP: cfop, total: valor });
-            totalizadoresPorCfop[cfop].monofasico += valor;
-            totalizadores.vendasMono += valor;
-          } else if (isVenda) {
-            // Caso contrário, é não monofásico
-            totalizadores.vendas += valor;
-            totalizadoresPorCfop[cfop].naoMonofasico += valor;
-          }
-        }
-        //if(["5", "6", "7"].some(prefix => cfop.startsWith(prefix)))
-        // Atualizando os totais gerais
-        if (!isDevolucao) {
-          // if (cfop.startsWith("5")) {
-          //     totalSaidas += valor;
-          // } else {
-          //     totalOutrasSaidas += valor;
-          // }
-        }
-      });
-    }
+        });
+      }
+    }));
+
+    // Atualiza a UI a cada batch
+    updateCfopTotalizadores();
+    populateTables(summary, monofasicos);
+
+    // Dá um "respiro" de 100ms para liberar a thread
+    await new Promise(resolve => setTimeout(resolve, 100));
+  }
 
     // Exibindo os totalizadores na tela
     document.getElementById("cfopVendas").innerText = `R$ ${totalizadores.vendas.toFixed(2)}`;
@@ -147,6 +144,8 @@ async function processFiles(event) {
     populateTables(summary, monofasicos);
     updateCfopTotalizadores();  // Atualizar o totalizador por CFOP
   }
+  cancelaLoading();
+  console.log(notasValidacao) //Luciano
 }
 
 function updateCfopTotalizadores() {
@@ -160,19 +159,19 @@ function updateCfopTotalizadores() {
     let cfopDiv = document.createElement("div");
     cfopDiv.classList.add("col-6");
     cfopDiv.innerHTML = `
-            <div class="border p-3 mb-4 rounded shadow">
-            <div class="row justify-content-center">
+                <div class="border2 p-3 mb-4 rounded shadow">
+                <div class="row justify-content-center">
 
-            <div class="mt-2"><strong>CFOP: ${cfop}</strong></div>
-            <div><strong>Monofásico:</strong> R$ ${monofasico.toFixed(2)}</div>
-            <div><strong>Não Monofásico:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
-            <div><strong>Devolução Monofásico:</strong> R$ ${devolucaoMono.toFixed(2)}</div>
-            <div><strong>Devolução não Monofásico:</strong> R$ ${devolucaoNaoMono.toFixed(2)}</div>
-            <div class="mb-2"><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
-            </div>
-            </div>
+                <div class="mt-2 colorTextWhite"><strong>CFOP: ${cfop}</strong></div>
+                <div class="colorTextWhite"><strong>Monofásico:</strong> R$ ${monofasico.toFixed(2)}</div>
+                <div class="colorTextWhite"><strong>Não Monofásico:</strong> R$ ${naoMonofasico.toFixed(2)}</div>
+                <div class="colorTextWhite"><strong>Devolução Monofásico:</strong> R$ ${devolucaoMono.toFixed(2)}</div>
+                <div class="colorTextWhite"><strong>Devolução não Monofásico:</strong> R$ ${devolucaoNaoMono.toFixed(2)}</div>
+                <div class="mb-2 colorTextWhite"><strong>TOTAL:</strong> R$ ${total.toFixed(2)}</div>
+                </div>
+                </div>
 
-            `;
+                `;
     cfopTotalizadoresDiv.appendChild(cfopDiv);
   });
 }

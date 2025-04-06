@@ -87,19 +87,3 @@ function chamaLoading() {
 function cancelaLoading() {
   document.getElementById('loadingScreen').style.display = 'none';
 }
-
-function fnChamaSelecionadorDeArquivos() {
-  const fileInput = document.getElementById('xmlFile');
-  const fileCountText = document.getElementById('fileCount');
-
-  const files = fileInput.files;
-  if (files.length === 0) {
-    fileCountText.textContent = 'Nenhum arquivo selecionado';
-  } else {
-    fileCountText.textContent = `${files.length} arquivo(s) selecionado(s)`;
-  }
-}
-
-async function fnProcessaArquivosSelecionados() {
-    await processFiles(event);
-}
